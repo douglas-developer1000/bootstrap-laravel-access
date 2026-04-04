@@ -1,0 +1,28 @@
+@scope(.gate-back-img) {
+    :scope {
+        position: fixed;
+        inset: 0;
+
+        @media screen and (min-width: 768px) {
+            position: relative;
+            flex: 1;
+        }
+    }
+    .back-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        @media screen and (min-width: 768px) {
+            display: inline-block;
+            object-fit: cover;
+            object-position: 45% 50%;
+        }
+
+        @media screen and (min-width: 1024px) {
+            object-position: var(--large-img-obj-pos, bottom);
+        }
+    }
+}

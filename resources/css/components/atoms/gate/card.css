@@ -1,0 +1,11 @@
+.gate-card {
+    max-width: 20rem;
+    gap: var(--card-gap, 0.625rem);
+
+    background: var(--Background-Primary);
+    font-family: 'Inter', Verdana, Tahoma, sans-serif;
+
+    @media not (prefers-reduced-motion: reduce) {
+        view-transition-name: enter-card;
+    }
+}

@@ -1,0 +1,11 @@
+:root {
+    --snow: #fffafa;
+    --light-gray: #f1f1f1;
+
+    --Background-Primary: var(--snow);
+    --Background-Login-Primary: var(--light-gray);
+}
+
+.fs-085 {
+    font-size: 0.85rem;
+}
