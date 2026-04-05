@@ -1,9 +1,5 @@
-@push ('styling')
-    @vite ('resources/css/pages/home.css')
-@endpush
-
 <x-layout>
-    <main class="home-main w-100 vh-100 p-0 d-flex">
+    <main class="gate-main w-100 vh-100 p-0 d-flex">
         <x-packs.gate-back-img
             href="/images/home/back.webp"
             mobile-href="/images/home/backMobile.webp"

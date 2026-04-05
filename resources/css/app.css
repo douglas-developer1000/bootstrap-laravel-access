@@ -6,6 +6,21 @@
     --Background-Login-Primary: var(--light-gray);
 }
 
+.gate-main {
+    background-color: var(--Background-Login-Primary);
+}
+
 .fs-085 {
     font-size: 0.85rem;
+}
+.fs-075 {
+    font-size: 0.75rem;
+}
+.py-075 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+@view-transition {
+    navigation: auto;
 }
