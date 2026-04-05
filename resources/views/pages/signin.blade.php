@@ -2,7 +2,7 @@
     @vite ('resources/css/pages/signin.css')
 @endpush
 
-<x-layout>
+<x-layout title="Autenticação">
     <main class="gate-main signin-gate-main w-100 vh-100 p-0 d-flex">
         <x-packs.gate-back-img
             href="/images/signin/back.webp"

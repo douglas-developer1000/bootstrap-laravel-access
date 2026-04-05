@@ -1,4 +1,4 @@
-<x-layout>
+<x-layout title="Página Inicial">
     <main class="gate-main w-100 vh-100 p-0 d-flex">
         <x-packs.gate-back-img
             href="/images/home/back.webp"

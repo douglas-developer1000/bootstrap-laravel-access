@@ -2,7 +2,7 @@
     @vite ('resources/css/pages/f-password.css')
 @endpush
 
-<x-layout>
+<x-layout title="Esqueci minha senha">
     <main class="gate-main f-password-gate-main w-100 vh-100 p-0 d-flex">
         <x-packs.gate-back-img
             href="/images/f-password/back.webp"
