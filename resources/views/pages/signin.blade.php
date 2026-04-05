@@ -19,7 +19,7 @@
             <form method="post">
                 @csrf
                 <x-atoms.gate.card>
-                    <div class="row w-100 generic-msg-box"></div>
+                    {{-- <div class="row w-100 generic-msg-box"></div> --}}
                     <x-molecules.form-field
                         type="email"
                         id="email"
