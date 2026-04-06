@@ -1,6 +1,14 @@
-@props (['id', 'name', 'type' => 'text', 'label-text', 'placeholder' => NULL ])
+@props ([
+    'id',
+    'name',
+    'type' => 'text',
+    'label-text',
+    'placeholder' => NULL,
+    'value' => '',
+    'required' => false
+])
 
-<div class="row w-100">
+<div class="row w-100 position-relative">
     @if ($labelText !== null)
         <label
             for="{{ $id }}"
@@ -8,13 +16,30 @@
             >{{ $labelText }}</label
         >
     @endif
+    @php ($errorMsgId = $errors->has($name) ? uniqid('el_') : '')
     <input
-        class="form-control fs-085 rounded-0"
+        class="form-control fs-085 rounded-0 pe-0 @error($name) is-invalid @enderror"
         @if ($placeholder !== null)
             placeholder="{{ $placeholder }}"
         @endif
         name="{{ $name }}"
         id="{{ $id }}"
         type="{{ $type }}"
+        value="{{ $value }}"
+        @error ($name)
+            aria-describedby="{{ $errorMsgId }}"
+        @enderror
+        @if ($required !== false)
+            required
+        @endif
     />
+    @error ($name)
+        <div
+            id="{{ $errorMsgId }}"
+            class="invalid-feedback position-absolute end-0 w-auto px-0 fs-075"
+            style="top: -0.25rem; line-height: 1.0625rem"
+        >
+            {{ $message  }}
+        </div>
+    @enderror
 </div>

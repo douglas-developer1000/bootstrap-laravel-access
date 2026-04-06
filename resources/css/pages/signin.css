@@ -1,7 +1,7 @@
 @scope(.signin-gate-main) {
     .generic-msg-box {
         position: relative;
-        margin-bottom: -0.5rem;
+        /* margin-bottom: -0.5rem; */
     }
     .logo {
         width: 7rem;

@@ -1,5 +1,9 @@
 @push ('styling')
     @vite ('resources/css/pages/signin.css')
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    />
 @endpush
 
 <x-layout title="Autenticação">
@@ -16,16 +20,25 @@
                 src="/images/signin/logo.png"
                 alt="ícone do formulário da tela de autenticação"
             />
-            <form method="post">
+            <form
+                action="{{ route('login.post') }}"
+                method="post"
+            >
                 @csrf
                 <x-atoms.gate.card>
-                    {{-- <div class="row w-100 generic-msg-box"></div> --}}
+                    @error ('generic')
+                        <x-atoms.error-msg class="mb-0">
+                            {{ $message }}</x-atoms.error-msg
+                        >
+                    @enderror
                     <x-molecules.form-field
                         type="email"
                         id="email"
                         name="email"
                         placeholder="Insira seu email aqui"
                         label-text="Email:"
+                        value="{{ old('email') }}"
+                        required
                     />
                     <x-molecules.form-field
                         type="password"
@@ -33,6 +46,7 @@
                         name="password"
                         placeholder="Insira sua senha aqui"
                         label-text="Senha:"
+                        required
                     />
                     <x-atoms.gate.btns-row>
                         <x-atoms.gate.submit-btn>
