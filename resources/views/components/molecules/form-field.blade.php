@@ -8,7 +8,7 @@
     'required' => false
 ])
 
-<div class="row w-100 position-relative">
+<div class="row m-0 w-100 position-relative">
     @if ($labelText !== null)
         <label
             for="{{ $id }}"

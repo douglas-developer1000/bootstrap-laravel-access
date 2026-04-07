@@ -1,14 +1,4 @@
 <x-layout title="Painel">
-    <form
-        action="{{ route('logout') }}"
-        method="post"
-    >
-        @csrf
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Sair
-        </button>
-    </form>
+    <x-packs.header />
+    <main class="bg-secondary-subtle w-100 h-100"></main>
 </x-layout>

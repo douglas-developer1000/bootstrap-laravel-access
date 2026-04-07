@@ -6,6 +6,15 @@
     --Background-Login-Primary: var(--light-gray);
 }
 
+body {
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-flow: column;
+    font-family: "Mitr", Arial, Helvetica, sans-serif;
+}
+
 .gate-main {
     background-color: var(--Background-Login-Primary);
 }

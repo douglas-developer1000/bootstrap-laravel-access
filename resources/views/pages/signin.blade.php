@@ -49,9 +49,9 @@
                         required
                     />
                     <x-atoms.gate.btns-row>
-                        <x-atoms.gate.submit-btn>
+                        <x-atoms.submit-btn class="btn-primary">
                             Autenticar
-                        </x-atoms.gate.submit-btn>
+                        </x-atoms.submit-btn>
                     </x-atoms.gate.btns-row>
                     <div
                         class="w-100 position-relative align-self-start fs-075"

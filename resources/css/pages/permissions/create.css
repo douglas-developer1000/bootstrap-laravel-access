@@ -1,0 +1,22 @@
+@scope (.permission-create-main) {
+    :scope {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: center;
+        flex: 1;
+    }
+    .content {
+        width: min(100vw, 35rem);
+        border-radius: 0.75em;
+        padding: 1.5rem;
+        height: max-content;
+    }
+    .create-form {
+        display: grid;
+        grid-template-rows: max-content max-content;
+        row-gap: 0.5rem;
+    }
+    .create-btn {
+        justify-self: flex-end;
+    }
+}

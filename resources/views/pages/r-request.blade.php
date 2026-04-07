@@ -22,7 +22,6 @@
                     <x-atoms.gate.heading>
                         Solicite sua nova conta
                     </x-atoms.gate.heading>
-                    {{-- <div class="row w-100 generic-msg-box"></div> --}}
                     <x-molecules.form-field
                         type="email"
                         id="email"
@@ -38,9 +37,9 @@
                         label-text="Telefone:"
                     />
                     <x-atoms.gate.btns-row>
-                        <x-atoms.gate.submit-btn>
+                        <x-atoms.submit-btn class="btn-primary">
                             Solicitar
-                        </x-atoms.gate.submit-btn>
+                        </x-atoms.submit-btn>
                     </x-atoms.gate.btns-row>
                 </x-atoms.gate.card>
             </form>

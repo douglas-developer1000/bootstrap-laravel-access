@@ -1,0 +1,16 @@
+@scope (.header-app) {
+    :scope {
+        display: grid;
+        grid-template-columns: max-content 1fr max-content;
+        grid-template-rows: max-content;
+        grid-template-areas: "logo nav exit" "bottom-row bottom-row bottom-row";
+    }
+    .navigation {
+        display: flex;
+        align-items: center;
+    }
+    .btns {
+        display: flex;
+        align-items: center;
+    }
+}

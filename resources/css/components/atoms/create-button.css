@@ -1,0 +1,5 @@
+.create-btn .bi-plus {
+    &::before {
+        transform: scale(1.75);
+    }
+}

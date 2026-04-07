@@ -1,0 +1,53 @@
+@scope (.permission-list-main) {
+    :scope {
+        padding: 1.5rem;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+    }
+    .content {
+        width: min(100vw, 35rem);
+        border-radius: 0.75em;
+        padding: 1.5rem;
+        height: max-content;
+
+        th {
+            font-weight: 500;
+            font-style: normal;
+
+            &:nth-child(1) {
+                width: 2.5em;
+            }
+            &:last-child {
+                width: 6.5rem;
+            }
+        }
+        td:last-child {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+    .no-values {
+        text-align: center;
+    }
+    .permission-list-table {
+        tbody td {
+            vertical-align: middle;
+        }
+    }
+}
+@scope (.page-heading-row-custom) {
+    .custom-create-btn {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(calc(-50% + 0.25rem));
+    }
+    .bi-plus {
+        &::before {
+            transform: scale(1.75);
+        }
+    }
+}

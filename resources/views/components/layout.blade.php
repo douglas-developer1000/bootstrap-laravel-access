@@ -19,7 +19,7 @@
         content="Douglas Leandro, douglas.developer1000@gmail.com"
     />
 
-    <title>{{ $title ?? '&#65279;' }}</title>
+    <title>{{ $title ?? '' }}</title>
 
     <link
         rel="preconnect"
@@ -31,7 +31,7 @@
         crossorigin
     />
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Mitr:wght@200;300;400;500;600;700&display=swap"
         rel="stylesheet"
     />
 
@@ -49,14 +49,15 @@
     @stack ('ecmascript-top')
     @stack ('styling')
 </head>
-<body class="m-0 p-0">
+<body>
     {{ $slot }}
-    @stack ('ecmascript-bottom')
 
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"
     ></script>
+
+    @stack ('ecmascript-bottom')
 </body>
 </html>

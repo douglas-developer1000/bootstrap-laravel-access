@@ -1,0 +1,29 @@
+@scope (.page-heading-row) {
+    :scope {
+        align-self: stretch;
+        font-weight: 500;
+        font-size: 1.25em;
+        grid-area: bottom-row;
+        position: relative;
+        margin-top: 0.5em 0;
+        padding: 0.5em 0 0 0.5rem;
+        display: flex;
+
+        &::before {
+            position: absolute;
+            top: 0;
+            left: -0.5em;
+            width: calc(100% + 1em);
+            content: "";
+
+            border-top: 0.0625em solid;
+            border-top-color: var(--bs-secondary-border-subtle);
+        }
+
+        .heading {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+    }
+}

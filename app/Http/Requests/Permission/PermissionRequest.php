@@ -2,31 +2,31 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Permission;
 
-use App\Http\Requests\Auth\Strategies\Login;
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
-use Illuminate\Contracts\Validation\ValidationRule;
+use App\Http\Requests\Permission\Strategies\Persistence;
 use Exception;
 
-final class AuthRequest extends CustomFormRequest
+final class PermissionRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        switch (strtolower($this->method())) {
+        $method = strtolower($this->method());
+        switch ($method) {
             case 'post':
-                return new Login();
+                return new Persistence($method);
+            case 'put':
+                return new Persistence(
+                    method: $method,
+                    id: $this->route('permission')
+                );
             default:
                 throw new Exception("Method Not Implemented", 1);
         }
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return $this->pickChecker()->rules();
