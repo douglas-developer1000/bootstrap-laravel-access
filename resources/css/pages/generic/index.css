@@ -1,0 +1,23 @@
+@scope (.list-main) {
+    :scope {
+        padding: 1.5rem;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+    }
+    .content {
+        width: min(90vw, 35rem);
+        border-radius: 0.75em;
+        padding: 1.5rem;
+        height: max-content;
+    }
+}
+@scope (.page-heading-row-custom) {
+    .bi-plus {
+        &::before {
+            transform: scale(1.75);
+        }
+    }
+}

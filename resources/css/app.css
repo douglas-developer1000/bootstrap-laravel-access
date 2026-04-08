@@ -29,6 +29,12 @@ body {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
 }
+.ellipsis {
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 @view-transition {
     navigation: auto;

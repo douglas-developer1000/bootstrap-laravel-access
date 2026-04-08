@@ -1,5 +1,5 @@
 @if ($paginator->hasPages())
-    <nav class="d-flex justify-items-center justify-content-between">
+    <nav class="d-flex justify-items-center justify-content-between mt-2">
         <div class="d-flex justify-content-between flex-fill d-sm-none">
             <ul class="pagination">
                 {{-- Previous Page Link --}}
@@ -49,7 +49,10 @@
         >
             <div class="small text-muted">
                 <span>Mostrando de</span>
-                <span class="fw-semibold">{{ $paginator->firstItem() }}</span>
+                <span
+                    class="fw-semibold"
+                    >{{ $paginator->firstItem() ?? 0 }}</span
+                >
                 <span>a</span>
                 <span class="fw-semibold">{{ $paginator->lastItem() }}</span>
                 <span>de</span>

@@ -5,19 +5,17 @@
     ])
 @endpush
 
-<x-layout title="Lista de Permissões">
+<x-layout title="Vinculação de Permissões">
     <x-packs.header>
-        <x-packs.page-heading-row
-            heading="Lista de Permissões"
-            class="page-heading-row-custom"
-        >
-            <x-atoms.button
-                class="custom-top-btn btn-secondary"
-                format="anchor"
-                href="{{ route('permissions.create') }}"
-            >
-                <i class="bi bi-plus h-1"></i>
-            </x-atoms.button>
+        <x-packs.page-heading-row class="page-heading-row-custom">
+            <x-slot:heading>
+                <span>Vinculação de permissões:</span>
+                <a
+                    href="{{ route('roles.show', ['role' => $role->id]) }}"
+                    class="ms-2 text-decoration-none"
+                    >{{ $role->name }}</a
+                >
+            </x-slot:heading>
         </x-packs.page-heading-row>
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
@@ -47,37 +45,39 @@
                                     class="w-100 d-flex justify-content-between gap-1"
                                 >
                                     <x-atoms.button
-                                        format="anchor"
-                                        class="btn-secondary"
-                                        href="{{ route('permissions.edit', ['permission' => $perm->id]) }}"
-                                    >
-                                        <i class="bi bi-wrench"></i>
-                                    </x-atoms.button>
-                                    <x-atoms.button
-                                        class="btn-danger"
+                                        class="btn-primary"
                                         data-bs-toggle="modal"
                                         data-bs-target="#confirmModal{{ $perm->id }}"
+                                        title="Vincular"
                                     >
-                                        <i class="bi bi-trash"></i>
+                                        <i class="bi bi-paperclip"></i>
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="{{ $perm->id }}"
-                                        href="{{ 
+                                        href="{{
                                             route(
-                                                'permissions.destroy',
+                                                'roles.bind',
                                                 [
+                                                    'role' => $role->id,
                                                     'permission' => $perm->id,
                                                     ...(request()->query() ?? [])
                                                 ]
                                             )
                                         }}"
-                                        heading="Remover esta permissão?"
-                                        :method="method_field('DELETE')"
-                                        negative-text="Manter"
-                                        positive-text="Remover permissão"
+                                        heading="Vincular esta permissão?"
+                                        negative-text="Agora não"
+                                        positive-text="Vincular permissão"
                                     >
-                                        Isso removerá permanentemente esta
-                                        permissão.
+                                        Isso vinculará a permissão
+                                        <span
+                                            class="fw-medium"
+                                            >{{ $perm->name }}</span
+                                        >
+                                        ao papel
+                                        <span
+                                            class="fw-medium"
+                                            >{{ $role->name }}</span
+                                        >.
                                     </x-molecules.confirm-modal>
                                 </div>
                             </td>

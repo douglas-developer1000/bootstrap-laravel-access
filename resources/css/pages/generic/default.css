@@ -1,4 +1,4 @@
-@scope (.permission-create-main) {
+@scope (.create-main) {
     :scope {
         padding: 1.5rem;
         display: flex;
@@ -11,12 +11,13 @@
         padding: 1.5rem;
         height: max-content;
     }
-    .create-form {
-        display: grid;
-        grid-template-rows: max-content max-content;
-        row-gap: 0.5rem;
+    .fieldset-tag {
+        padding: 0.5em;
     }
-    .create-btn {
-        justify-self: flex-end;
+    .field-legend {
+        margin: 0 0 0 0.25em;
+        width: max-content;
+        padding: 0 0.25em;
+        float: none;
     }
 }

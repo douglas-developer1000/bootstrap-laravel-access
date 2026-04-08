@@ -1,12 +1,15 @@
 @push ('styling')
-    @vite ('resources/css/pages/permissions/create.css')
+    @vite ([
+        'resources/css/pages/generic/default.css',
+        'resources/css/pages/generic/create.css'
+    ])
 @endpush
 
 <x-layout title="Criar Permissões">
     <x-packs.header>
         <x-packs.page-heading-row heading="Criar Permissões" />
     </x-packs.header>
-    <main class="bg-secondary-subtle permission-create-main">
+    <main class="bg-secondary-subtle create-main">
         <section class="content bg-light">
             <form
                 method="post"

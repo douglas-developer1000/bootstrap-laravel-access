@@ -1,0 +1,8 @@
+@scope (.page-heading-row-custom) {
+    .custom-top-btn {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(calc(-50% + 0.25rem));
+    }
+}

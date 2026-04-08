@@ -14,7 +14,14 @@
     </a>
     <nav class="navigation">
         <ul class="d-flex list-unstyled mb-0 gap-3 px-2">
-            <li>Papeis</li>
+            <li>
+                <a
+                    class="text-decoration-none"
+                    href="{{ route('roles.index') }}"
+                >
+                    Papeis
+                </a>
+            </li>
             <li>
                 <a
                     class="text-decoration-none"

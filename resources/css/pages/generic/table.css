@@ -1,0 +1,26 @@
+@scope (.tabular-data) {
+    :scope {
+        margin-bottom: 0;
+    }
+    th {
+        font-weight: 500;
+        font-style: normal;
+
+        &:nth-child(1) {
+            width: 2.5em;
+        }
+        &.last-thdata {
+            width: 3.25rem;
+        }
+    }
+    td:not(.no-values):last-child {
+        display: flex;
+        justify-content: space-between;
+    }
+    tbody td {
+        vertical-align: middle;
+    }
+    .no-values {
+        text-align: center;
+    }
+}

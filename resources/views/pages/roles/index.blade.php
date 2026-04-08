@@ -5,16 +5,16 @@
     ])
 @endpush
 
-<x-layout title="Lista de Permissões">
+<x-layout title="Lista de Papeis">
     <x-packs.header>
         <x-packs.page-heading-row
-            heading="Lista de Permissões"
+            heading="Lista de Papeis"
             class="page-heading-row-custom"
         >
             <x-atoms.button
                 class="custom-top-btn btn-secondary"
                 format="anchor"
-                href="{{ route('permissions.create') }}"
+                href="{{ route('roles.create') }}"
             >
                 <i class="bi bi-plus h-1"></i>
             </x-atoms.button>
@@ -38,10 +38,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($list as $perm)
+                    @forelse ($list as $role)
                         <tr>
                             <td>{{$loop->iteration}}</td>
-                            <td>{{$perm->name}}</td>
+                            <td>{{$role->name}}</td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"
@@ -49,35 +49,45 @@
                                     <x-atoms.button
                                         format="anchor"
                                         class="btn-secondary"
-                                        href="{{ route('permissions.edit', ['permission' => $perm->id]) }}"
+                                        href="{{ route('roles.show', ['role' => $role->id]) }}"
+                                        title="Visualizar"
+                                    >
+                                        <i class="bi bi-sunglasses"></i>
+                                    </x-atoms.button>
+                                    <x-atoms.button
+                                        format="anchor"
+                                        class="btn-secondary"
+                                        href="{{ route('roles.edit', ['role' => $role->id]) }}"
+                                        title="Editar"
                                     >
                                         <i class="bi bi-wrench"></i>
                                     </x-atoms.button>
                                     <x-atoms.button
                                         class="btn-danger"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal{{ $perm->id }}"
+                                        data-bs-target="#confirmModal{{ $role->id }}"
+                                        title="Remover"
                                     >
                                         <i class="bi bi-trash"></i>
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
-                                        id="{{ $perm->id }}"
-                                        href="{{ 
+                                        id="{{ $role->id }}"
+                                        href="{{
                                             route(
-                                                'permissions.destroy',
+                                                'roles.destroy',
                                                 [
-                                                    'permission' => $perm->id,
+                                                    'role' => $role->id,
                                                     ...(request()->query() ?? [])
                                                 ]
                                             )
                                         }}"
-                                        heading="Remover esta permissão?"
+                                        heading="Remover este papel?"
                                         :method="method_field('DELETE')"
                                         negative-text="Manter"
-                                        positive-text="Remover permissão"
+                                        positive-text="Remover papel"
                                     >
-                                        Isso removerá permanentemente esta
-                                        permissão.
+                                        Isso removerá permanentemente este
+                                        papel.
                                     </x-molecules.confirm-modal>
                                 </div>
                             </td>
@@ -88,7 +98,7 @@
                                 colspan="3"
                                 class="no-values"
                             >
-                                Sem permissões para o filtro atual
+                                Sem papeis para o filtro atual
                             </td>
                         </tr>
                     @endforelse

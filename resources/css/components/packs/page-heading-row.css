@@ -2,7 +2,7 @@
     :scope {
         align-self: stretch;
         font-weight: 500;
-        font-size: 1.25em;
+        font-size: 1.125rem;
         grid-area: bottom-row;
         position: relative;
         margin-top: 0.5em 0;
@@ -19,11 +19,24 @@
             border-top: 0.0625em solid;
             border-top-color: var(--bs-secondary-border-subtle);
         }
-
+    }
+    @media screen and (min-width: 768px) {
+        :scope {
+            font-size: 1.25rem;
+        }
+    }
+    .heading {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        white-space: nowrap;
+        font-size: inherit;
+        flex-flow: wrap;
+    }
+    @media screen and (min-width: 768px) {
         .heading {
-            flex: 1;
-            display: flex;
-            align-items: center;
+            justify-content: flex-start;
         }
     }
 }

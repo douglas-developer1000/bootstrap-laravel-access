@@ -5,27 +5,26 @@
     ])
 @endpush
 
-<x-layout title="Editar Permissão">
+<x-layout title="Criar Papeis">
     <x-packs.header>
-        <x-packs.page-heading-row heading="Editar Permissão" />
+        <x-packs.page-heading-row heading="Criar Papeis" />
     </x-packs.header>
     <main class="bg-secondary-subtle create-main">
         <section class="content bg-light">
             <form
                 method="post"
                 class="create-form"
-                action="{{ route('permissions.update', $permission->id) }}"
+                action="{{ route('roles.store') }}"
             >
                 @csrf
-                @method ('PUT')
                 <x-molecules.form-field
                     name="name"
                     type="text"
                     label-text="Nome:"
                     id="name-field"
-                    placeholder="Insira o nome da permissão"
+                    placeholder="Insira o nome do papel"
                     required
-                    value="{{ old('name', $permission->name) }}"
+                    value="{{ old('name', '') }}"
                 />
                 <x-atoms.submit-btn class="btn-primary create-btn">
                     Salvar

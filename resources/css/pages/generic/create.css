@@ -1,0 +1,10 @@
+@scope (.create-main) {
+    .create-form {
+        display: grid;
+        grid-template-rows: max-content max-content;
+        row-gap: 0.5rem;
+    }
+    .create-btn {
+        justify-self: flex-end;
+    }
+}

@@ -1,4 +1,4 @@
-@props (['id', 'heading', 'negative-text', 'positive-text', 'href', 'method'])
+@props (['id', 'heading', 'negative-text', 'positive-text', 'href' => '', 'method' => ''])
 
 <div
     class="modal fade"
@@ -36,7 +36,7 @@
                     action="{{ $href }}"
                     method="post"
                 >
-                    {{ $method  }}
+                    {{ $method }}
                     @csrf
                     <button
                         type="submit"
