@@ -42,6 +42,7 @@
             <button
                 type="submit"
                 class="btn btn-primary"
+                title="Sair"
             >
                 <i class="bi bi-box-arrow-right"></i>
             </button>
