@@ -50,7 +50,10 @@ class PermissionController extends Controller
     {
         $permission->delete();
 
-        return redirect()->route('permissions.index')->with([
+        return redirect()->route(
+            'permissions.index',
+            request()->query() ?? []
+        )->with([
             'toastShow' => true,
             'toastMsg' => 'Permissão removida com sucesso!'
         ]);

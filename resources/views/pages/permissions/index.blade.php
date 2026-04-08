@@ -54,7 +54,15 @@
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="{{ $perm->id }}"
-                                        href="{{ route('permissions.destroy', ['permission' => $perm->id]) }}"
+                                        href="{{ 
+                                            route(
+                                                'permissions.destroy',
+                                                [
+                                                    'permission' => $perm->id,
+                                                    ...(request()->query() ?? [])
+                                                ]
+                                            )
+                                        }}"
                                         heading="Remover esta permissão?"
                                         :method="method_field('DELETE')"
                                         negative-text="Manter"
