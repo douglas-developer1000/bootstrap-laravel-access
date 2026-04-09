@@ -13,6 +13,7 @@ body {
     display: flex;
     flex-flow: column;
     font-family: "Mitr", Arial, Helvetica, sans-serif;
+    overflow: hidden;
 }
 
 .gate-main {
