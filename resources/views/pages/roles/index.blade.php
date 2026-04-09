@@ -22,6 +22,10 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
+            <x-packs.term-search
+                label-text="Nome:"
+                placeholder="Insira o nome do papel"
+            />
             <table
                 class="table table-hover table-striped list-table tabular-data"
             >

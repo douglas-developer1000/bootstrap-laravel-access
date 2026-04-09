@@ -5,12 +5,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Role\RoleRequest;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Http\Request;
+use App\Libraries\Utils\Paginator;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $list = Role::orderBy('created_at')->paginate(3, ['id', 'name']);
+        $group = Paginator::buildGroup($request->only('group'));
+        $search = Paginator::buildSearch($request->only('q'));
+
+        $query = Role::query();
+        if ($search) {
+            $search = addcslashes($search, '%_');
+            $query = $query->whereLike('name', "%{$search}%");
+        }
+        $list = $query->orderBy('created_at')->paginate(
+            perPage: $group,
+            columns: ['id', 'name']
+        );
 
         return view('pages.roles.index', ['list' => $list]);
     }

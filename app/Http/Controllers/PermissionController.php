@@ -12,8 +12,14 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
         $group = Paginator::buildGroup($request->only('group'));
+        $search = Paginator::buildSearch($request->only('q'));
 
-        $list = Permission::orderBy('created_at')->paginate(
+        $query = Permission::query();
+        if ($search) {
+            $search = addcslashes($search, '%_');
+            $query = $query->whereLike('name', "%{$search}%");
+        }
+        $list = $query->orderBy('created_at')->paginate(
             perPage: $group,
             columns: ['id', 'name']
         );

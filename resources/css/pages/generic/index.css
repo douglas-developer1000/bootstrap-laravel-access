@@ -12,6 +12,9 @@
         border-radius: 0.75em;
         padding: 1.5rem;
         height: max-content;
+        display: flex;
+        flex-flow: column;
+        row-gap: 1.5rem;
     }
 }
 @scope (.page-heading-row-custom) {

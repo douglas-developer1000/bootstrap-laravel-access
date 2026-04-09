@@ -5,7 +5,8 @@
     'label-text',
     'placeholder' => NULL,
     'value' => '',
-    'required' => false
+    'required' => false,
+    'autocomplete' => 'yes'
 ])
 
 <div class="row m-0 w-100 position-relative">
@@ -32,6 +33,7 @@
         @if ($required !== false)
             required
         @endif
+        autocomplete="{{ $autocomplete }}"
     />
     @error ($name)
         <div
