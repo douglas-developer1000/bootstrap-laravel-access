@@ -94,7 +94,7 @@
                     @endforelse
                 </tbody>
             </table>
-            {{ $list->links('components.packs.pagination') }}
+            <x-app-pagination :paginator="$list" />
         </section>
         <x-packs.success-toast />
     </main>

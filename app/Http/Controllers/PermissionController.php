@@ -3,13 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Permission\PermissionRequest;
+use App\Libraries\Utils\Paginator;
+use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $list = Permission::orderBy('created_at')->paginate(3, ['id', 'name']);
+        $group = Paginator::buildGroup($request->only('group'));
+
+        $list = Permission::orderBy('created_at')->paginate(
+            perPage: $group,
+            columns: ['id', 'name']
+        );
 
         return view('pages.permissions.index', ['list' => $list]);
     }
