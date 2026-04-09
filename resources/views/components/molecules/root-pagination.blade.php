@@ -16,7 +16,7 @@
                     <li class="page-item">
                         <a
                             class="page-link"
-                            href="{{ $makeHref($paginator->previousPageUrl(), $groupChosen) }}"
+                            href="{{ $makeHref($paginator->previousPageUrl()) }}"
                             rel="prev"
                         >
                             Anterior
@@ -29,7 +29,7 @@
                     <li class="page-item">
                         <a
                             class="page-link"
-                            href="{{ $makeHref($paginator->nextPageUrl(), $groupChosen) }}"
+                            href="{{ $makeHref($paginator->nextPageUrl()) }}"
                             rel="next"
                         >
                             Próximo
@@ -82,7 +82,7 @@
                             <li class="page-item">
                                 <a
                                     class="page-link"
-                                    href="{{ $makeHref($paginator->previousPageUrl(), $groupChosen) }}"
+                                    href="{{ $makeHref($paginator->previousPageUrl()) }}"
                                     rel="prev"
                                     aria-label="Anterior"
                                     >&lsaquo;</a
@@ -121,10 +121,7 @@
                                         <li class="page-item">
                                             <a
                                                 class="page-link"
-                                                href="{{ $makeHref(
-                                                    $url,
-                                                    $groupChosen,
-                                                ) }}"
+                                                href="{{ $makeHref($url) }}"
                                                 >{{ $page }}</a
                                             >
                                         </li>
@@ -138,7 +135,7 @@
                             <li class="page-item">
                                 <a
                                     class="page-link"
-                                    href="{{ $makeHref($paginator->nextPageUrl(), $groupChosen) }}"
+                                    href="{{ $makeHref($paginator->nextPageUrl()) }}"
                                     rel="next"
                                     aria-label="Próximo"
                                     >&rsaquo;</a
@@ -164,7 +161,7 @@
                     <nav aria-label="navegação por grupos">
                         <ul class="pagination mb-0">
                             @foreach (config('pagination.groups') as $group)
-                                @if ($groupChosen == $group)
+                                @if ($group == $groupSelected)
                                     <li class="page-item active">
                                         <span
                                             class="page-link"
@@ -176,7 +173,7 @@
                                     <li class="page-item">
                                         <a
                                             class="page-link"
-                                            href="{{ $makeHref(request()->url(), $group, $qsNoGroup) }}"
+                                            href="{{ $makeHref(request()->url(), $group) }}"
                                             >{{ $group }}</a
                                         >
                                     </li>

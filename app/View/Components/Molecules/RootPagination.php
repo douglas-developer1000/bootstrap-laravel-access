@@ -2,13 +2,14 @@
 
 namespace App\View\Components\Molecules;
 
-use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\UrlWindow;
 use Illuminate\Support\Uri;
+use App\Libraries\Utils\Paginator as PaginatorBuilder;
+use Closure;
 
 class RootPagination extends Component
 {
@@ -19,12 +20,6 @@ class RootPagination extends Component
      * Properties below are accessed by blade view
      * ----------------------------------------------
      */
-
-    public int $groupChosen;
-
-    /** @var array<string, string> $qsNoGroup */
-    public array $qsNoGroup = [];
-
     public array $elements;
 
     /** -------------------------------------------------------------
@@ -38,6 +33,11 @@ class RootPagination extends Component
     public $spacing;
 
     /**
+     * @var int|string $groupSelected
+     */
+    public $groupSelected;
+
+    /**
      * Create a new component instance.
      */
     public function __construct(
@@ -45,15 +45,11 @@ class RootPagination extends Component
         $spacing = 'top'
     ) {
         $this->qs = collect(request()->query());
-        $this->groupChosen = $this->qs->get(
-            'group',
-            config('pagination.group')
-        );
-        $this->qsNoGroup = $this->qs->except(['group'])->all();
 
+        $this->elements = $this->buildElements($paginator);
         $this->paginator = $paginator;
         $this->spacing = $spacing;
-        $this->elements = $this->buildElements($paginator);
+        $this->groupSelected = $this->pickValidGroup($this->qs->get('group'));
     }
 
     /**
@@ -76,9 +72,30 @@ class RootPagination extends Component
         ]);
     }
 
-    public function makeHref(string $url, int|string $group, array $qsRemain = [])
+    /**
+     * Verify if '$group' is into 'groups' array values
+     */
+    protected function pickValidGroup(int|string|null $group = NULL)
     {
-        return Uri::of($url)->withQuery(['group' => $group, ...$qsRemain])->toString();
+        return PaginatorBuilder::buildGroup(['group' => $group]);
+    }
+
+    public function makeHref(string $url, $group = NULL)
+    {
+        $uri = Uri::of($url);
+        $qs = $this->qs->merge($uri->query());
+
+        if ($group !== NULL) {
+            $qs = [
+                ...$qs->except(['group'])->all(),
+                'group' => $group
+            ];
+            return $uri->withQuery($qs)->toString();
+        }
+        if ($qs->has('group')) {
+            $qs->put('group', $this->groupSelected);
+        }
+        return $uri->withQuery($qs->all())->toString();
     }
 
     /**

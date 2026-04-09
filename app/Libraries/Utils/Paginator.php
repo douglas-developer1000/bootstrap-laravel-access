@@ -13,15 +13,15 @@ final class Paginator
         // ...
     }
 
-    public static function buildGroup(array $params): int
+    public static function buildGroup(array $params): int|string
     {
         /** @var int $group **/
         $group = config('pagination.group');
         /** @var int $input **/
-        $input = \intval($params['group'] ?? $group);
+        $input = $params['group'] ?? $group;
         $groupsParsed = implode(',', config('pagination.groups'));
         $validator = Validator::make($params, [
-            "nullable|in:{$groupsParsed}"
+            'group' => "nullable|in:{$groupsParsed}"
         ]);
         if ($validator->passes()) {
             return $input;
