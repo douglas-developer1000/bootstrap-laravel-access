@@ -86,9 +86,21 @@ class RoleController extends Controller
         });
     }
 
-    public function attach(Role $role)
+    public function attach(Request $request, Role $role)
     {
-        $permissions = $this->findUnlinkedPermissions($role)->paginate(3, ['id', 'name']);
+        $query = $this->findUnlinkedPermissions($role);
+
+        $search = Paginator::buildSearch($request->only('q'));
+        if ($search) {
+            $search = addcslashes($search, '%_');
+            $query = $query->whereLike('name', "%{$search}%");
+        }
+
+        $group = Paginator::buildGroup($request->only('group'));
+        $permissions = $query->paginate(
+            perPage: $group,
+            columns: ['id', 'name']
+        );
 
         return view('pages.roles.attach', ['role' => $role, 'list' => $permissions]);
     }
