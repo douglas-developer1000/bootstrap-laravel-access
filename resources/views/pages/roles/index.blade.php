@@ -33,6 +33,7 @@
                     <tr>
                         <th scope="col">Nº</th>
                         <th scope="col">Nome</th>
+                        <th scope="col">Criação</th>
                         <th
                             scope="col"
                             class="last-thdata"
@@ -46,6 +47,7 @@
                         <tr>
                             <td>{{$loop->iteration}}</td>
                             <td>{{$role->name}}</td>
+                            <td>{{$role->created_at->format('d/m/Y')}}</td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"
@@ -99,7 +101,7 @@
                     @empty
                         <tr>
                             <td
-                                colspan="3"
+                                colspan="4"
                                 class="no-values"
                             >
                                 Sem papeis para o filtro atual

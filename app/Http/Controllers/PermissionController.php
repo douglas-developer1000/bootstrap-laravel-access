@@ -21,7 +21,7 @@ class PermissionController extends Controller
         }
         $list = $query->orderBy('created_at')->paginate(
             perPage: $group,
-            columns: ['id', 'name']
+            columns: ['id', 'name', 'created_at']
         );
 
         return view('pages.permissions.index', ['list' => $list]);

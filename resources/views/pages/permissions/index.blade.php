@@ -33,6 +33,7 @@
                     <tr>
                         <th scope="col">Nº</th>
                         <th scope="col">Nome</th>
+                        <th scope="col">Criação</th>
                         <th
                             scope="col"
                             class="last-thdata"
@@ -46,6 +47,7 @@
                         <tr>
                             <td>{{$loop->iteration}}</td>
                             <td>{{$perm->name}}</td>
+                            <td>{{$perm->created_at->format('d/m/Y')}}</td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"
@@ -89,7 +91,7 @@
                     @empty
                         <tr>
                             <td
-                                colspan="3"
+                                colspan="4"
                                 class="no-values"
                             >
                                 Sem permissões para o filtro atual

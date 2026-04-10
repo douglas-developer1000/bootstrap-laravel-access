@@ -22,7 +22,7 @@ class RoleController extends Controller
         }
         $list = $query->orderBy('created_at')->paginate(
             perPage: $group,
-            columns: ['id', 'name']
+            columns: ['id', 'name', 'created_at']
         );
 
         return view('pages.roles.index', ['list' => $list]);
@@ -99,7 +99,7 @@ class RoleController extends Controller
         $group = Paginator::buildGroup($request->only('group'));
         $permissions = $query->paginate(
             perPage: $group,
-            columns: ['id', 'name']
+            columns: ['id', 'name', 'created_at']
         );
 
         return view('pages.roles.attach', ['role' => $role, 'list' => $permissions]);
