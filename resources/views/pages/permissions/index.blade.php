@@ -31,7 +31,7 @@
             >
                 <thead>
                     <tr>
-                        <th scope="col">Nº</th>
+                        <th scope="col">ID</th>
                         <th scope="col">Nome</th>
                         <th scope="col">Criação</th>
                         <th
@@ -45,7 +45,7 @@
                 <tbody>
                     @forelse ($list as $perm)
                         <tr>
-                            <td>{{$loop->iteration}}</td>
+                            <td>{{$perm->id}}</td>
                             <td>{{$perm->name}}</td>
                             <td>{{$perm->created_at->format('d/m/Y')}}</td>
                             <td>
