@@ -29,9 +29,13 @@
             >
                 <thead>
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Nome</th>
-                        <th scope="col">Criação</th>
+                        <x-app-table-head sort="id">ID</x-app-table-head>
+                        <x-app-table-head sort="name">Nome</x-app-table-head>
+                        <x-app-table-head
+                            default
+                            sort="created_at"
+                            >Criação</x-app-table-head
+                        >
                         <th
                             scope="col"
                             class="last-thdata"

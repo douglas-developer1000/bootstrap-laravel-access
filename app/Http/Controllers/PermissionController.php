@@ -13,13 +13,15 @@ class PermissionController extends Controller
     {
         $group = Paginator::buildGroup($request->only('group'));
         $search = Paginator::buildSearch($request->only('q'));
+        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = Paginator::buildOrder($request->only('order'));
 
         $query = Permission::query();
         if ($search) {
             $search = addcslashes($search, '%_');
             $query = $query->whereLike('name', "%{$search}%");
         }
-        $list = $query->orderBy('created_at')->paginate(
+        $list = $query->orderBy($sort, $order)->paginate(
             perPage: $group,
             columns: ['id', 'name', 'created_at']
         );

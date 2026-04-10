@@ -14,13 +14,15 @@ class RoleController extends Controller
     {
         $group = Paginator::buildGroup($request->only('group'));
         $search = Paginator::buildSearch($request->only('q'));
+        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = Paginator::buildOrder($request->only('order'));
 
         $query = Role::query();
         if ($search) {
             $search = addcslashes($search, '%_');
             $query = $query->whereLike('name', "%{$search}%");
         }
-        $list = $query->orderBy('created_at')->paginate(
+        $list = $query->orderBy($sort, $order)->paginate(
             perPage: $group,
             columns: ['id', 'name', 'created_at']
         );
@@ -89,15 +91,17 @@ class RoleController extends Controller
     public function attach(Request $request, Role $role)
     {
         $query = $this->findUnlinkedPermissions($role);
-
         $search = Paginator::buildSearch($request->only('q'));
+        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = Paginator::buildOrder($request->only('order'));
+
         if ($search) {
             $search = addcslashes($search, '%_');
             $query = $query->whereLike('name', "%{$search}%");
         }
 
         $group = Paginator::buildGroup($request->only('group'));
-        $permissions = $query->paginate(
+        $permissions = $query->orderBy($sort, $order)->paginate(
             perPage: $group,
             columns: ['id', 'name', 'created_at']
         );

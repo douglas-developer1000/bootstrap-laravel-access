@@ -9,7 +9,7 @@
         overflow-y: auto;
     }
     .content {
-        width: min(90vw, 35rem);
+        width: min(90vw, 45rem);
         border-radius: 0.75em;
         padding: 1.5rem;
         height: max-content;

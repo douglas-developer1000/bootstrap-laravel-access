@@ -7,7 +7,6 @@ use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\UrlWindow;
-use Illuminate\Support\Uri;
 use App\Libraries\Utils\Paginator as PaginatorBuilder;
 use Closure;
 
@@ -49,7 +48,9 @@ class RootPagination extends Component
         $this->elements = $this->buildElements($paginator);
         $this->paginator = $paginator;
         $this->spacing = $spacing;
-        $this->groupSelected = $this->pickValidGroup($this->qs->get('group'));
+        $this->groupSelected = PaginatorBuilder::buildGroup([
+            'group' => $this->qs->get('group')
+        ]);
     }
 
     /**
@@ -72,30 +73,9 @@ class RootPagination extends Component
         ]);
     }
 
-    /**
-     * Verify if '$group' is into 'groups' array values
-     */
-    protected function pickValidGroup(int|string|null $group = NULL)
-    {
-        return PaginatorBuilder::buildGroup(['group' => $group]);
-    }
-
     public function makeHref(string $url, $group = NULL)
     {
-        $uri = Uri::of($url);
-        $qs = $this->qs->merge($uri->query());
-
-        if ($group !== NULL) {
-            $qs = [
-                ...$qs->except(['group'])->all(),
-                'group' => $group
-            ];
-            return $uri->withQuery($qs)->toString();
-        }
-        if ($qs->has('group')) {
-            $qs->put('group', $this->groupSelected);
-        }
-        return $uri->withQuery($qs->all())->toString();
+        return PaginatorBuilder::makeHref($url, $this->qs, $group);
     }
 
     /**
