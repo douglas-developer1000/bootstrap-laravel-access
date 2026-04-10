@@ -9,7 +9,7 @@
     <x-packs.header>
         <x-packs.page-heading-row heading="Criar Papeis" />
     </x-packs.header>
-    <main class="bg-secondary-subtle create-main">
+    <main class="bg-secondary-subtle create-main main-default">
         <section class="content bg-light">
             <form
                 method="post"

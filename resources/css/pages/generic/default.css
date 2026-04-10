@@ -1,9 +1,10 @@
-@scope (.create-main) {
+@scope (.main-default) {
     :scope {
         padding: 1.5rem;
         display: flex;
         justify-content: center;
         flex: 1;
+        position: relative;
     }
     .content {
         width: min(100vw, 35rem);

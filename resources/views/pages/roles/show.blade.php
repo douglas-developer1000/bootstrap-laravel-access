@@ -2,7 +2,7 @@
     @vite ([
         'resources/css/pages/generic/default.css',
         'resources/css/pages/generic/table.css',
-        'resources/css/pages/roles/show.css',
+        'resources/css/pages/generic/show.css',
     ])
 @endpush
 <x-layout title="Visualizar Papel">
@@ -13,7 +13,7 @@
                 <span class="text-primary ms-2">{{ $role->name }}</span>
             </x-slot:heading>
             <x-atoms.button
-                class="custom-top-btn btn-secondary"
+                class="top-right-item btn-secondary"
                 format="anchor"
                 href="{{ route('roles.attach', ['role' => $role->id]) }}"
             >
@@ -21,7 +21,7 @@
             </x-atoms.button>
         </x-packs.page-heading-row>
     </x-packs.header>
-    <main class="bg-secondary-subtle create-main">
+    <main class="bg-secondary-subtle create-main main-default">
         <section class="content bg-light d-flex flex-column row-gap-3">
             <fieldset
                 class="border border-1 border-dark rounded-1 fieldset-tag"
@@ -30,7 +30,7 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th scope="col">Nº</th>
+                            <th scope="col">ID</th>
                             <th scope="col">Nome</th>
                             <th
                                 scope="col"
@@ -43,7 +43,7 @@
                     <tbody>
                         @forelse ($permissions as $perm)
                             <tr>
-                                <td>{{$loop->iteration}}</td>
+                                <td>{{$perm->id}}</td>
                                 <td>{{$perm->name}}</td>
                                 <td>
                                     <div

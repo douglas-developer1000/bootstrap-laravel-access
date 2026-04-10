@@ -30,7 +30,14 @@
                     Permissões
                 </a>
             </li>
-            <li>Usuários</li>
+            <li>
+                <a
+                    class="text-decoration-none"
+                    href="{{ route('users.index') }}"
+                >
+                    Usuários
+                </a>
+            </li>
         </ul>
     </nav>
     <div class="btns">

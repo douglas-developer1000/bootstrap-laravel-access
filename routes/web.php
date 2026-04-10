@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -37,5 +38,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/{role}/attach', [RoleController::class, 'attach'])->name('roles.attach');
         Route::post('/{role}/attach/{permission}', [RoleController::class, 'bind'])->name('roles.bind');
         Route::post('/{role}/detach/{permission}', [RoleController::class, 'unbind'])->name('roles.unbind');
+    });
+
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
+        // create
+        Route::get('/{user}/edit/', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
+
+        Route::get('/{user}/attach/roles', [UserController::class, 'attachRoles'])->name('users.attach.roles');
+        Route::post('/{user}/attach/roles/{role}', [UserController::class, 'bindRole'])->name('users.bind.roles');
+        Route::post('/{user}/detach/roles/{role}', [UserController::class, 'unbindRole'])->name('roles.unbind.roles');
+
+        Route::get('/{user}/attach/permissions', [UserController::class, 'attachDirectPermissions'])->name('users.attach.permissions');
+        Route::post('/{user}/attach/permissions/{permission}', [UserController::class, 'bindDirectPermission'])->name('users.bind.permissions');
+        Route::post('/{user}/detach/permissions/{permission}', [UserController::class, 'unbindDirectPermission'])->name('roles.unbind.permissions');
     });
 });

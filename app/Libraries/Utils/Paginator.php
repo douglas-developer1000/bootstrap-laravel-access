@@ -15,10 +15,10 @@ final class Paginator
         // ...
     }
 
-    public static function buildSearch(array $params)
+    public static function buildSearch(array $params, $keyTerm = 'q')
     {
         /** @var string|null $input **/
-        $input = $params['q'] ?? NULL;
+        $input = $params[$keyTerm] ?? NULL;
 
         if (!\is_string($input) || mb_strlen(trim($input), 'UTF-8') === 0) {
             return false;
