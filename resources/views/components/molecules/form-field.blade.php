@@ -1,5 +1,5 @@
 @props ([
-    'id',
+    'id' => uniqid('el_'),
     'name',
     'type' => 'text',
     'label-text',
@@ -17,7 +17,7 @@
             >{{ $labelText }}</label
         >
     @endif
-    @php ($errorMsgId = $errors->has($name) ? uniqid('el_') : '')
+    @php ($errorMsgId = $errors->has($name) ? uniqid('err_') : '')
     <input
         class="form-control fs-085 rounded-0 pe-0 @error($name) is-invalid @enderror"
         @if ($placeholder !== null)
