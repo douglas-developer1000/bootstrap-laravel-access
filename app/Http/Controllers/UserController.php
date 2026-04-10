@@ -6,7 +6,6 @@ use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
 use App\Models\User;
-use Illuminate\Contracts\Auth\Guard;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -27,10 +26,7 @@ class UserController extends Controller
             $nameSearch = addcslashes($nameSearch, '%_');
             $query = $query->whereLike('name', "%{$nameSearch}%");
         }
-        /** @var Guard $auth */
-        $auth = auth();
-
-        $list = $query->whereKeyNot($auth->id())->orderBy($sort, $order)->paginate(
+        $list = $query->orderBy($sort, $order)->paginate(
             perPage: $group,
             columns: ['id', 'name', 'email', 'created_at']
         );
