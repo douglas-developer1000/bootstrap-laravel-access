@@ -18,6 +18,14 @@
                 <li>
                     <a
                         class="text-decoration-none"
+                        href="{{ route('users.index') }}"
+                    >
+                        Usuários
+                    </a>
+                </li>
+                <li>
+                    <a
+                        class="text-decoration-none"
                         href="{{ route('roles.index') }}"
                     >
                         Papeis
@@ -29,14 +37,6 @@
                         href="{{ route('permissions.index') }}"
                     >
                         Permissões
-                    </a>
-                </li>
-                <li>
-                    <a
-                        class="text-decoration-none"
-                        href="{{ route('users.index') }}"
-                    >
-                        Usuários
                     </a>
                 </li>
             @endcan
