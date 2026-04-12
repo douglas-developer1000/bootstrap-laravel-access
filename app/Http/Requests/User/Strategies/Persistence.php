@@ -12,7 +12,6 @@ class Persistence implements Checker
     public function __construct(
         /** @var string $method **/
         protected string $method,
-        protected string|null $id = NULL
     ) {
         // ...
     }
@@ -23,8 +22,7 @@ class Persistence implements Checker
             return [
                 'name' => [
                     'required',
-                    'min:3',
-                    Rule::unique('permissions', 'name')->ignore($this->id ?? 0, 'id')
+                    'min:3'
                 ]
             ];
         }
@@ -32,7 +30,10 @@ class Persistence implements Checker
             'name' => [
                 'required',
                 'min:3',
-                Rule::unique('permissions', 'name')
+            ],
+            'email' => [
+                'email',
+                Rule::unique('users', 'email')
             ]
         ];
     }
@@ -42,7 +43,9 @@ class Persistence implements Checker
         return [
             'name.required' => 'Campo obrigatório',
             'name.min' => 'Tamanho inválido',
-            'name.unique' => 'Valor já utilizado'
+
+            'email.email' => 'Campo inválido',
+            'email.unique' => 'Valor já utilizado'
         ];
     }
 }

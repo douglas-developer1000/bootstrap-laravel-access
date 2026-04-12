@@ -14,30 +14,32 @@
     </a>
     <nav class="navigation">
         <ul class="d-flex list-unstyled mb-0 gap-3 px-2">
-            <li>
-                <a
-                    class="text-decoration-none"
-                    href="{{ route('roles.index') }}"
-                >
-                    Papeis
-                </a>
-            </li>
-            <li>
-                <a
-                    class="text-decoration-none"
-                    href="{{ route('permissions.index') }}"
-                >
-                    Permissões
-                </a>
-            </li>
-            <li>
-                <a
-                    class="text-decoration-none"
-                    href="{{ route('users.index') }}"
-                >
-                    Usuários
-                </a>
-            </li>
+            @can ('super-admin')
+                <li>
+                    <a
+                        class="text-decoration-none"
+                        href="{{ route('roles.index') }}"
+                    >
+                        Papeis
+                    </a>
+                </li>
+                <li>
+                    <a
+                        class="text-decoration-none"
+                        href="{{ route('permissions.index') }}"
+                    >
+                        Permissões
+                    </a>
+                </li>
+                <li>
+                    <a
+                        class="text-decoration-none"
+                        href="{{ route('users.index') }}"
+                    >
+                        Usuários
+                    </a>
+                </li>
+            @endcan
         </ul>
     </nav>
     <div class="btns">

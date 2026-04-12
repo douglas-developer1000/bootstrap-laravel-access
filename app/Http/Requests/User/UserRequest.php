@@ -16,12 +16,8 @@ final class UserRequest extends CustomFormRequest
         $method = strtolower($this->method());
         switch ($method) {
             case 'post':
-                return new Persistence($method);
             case 'put':
-                return new Persistence(
-                    method: $method,
-                    id: $this->route('user')
-                );
+                return new Persistence(method: $method);
             default:
                 throw new Exception("Method Not Implemented", 1);
         }

@@ -25,7 +25,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [PermissionController::class, 'store'])->name('permissions.store');
         Route::put('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
         Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
-    });
+    })->middleware('can:super-admin');
+
     Route::prefix('roles')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('roles.index');
         Route::get('/create', [RoleController::class, 'create'])->name('roles.create');
@@ -38,14 +39,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/{role}/attach', [RoleController::class, 'attach'])->name('roles.attach');
         Route::post('/{role}/attach/{permission}', [RoleController::class, 'bind'])->name('roles.bind');
         Route::post('/{role}/detach/{permission}', [RoleController::class, 'unbind'])->name('roles.unbind');
-    });
+    })->middleware('can:super-admin');
 
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::get('/create', [UserController::class, 'create'])->name('users.create');
         Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
-        // create
         Route::get('/{user}/edit/', [UserController::class, 'edit'])->name('users.edit');
+        Route::post('/', [UserController::class, 'store'])->name('users.store');
         Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
         Route::get('/{user}/attach/roles', [UserController::class, 'attachRoles'])->name('users.attach.roles');
         Route::post('/{user}/attach/roles/{role}', [UserController::class, 'bindRole'])->name('users.bind.roles');
@@ -54,5 +57,5 @@ Route::middleware('auth')->group(function () {
         Route::get('/{user}/attach/permissions', [UserController::class, 'attachDirectPermissions'])->name('users.attach.permissions');
         Route::post('/{user}/attach/permissions/{permission}', [UserController::class, 'bindDirectPermission'])->name('users.bind.permissions');
         Route::post('/{user}/detach/permissions/{permission}', [UserController::class, 'unbindDirectPermission'])->name('roles.unbind.permissions');
-    });
+    })->middleware('can:super-admin');
 });

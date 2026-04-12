@@ -8,9 +8,14 @@ use App\Libraries\Utils\Paginator;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -51,15 +56,28 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.users.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        //
+        $user = User::make([
+            ...$request->only([
+                'name',
+                'email'
+            ]),
+            'email_verified_at' => Carbon::now()
+        ]);
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        return redirect()->route('users.create')->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuário criado com sucesso!'
+        ]);
     }
 
     /**
@@ -89,9 +107,18 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+        $this->authorize('remove-user', $user);
+        $user->delete();
+
+        return redirect()->route(
+            'users.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuário removido com sucesso!'
+        ]);
     }
 
     protected function findUnlinkedRoles(User $user)

@@ -14,8 +14,7 @@
             <x-atoms.button
                 class="custom-top-btn btn-secondary"
                 format="anchor"
-                {{-- href="{{ route('users.create') }}" --}}
-                href=""
+                href="{{ route('users.create') }}"
             >
                 <i class="bi bi-plus h-1"></i>
             </x-atoms.button>
@@ -62,7 +61,7 @@
                             <td>{{$user->created_at->format('d/m/Y')}}</td>
                             <td>
                                 <div
-                                    class="w-100 d-flex justify-content-between gap-1"
+                                    class="w-100 d-flex justify-content-end gap-1"
                                 >
                                     <x-atoms.button
                                         format="anchor"
@@ -79,32 +78,33 @@
                                     >
                                         <i class="bi bi-wrench"></i>
                                     </x-atoms.button>
-                                    <x-atoms.button
-                                        class="btn-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal{{ $user->id }}"
-                                    >
-                                        <i class="bi bi-trash"></i>
-                                    </x-atoms.button>
-                                    <x-molecules.confirm-modal
-                                        id="{{ $user->id }}"
-                                        href=""
-                                        {{-- href="{{ 
-                                            route(
-                                                'permissions.destroy',
-                                                [
-                                                    'permission' => $user->id,
-                                                    ...(request()->query() ?? [])
-                                                ]
-                                            )
-                                        }}" --}}
-                                        heading="Remover este usuário?"
-                                        :method="method_field('DELETE')"
-                                        negative-text="Manter"
-                                        positive-text="Remover usuário"
-                                    >
-                                        Isso removerá este usuário.
-                                    </x-molecules.confirm-modal>
+                                    @can ('remove-user', $user)
+                                        <x-atoms.button
+                                            class="btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal{{ $user->id }}"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                        </x-atoms.button>
+                                        <x-molecules.confirm-modal
+                                            id="{{ $user->id }}"
+                                            href="{{ 
+                                                route(
+                                                    'users.destroy',
+                                                    [
+                                                        'user' => $user->id,
+                                                        ...(request()->query() ?? [])
+                                                    ]
+                                                )
+                                            }}"
+                                            heading="Remover este usuário?"
+                                            :method="method_field('DELETE')"
+                                            negative-text="Manter"
+                                            positive-text="Remover usuário"
+                                        >
+                                            Isso removerá este usuário.
+                                        </x-molecules.confirm-modal>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

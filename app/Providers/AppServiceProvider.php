@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,13 +22,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::before(function ($user, $ability) {
-            // superadmin email by APP_SUPERADMIN_EMAIL env
-            if ($user->email === config('app.superadmin.email')) {
-                return true;
-            }
-            if ($user->hasRole('super-admin')) {
-                return true;
+        Gate::before(function ($user, $ability, $arrArgs) {
+            if (
+                // superadmin email by APP_SUPERADMIN_EMAIL env
+                $user->email === config('app.superadmin.email') ||
+                $user->hasRole('super-admin')
+            ) {
+                switch ($ability) {
+                    case 'remove-user':
+                        [$toRemove] = $arrArgs;
+                        return $user->id !== $toRemove->id;
+                    default:
+                        return true;
+                }
             }
             return null;
         });
