@@ -115,6 +115,36 @@
             <fieldset
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >
+                <legend class="field-legend bg-light">Permissões</legend>
+                <table class="table tabular-data">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nome</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($permissions as $perm)
+                            <tr>
+                                <td>{{$perm->id}}</td>
+                                <td>{{$perm->name}}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td
+                                    colspan="2"
+                                    class="no-values"
+                                >
+                                    Sem permissões vinculadas
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </fieldset>
+            <fieldset
+                class="border border-1 border-dark rounded-1 fieldset-tag"
+            >
                 <legend class="field-legend bg-light">
                     Permissões diretas
                 </legend>
@@ -132,7 +162,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($permissions as $perm)
+                        @forelse ($dPermissions as $perm)
                             <tr>
                                 <td>{{$perm->id}}</td>
                                 <td>{{$perm->name}}</td>

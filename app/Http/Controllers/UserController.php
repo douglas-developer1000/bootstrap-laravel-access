@@ -44,10 +44,13 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        $permissions = $user->roles->map(fn($role) => $role->permissions)->flatten();
+
         return view('pages.users.show', [
             'user' => $user,
             'roles' => $user->roles,
-            'permissions' => $user->getDirectPermissions()
+            'permissions' => $permissions,
+            'dPermissions' => $user->getDirectPermissions()
         ]);
     }
 
