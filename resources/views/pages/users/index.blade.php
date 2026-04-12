@@ -102,7 +102,8 @@
                                             negative-text="Manter"
                                             positive-text="Remover usuário"
                                         >
-                                            Isso removerá este usuário.
+                                            Isso removerá este usuário
+                                            temporariamente.
                                         </x-molecules.confirm-modal>
                                     @endcan
                                 </div>
