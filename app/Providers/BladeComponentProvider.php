@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\View\Components\Atoms\TableHead;
 use App\View\Components\Molecules\RootPagination;
+use App\View\Components\Molecules\SuperuserMenuItem;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 
@@ -24,5 +25,6 @@ class BladeComponentProvider extends ServiceProvider
     {
         Blade::component('app-pagination', RootPagination::class);
         Blade::component('app-table-head', TableHead::class);
+        Blade::component('superuser-menu-items', SuperuserMenuItem::class);
     }
 }
