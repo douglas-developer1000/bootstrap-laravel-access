@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use App\Models\Traits\FormatDatetimeProperty;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['email', 'phone', 'token', 'expiration_data'])]
 class RegisterApproval extends Model
 {
-    use HasFactory, FormatDatetimeProperty;
+    use HasFactory, FormatDatetimeProperty, Notifiable;
 
     protected function casts(): array
     {

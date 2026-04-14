@@ -11,6 +11,8 @@ use App\Libraries\Registration\RegisterOrderHandler;
 use App\Libraries\Utils\Paginator;
 use App\Libraries\Utils\TokenBuilder;
 use App\Models\RegisterOrder;
+use App\Models\RegisterApproval;
+use App\Notifications\RegisterApprovalEmail;
 use App\Services\Registration\RegisterApprovalService;
 use App\Services\Registration\RegisterOrderService;
 use Illuminate\Http\Request;
@@ -84,8 +86,9 @@ class RegisterOrderController extends Controller
         if ($order->phone) {
             $fields['phone'] = $order->phone;
         }
-        $this->registerApprovalService->create($fields);
-        $this->registrationService->sendApprovalMail($order->email, $token);
+        /** @var RegisterApproval $registerApproval */
+        $registerApproval = $this->registerApprovalService->create($fields);
+        $registerApproval->notify(new RegisterApprovalEmail());
 
         return redirect()->route(
             'register.orders.index',

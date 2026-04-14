@@ -6,6 +6,7 @@ namespace App\Libraries\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\TokenBuilder;
+use App\Notifications\RegisterApprovalEmail;
 use App\Services\Contracts\RegistrationServiceInterface;
 use Carbon\Carbon;
 
@@ -20,19 +21,18 @@ class RegisterApprovalHandler implements HandlerInterface
     {
         $approval = $this->registrationService->findRegisterApprovalByEmail($email);
         if ($approval) {
-            $token = $approval->token;
             if (Carbon::now()->greaterThan(Carbon::parse($approval->expiration_data))) {
-                $token = TokenBuilder::build();
+                $approval->token = TokenBuilder::build();
                 $this->registrationService->updateRegisterApproval(
                     id: $approval->id,
-                    token: $token,
+                    token: $approval->token,
                     expirationData: Carbon::now()->addHours(
                         \intval(config('registration.timeout.token'))
                     )
                 );
             }
             $this->registrationService->updateModelPhone($approval, $phone);
-            $this->registrationService->sendApprovalMail($email, $token);
+            $approval->notify(new RegisterApprovalEmail());
             return false;
         }
         return true;

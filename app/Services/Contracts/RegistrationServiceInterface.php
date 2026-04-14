@@ -40,11 +40,6 @@ interface RegistrationServiceInterface
     public function updateRegisterApproval(int $id, string $token, Carbon $expirationData): void;
 
     /**
-     * Send approval email to user account register
-     */
-    public function sendApprovalMail(string $email, string $token): void;
-
-    /**
      * Handle the User Account Register processes
      */
     public function handleRegister(string $email, ?string $phone): void;

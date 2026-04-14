@@ -6,7 +6,6 @@ namespace App\Services\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\PhoneFormatter;
-use App\Mail\DefaultEmail;
 use App\Repositories\RegisterOrderRepository;
 use App\Repositories\RegisterApprovalRepository;
 use App\Services\Contracts\RegistrationServiceInterface;
@@ -15,9 +14,7 @@ use App\Models\{
     RegisterApproval
 };
 use \Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Mail;
 use App\Repositories\UserRepository;
-use Illuminate\Support\Facades\URL;
 
 final class RegistrationService implements RegistrationServiceInterface
 {
@@ -77,34 +74,6 @@ final class RegistrationService implements RegistrationServiceInterface
             'token' => $token,
             'expiration_data' => $expirationData
         ]);
-    }
-
-    public function sendApprovalMail(string $email, string $token): void
-    {
-        Mail::to($email)->send(new DefaultEmail([
-            'fromName' => config('app.name'),
-            'fromEmail' => config('mail.from.address'),
-            'subject' => 'Aprovação de registro',
-            'url' => URL::temporarySignedRoute(
-                name: 'guest.users.create',
-                expiration: Carbon::now()->addMinutes(
-                    \intval(config('registration.timeout.email'))
-                ),
-                parameters: ['token' => $token]
-            ),
-            'logo' => config('mail.logo'),
-            'title' => 'Aprovação de registro',
-            'heading' => 'Parabéns!',
-            'paragraphs' => [
-                'A partir de agora, você poderá registrar sua nova conta.',
-                'Para começar a usar, primeiro cadastre seus dados clicando no botão abaixo:'
-            ],
-            'btnText' => 'Clique aqui',
-            'remain' => [
-                'Se você não solicitou uma conta, nenhuma ação é necessária.'
-            ],
-            'regards' => 'Atenciosamente,'
-        ]));
     }
 
     public function handleRegister(string $email, ?string $phone): void
