@@ -1,0 +1,542 @@
+<html
+    xmlns="http://www.w3.org/1999/xhtml"
+    lang="pt-BR"
+>
+<head>
+    <title>{{ $title }}</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+    <meta
+        http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"
+    />
+    <meta
+        name="color-scheme"
+        content="light"
+    />
+    <meta
+        name="supported-color-schemes"
+        content="light"
+    />
+    <style>
+        @media only screen and (max-width: 600px) {
+            .inner-body {
+                width: 100% !important;
+            }
+
+            .footer {
+                width: 100% !important;
+            }
+        }
+
+        @media only screen and (max-width: 500px) {
+            .button {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+
+<body
+    style="
+        box-sizing: border-box;
+        font-family:
+            -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto,
+            Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;,
+            &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;;
+        position: relative;
+        -webkit-text-size-adjust: none;
+        background-color: #ffffff;
+        color: #52525b;
+        height: 100%;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+        width: 100% !important;
+    "
+>
+    <table
+        class="wrapper"
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        role="presentation"
+        style="
+            box-sizing: border-box;
+            font-family:
+                -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto,
+                Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;,
+                &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;;
+            position: relative;
+            -premailer-cellpadding: 0;
+            -premailer-cellspacing: 0;
+            -premailer-width: 100%;
+            background-color: #fafafa;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        "
+    >
+        <tbody>
+            <tr>
+                <td
+                    align="center"
+                    style="
+                        box-sizing: border-box;
+                        font-family:
+                            -apple-system, BlinkMacSystemFont,
+                            &quot;Segoe UI&quot;, Roboto, Helvetica, Arial,
+                            sans-serif, &quot;Apple Color Emoji&quot;,
+                            &quot;Segoe UI Emoji&quot;,
+                            &quot;Segoe UI Symbol&quot;;
+                        position: relative;
+                    "
+                >
+                    <table
+                        class="content"
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        role="presentation"
+                        style="
+                            box-sizing: border-box;
+                            font-family:
+                                -apple-system, BlinkMacSystemFont,
+                                &quot;Segoe UI&quot;, Roboto, Helvetica, Arial,
+                                sans-serif, &quot;Apple Color Emoji&quot;,
+                                &quot;Segoe UI Emoji&quot;,
+                                &quot;Segoe UI Symbol&quot;;
+                            position: relative;
+                            -premailer-cellpadding: 0;
+                            -premailer-cellspacing: 0;
+                            -premailer-width: 100%;
+                            margin: 0;
+                            padding: 0;
+                            width: 100%;
+                        "
+                    >
+                        <tbody>
+                            @if ($logo ?? FALSE)
+                                <tr>
+                                    <td
+                                        class="header"
+                                        style="
+                                            box-sizing: border-box;
+                                            font-family:
+                                                -apple-system,
+                                                BlinkMacSystemFont,
+                                                &quot;Segoe UI&quot;, Roboto,
+                                                Helvetica, Arial, sans-serif,
+                                                &quot;Apple Color Emoji&quot;,
+                                                &quot;Segoe UI Emoji&quot;,
+                                                &quot;Segoe UI Symbol&quot;;
+                                            position: relative;
+                                            padding: 25px 0;
+                                            text-align: center;
+                                        "
+                                    >
+                                        <a
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            href="{{ url('/') }}"
+                                            style="
+                                                box-sizing: border-box;
+                                                font-family:
+                                                    -apple-system,
+                                                    BlinkMacSystemFont,
+                                                    &quot;Segoe UI&quot;,
+                                                    Roboto, Helvetica, Arial,
+                                                    sans-serif,
+                                                    &quot;Apple Color Emoji&quot;,
+                                                    &quot;Segoe UI Emoji&quot;,
+                                                    &quot;Segoe UI Symbol&quot;;
+                                                position: relative;
+                                                color: #18181b;
+                                                font-size: 19px;
+                                                font-weight: bold;
+                                                text-decoration: none;
+                                                display: inline-block;
+                                            "
+                                        >
+                                            <img
+                                                src="{{ $logo }}"
+                                                class="logo"
+                                                alt="Logotipo do responsável pela aplicação"
+                                                style="
+                                                    box-sizing: border-box;
+                                                    font-family:
+                                                        -apple-system,
+                                                        BlinkMacSystemFont,
+                                                        &quot;Segoe UI&quot;,
+                                                        Roboto, Helvetica,
+                                                        Arial, sans-serif,
+                                                        &quot;Apple Color Emoji&quot;,
+                                                        &quot;Segoe UI Emoji&quot;,
+                                                        &quot;Segoe UI Symbol&quot;;
+                                                    position: relative;
+                                                    max-width: 100%;
+                                                    border: none;
+                                                    height: 75px;
+                                                    margin-top: 15px;
+                                                    margin-bottom: 10px;
+                                                    max-height: 75px;
+                                                    width: 75px;
+                                                    border-radius: 50%;
+                                                "
+                                            />
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endif
+                            <!-- Email Body -->
+                            <tr>
+                                <td
+                                    class="body"
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    style="
+                                        box-sizing: border-box;
+                                        font-family:
+                                            -apple-system, BlinkMacSystemFont,
+                                            &quot;Segoe UI&quot;, Roboto,
+                                            Helvetica, Arial, sans-serif,
+                                            &quot;Apple Color Emoji&quot;,
+                                            &quot;Segoe UI Emoji&quot;,
+                                            &quot;Segoe UI Symbol&quot;;
+                                        position: relative;
+                                        -premailer-cellpadding: 0;
+                                        -premailer-cellspacing: 0;
+                                        -premailer-width: 100%;
+                                        background-color: #fafafa;
+                                        border-bottom: 1px solid #fafafa;
+                                        border-top: 1px solid #fafafa;
+                                        margin: 0;
+                                        padding: 0;
+                                        width: 100%;
+                                        border: hidden !important;
+                                    "
+                                >
+                                    <table
+                                        class="inner-body"
+                                        align="center"
+                                        width="570"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        role="presentation"
+                                        style="
+                                            box-sizing: border-box;
+                                            font-family:
+                                                -apple-system,
+                                                BlinkMacSystemFont,
+                                                &quot;Segoe UI&quot;, Roboto,
+                                                Helvetica, Arial, sans-serif,
+                                                &quot;Apple Color Emoji&quot;,
+                                                &quot;Segoe UI Emoji&quot;,
+                                                &quot;Segoe UI Symbol&quot;;
+                                            position: relative;
+                                            -premailer-cellpadding: 0;
+                                            -premailer-cellspacing: 0;
+                                            -premailer-width: 570px;
+                                            background-color: #ffffff;
+                                            border-color: #e4e4e7;
+                                            border-radius: 4px;
+                                            border-width: 1px;
+                                            box-shadow:
+                                                0 1px 3px 0 rgba(0, 0, 0, 0.1),
+                                                0 1px 2px -1px
+                                                    rgba(0, 0, 0, 0.1);
+                                            margin: 0 auto;
+                                            padding: 0;
+                                            width: 570px;
+                                        "
+                                    >
+                                        <!-- Body content -->
+                                        <tbody>
+                                            <tr>
+                                                <td
+                                                    class="content-cell"
+                                                    style="
+                                                        box-sizing: border-box;
+                                                        font-family:
+                                                            -apple-system,
+                                                            BlinkMacSystemFont,
+                                                            &quot;Segoe UI&quot;,
+                                                            Roboto, Helvetica,
+                                                            Arial, sans-serif,
+                                                            &quot;Apple Color Emoji&quot;,
+                                                            &quot;Segoe UI Emoji&quot;,
+                                                            &quot;Segoe UI Symbol&quot;;
+                                                        position: relative;
+                                                        max-width: 100vw;
+                                                        padding: 32px;
+                                                    "
+                                                >
+                                                    <h1
+                                                        style="
+                                                            box-sizing: border-box;
+                                                            font-family:
+                                                                -apple-system,
+                                                                BlinkMacSystemFont,
+                                                                &quot;Segoe UI&quot;,
+                                                                Roboto,
+                                                                Helvetica,
+                                                                Arial,
+                                                                sans-serif,
+                                                                &quot;Apple Color Emoji&quot;,
+                                                                &quot;Segoe UI Emoji&quot;,
+                                                                &quot;Segoe UI Symbol&quot;;
+                                                            position: relative;
+                                                            color: #18181b;
+                                                            font-size: 18px;
+                                                            font-weight: bold;
+                                                            margin-top: 0;
+                                                            text-align: start;
+                                                        "
+                                                    >
+                                                        {{ $heading }}
+                                                    </h1>
+                                                    @each ('emails.partials.paragraph', $paragraphs, 'slot')
+
+                                                    @include ('emails.partials.submit-button', ['slot' => $btnText])
+
+                                                    @each ('emails.partials.paragraph', $remain, 'slot')
+
+                                                    @include ('emails.partials.paragraph', ['slot' => $regards])
+                                                    @include ('emails.partials.paragraph', ['slot' => config('app.superadmin.name')])
+
+                                                    <table
+                                                        class="subcopy"
+                                                        width="100%"
+                                                        cellpadding="0"
+                                                        cellspacing="0"
+                                                        role="presentation"
+                                                        style="
+                                                            box-sizing: border-box;
+                                                            font-family:
+                                                                -apple-system,
+                                                                BlinkMacSystemFont,
+                                                                &quot;Segoe UI&quot;,
+                                                                Roboto,
+                                                                Helvetica,
+                                                                Arial,
+                                                                sans-serif,
+                                                                &quot;Apple Color Emoji&quot;,
+                                                                &quot;Segoe UI Emoji&quot;,
+                                                                &quot;Segoe UI Symbol&quot;;
+                                                            position: relative;
+                                                            border-top: 1px
+                                                                solid #e4e4e7;
+                                                            margin-top: 25px;
+                                                            padding-top: 25px;
+                                                        "
+                                                    >
+                                                        <tbody>
+                                                            <tr>
+                                                                <td
+                                                                    style="
+                                                                        box-sizing: border-box;
+                                                                        font-family:
+                                                                            -apple-system,
+                                                                            BlinkMacSystemFont,
+                                                                            &quot;Segoe UI&quot;,
+                                                                            Roboto,
+                                                                            Helvetica,
+                                                                            Arial,
+                                                                            sans-serif,
+                                                                            &quot;Apple Color Emoji&quot;,
+                                                                            &quot;Segoe UI Emoji&quot;,
+                                                                            &quot;Segoe UI Symbol&quot;;
+                                                                        position: relative;
+                                                                    "
+                                                                >
+                                                                    <p
+                                                                        style="
+                                                                            box-sizing: border-box;
+                                                                            font-family:
+                                                                                -apple-system,
+                                                                                BlinkMacSystemFont,
+                                                                                &quot;Segoe UI&quot;,
+                                                                                Roboto,
+                                                                                Helvetica,
+                                                                                Arial,
+                                                                                sans-serif,
+                                                                                &quot;Apple Color Emoji&quot;,
+                                                                                &quot;Segoe UI Emoji&quot;,
+                                                                                &quot;Segoe UI Symbol&quot;;
+                                                                            position: relative;
+                                                                            line-height: 1.5em;
+                                                                            margin-top: 0;
+                                                                            text-align: left;
+                                                                            font-size: 14px;
+                                                                        "
+                                                                    >
+                                                                        Se você
+                                                                        estiver
+                                                                        com
+                                                                        dificuldades
+                                                                        para
+                                                                        clicar
+                                                                        no botão
+                                                                        "{{ $btnText }}",
+                                                                        copie e
+                                                                        cole a
+                                                                        URL
+                                                                        abaixo
+                                                                        no seu
+                                                                        navegador:
+                                                                        <span
+                                                                            class="break-all"
+                                                                            style="
+                                                                                box-sizing: border-box;
+                                                                                font-family:
+                                                                                    -apple-system,
+                                                                                    BlinkMacSystemFont,
+                                                                                    &quot;Segoe UI&quot;,
+                                                                                    Roboto,
+                                                                                    Helvetica,
+                                                                                    Arial,
+                                                                                    sans-serif,
+                                                                                    &quot;Apple Color Emoji&quot;,
+                                                                                    &quot;Segoe UI Emoji&quot;,
+                                                                                    &quot;Segoe UI Symbol&quot;;
+                                                                                position: relative;
+                                                                                word-break: break-all;
+                                                                            "
+                                                                        >
+                                                                            <a
+                                                                                target="_blank"
+                                                                                rel="noopener noreferrer"
+                                                                                href="{{ $url }}"
+                                                                                style="
+                                                                                    box-sizing: border-box;
+                                                                                    font-family:
+                                                                                        -apple-system,
+                                                                                        BlinkMacSystemFont,
+                                                                                        &quot;Segoe UI&quot;,
+                                                                                        Roboto,
+                                                                                        Helvetica,
+                                                                                        Arial,
+                                                                                        sans-serif,
+                                                                                        &quot;Apple Color Emoji&quot;,
+                                                                                        &quot;Segoe UI Emoji&quot;,
+                                                                                        &quot;Segoe UI Symbol&quot;;
+                                                                                    position: relative;
+                                                                                    color: #18181b;
+                                                                                    word-break: break-all;
+                                                                                "
+                                                                            >
+                                                                                {{ $url }}
+                                                                            </a>
+                                                                        </span>
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="
+                                        box-sizing: border-box;
+                                        font-family:
+                                            -apple-system, BlinkMacSystemFont,
+                                            &quot;Segoe UI&quot;, Roboto,
+                                            Helvetica, Arial, sans-serif,
+                                            &quot;Apple Color Emoji&quot;,
+                                            &quot;Segoe UI Emoji&quot;,
+                                            &quot;Segoe UI Symbol&quot;;
+                                        position: relative;
+                                    "
+                                >
+                                    <table
+                                        class="footer"
+                                        align="center"
+                                        width="570"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        role="presentation"
+                                        style="
+                                            box-sizing: border-box;
+                                            font-family:
+                                                -apple-system,
+                                                BlinkMacSystemFont,
+                                                &quot;Segoe UI&quot;, Roboto,
+                                                Helvetica, Arial, sans-serif,
+                                                &quot;Apple Color Emoji&quot;,
+                                                &quot;Segoe UI Emoji&quot;,
+                                                &quot;Segoe UI Symbol&quot;;
+                                            position: relative;
+                                            -premailer-cellpadding: 0;
+                                            -premailer-cellspacing: 0;
+                                            -premailer-width: 570px;
+                                            margin: 0 auto;
+                                            padding: 0;
+                                            text-align: center;
+                                            width: 570px;
+                                        "
+                                    >
+                                        <tbody>
+                                            <tr>
+                                                <td
+                                                    class="content-cell"
+                                                    align="center"
+                                                    style="
+                                                        box-sizing: border-box;
+                                                        font-family:
+                                                            -apple-system,
+                                                            BlinkMacSystemFont,
+                                                            &quot;Segoe UI&quot;,
+                                                            Roboto, Helvetica,
+                                                            Arial, sans-serif,
+                                                            &quot;Apple Color Emoji&quot;,
+                                                            &quot;Segoe UI Emoji&quot;,
+                                                            &quot;Segoe UI Symbol&quot;;
+                                                        position: relative;
+                                                        max-width: 100vw;
+                                                        padding: 32px;
+                                                    "
+                                                >
+                                                    <p
+                                                        style="
+                                                            box-sizing: border-box;
+                                                            font-family:
+                                                                -apple-system,
+                                                                BlinkMacSystemFont,
+                                                                &quot;Segoe UI&quot;,
+                                                                Roboto,
+                                                                Helvetica,
+                                                                Arial,
+                                                                sans-serif,
+                                                                &quot;Apple Color Emoji&quot;,
+                                                                &quot;Segoe UI Emoji&quot;,
+                                                                &quot;Segoe UI Symbol&quot;;
+                                                            position: relative;
+                                                            line-height: 1.5em;
+                                                            margin-top: 0;
+                                                            color: #a1a1aa;
+                                                            font-size: 12px;
+                                                            text-align: center;
+                                                        "
+                                                    >© {{ date('Y') }}. Todos os direitos reservados.</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

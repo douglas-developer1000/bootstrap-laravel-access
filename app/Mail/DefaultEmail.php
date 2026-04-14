@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 
-final class RegisterApproval extends Mailable
+final class DefaultEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -43,10 +43,16 @@ final class RegisterApproval extends Mailable
     public function content(): Content
     {
         return new Content(
-            html: 'emails.register-approval',
+            view: 'emails.default-email',
             with: [
                 'url'    => $this->data['url'],
-                'logo' => $this->data['logo'] ?? NULL
+                'logo' => $this->data['logo'] ?? NULL,
+                'title' => $this->data['title'] ?? 'Informação',
+                'heading' => $this->data['heading'],
+                'paragraphs' => $this->data['paragraphs'],
+                'btnText' => $this->data['btnText'],
+                'remain' => $this->data['remain'],
+                'regards' => $this->data['regards']
             ]
         );
     }

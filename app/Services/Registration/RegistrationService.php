@@ -6,6 +6,7 @@ namespace App\Services\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\PhoneFormatter;
+use App\Mail\DefaultEmail;
 use App\Repositories\RegisterOrderRepository;
 use App\Repositories\RegisterApprovalRepository;
 use App\Services\Contracts\RegistrationServiceInterface;
@@ -15,7 +16,6 @@ use App\Models\{
 };
 use \Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\RegisterApproval as MailRegisterApproval;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\URL;
 
@@ -81,7 +81,7 @@ final class RegistrationService implements RegistrationServiceInterface
 
     public function sendApprovalMail(string $email, string $token): void
     {
-        Mail::to($email)->send(new MailRegisterApproval([
+        Mail::to($email)->send(new DefaultEmail([
             'fromName' => config('app.name'),
             'fromEmail' => config('mail.from.address'),
             'subject' => 'Aprovação de registro',
@@ -92,7 +92,18 @@ final class RegistrationService implements RegistrationServiceInterface
                 ),
                 parameters: ['token' => $token]
             ),
-            'logo' => config('mail.logo')
+            'logo' => config('mail.logo'),
+            'title' => 'Aprovação de registro',
+            'heading' => 'Parabéns!',
+            'paragraphs' => [
+                'A partir de agora, você poderá registrar sua nova conta.',
+                'Para começar a usar, primeiro cadastre seus dados clicando no botão abaixo:'
+            ],
+            'btnText' => 'Clique aqui',
+            'remain' => [
+                'Se você não solicitou uma conta, nenhuma ação é necessária.'
+            ],
+            'regards' => 'Atenciosamente,'
         ]));
     }
 

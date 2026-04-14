@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterOrderController;
+use App\Http\Controllers\VerifyEmailController;
 
 Route::middleware('guest')->group(function () {
     Route::view('/', 'pages.home')->name('home');
@@ -22,8 +23,9 @@ Route::middleware('guest')->group(function () {
 Route::get('/signup', [UserController::class, 'createSigned'])->name('guest.users.create')->middleware(['signed', 'guest']);
 Route::post('/signup', [UserController::class, 'storeSigned'])->name('guest.users.store')->middleware('guest');
 
-Route::middleware('auth')->group(function () {
-    Route::post('/signout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/signout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/dashboard', 'pages.dashboard')->name('dashboard');
 
     Route::prefix('permissions')->group(function () {
@@ -78,3 +80,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{approval}', [RegisterApprovalController::class, 'destroy'])->name('register.approvals.destroy');
     });
 });
+
+Route::get('/email/verify', [VerifyEmailController::class, 'verify'])->middleware('auth')->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'handle'])->middleware(['auth', 'signed'])->name('verification.verify');
+Route::post('/email/verification-notification', [VerifyEmailController::class, 'resend'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');

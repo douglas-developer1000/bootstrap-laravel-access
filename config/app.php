@@ -124,6 +124,7 @@ return [
     ],
 
     'superadmin' => [
-        'email' => env('APP_SUPERADMIN_EMAIL', NULL)
+        'email' => env('APP_SUPERADMIN_EMAIL', NULL),
+        'name' => env('APP_RESPONSIBLE', "😄")
     ]
 ];
