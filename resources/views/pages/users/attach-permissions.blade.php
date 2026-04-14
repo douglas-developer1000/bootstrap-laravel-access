@@ -5,6 +5,10 @@
     ])
 @endpush
 
+@php
+    $qs = request()->query->all();
+@endphp
+
 <x-layout title="Vinculação de Usuário">
     <x-packs.header>
         <x-packs.page-heading-row class="page-heading-row-custom">
@@ -65,16 +69,15 @@
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="{{ $perm->id }}"
-                                        href="{{
+                                        href="{!!
                                             route(
                                                 'users.bind.permissions',
-                                                [
+                                                collect([
                                                     'user' => $user->id,
                                                     'permission' => $perm->id,
-                                                    ...(request()->query() ?? [])
-                                                ]
+                                                ])->merge($qs)->all()
                                             )
-                                        }}"
+                                        !!}"
                                         heading="Vincular esta permissão?"
                                         negative-text="Agora não"
                                         positive-text="Vincular permissão"

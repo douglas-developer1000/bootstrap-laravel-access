@@ -5,6 +5,10 @@
     ])
 @endpush
 
+@php
+    $qs = request()->query->all();
+@endphp
+
 <x-layout title="Lista de Permissões">
     <x-packs.header>
         <x-packs.page-heading-row
@@ -74,15 +78,14 @@
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="{{ $perm->id }}"
-                                        href="{{ 
+                                        href="{!! 
                                             route(
                                                 'permissions.destroy',
-                                                [
+                                                collect([
                                                     'permission' => $perm->id,
-                                                    ...(request()->query() ?? [])
-                                                ]
+                                                ])->merge($qs)->all()
                                             )
-                                        }}"
+                                        !!}"
                                         heading="Remover esta permissão?"
                                         :method="method_field('DELETE')"
                                         negative-text="Manter"

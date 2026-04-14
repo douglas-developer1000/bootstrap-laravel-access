@@ -5,6 +5,10 @@
     ])
 @endpush
 
+@php
+    $qs = request()->query->all();
+@endphp
+
 <x-layout title="Lista de Papeis">
     <x-packs.header>
         <x-packs.page-heading-row
@@ -82,15 +86,14 @@
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="{{ $role->id }}"
-                                        href="{{
+                                        href="{!!
                                             route(
                                                 'roles.destroy',
-                                                [
+                                                collect([
                                                     'role' => $role->id,
-                                                    ...(request()->query() ?? [])
-                                                ]
+                                                ])->merge($qs)->all()
                                             )
-                                        }}"
+                                        !!}"
                                         heading="Remover este papel?"
                                         :method="method_field('DELETE')"
                                         negative-text="Manter"

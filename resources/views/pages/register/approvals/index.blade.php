@@ -5,6 +5,10 @@
     ])
 @endpush
 
+@php
+    $qs = request()->query->all();
+@endphp
+
 <x-layout title="Aprovações de Registro">
     <x-packs.header>
         <x-packs.page-heading-row
@@ -63,15 +67,14 @@
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="{{ $approval->id }}"
-                                        href="{{ 
+                                        href="{!! 
                                             route(
                                                 'register.approvals.destroy',
-                                                [
+                                                collect([
                                                     'approval' => $approval->id,
-                                                    ...(request()->query() ?? [])
-                                                ]
+                                                ])->merge($qs)->all()
                                             )
-                                        }}"
+                                        !!}"
                                         heading="Remover esta aprovação de registro?"
                                         :method="method_field('DELETE')"
                                         negative-text="Manter"

@@ -5,6 +5,10 @@
     ])
 @endpush
 
+@php
+    $qs = request()->query->all();
+@endphp
+
 <x-layout title="Pedidos de Registro">
     <x-packs.header>
         <x-packs.page-heading-row
@@ -61,15 +65,14 @@
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="Approval{{ $order->id }}"
-                                        href="{{ 
+                                        href="{!! 
                                             route(
                                                 'register.orders.approve',
-                                                [
+                                                collect([
                                                     'order' => $order->id,
-                                                    ...(request()->query() ?? [])
-                                                ]
+                                                ])->merge($qs)->all()
                                             )
-                                        }}"
+                                        !!}"
                                         heading="Aprovar este pedido de registro?"
                                         :method="method_field('DELETE')"
                                         negative-text="Manter"
@@ -86,15 +89,14 @@
                                     </x-atoms.button>
                                     <x-molecules.confirm-modal
                                         id="Remotion{{ $order->id }}"
-                                        href="{{ 
+                                        href="{!! 
                                             route(
                                                 'register.orders.destroy',
-                                                [
+                                                collect([
                                                     'order' => $order->id,
-                                                    ...(request()->query() ?? [])
-                                                ]
+                                                ])->merge($qs)->all()
                                             )
-                                        }}"
+                                        !!}"
                                         heading="Remover este pedido de registro?"
                                         :method="method_field('DELETE')"
                                         negative-text="Manter"
