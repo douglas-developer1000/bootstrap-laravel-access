@@ -36,8 +36,9 @@ final class UserController extends Controller
         $nameSearch = Paginator::buildSearch($request->only('name'), 'name');
         $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
         $order = Paginator::buildOrder($request->only('order'));
+        $trashed = $request->boolean('trashed');
 
-        $query = User::query();
+        $query = $trashed ? User::onlyTrashed() : User::query();
         if ($nameSearch) {
             $nameSearch = addcslashes($nameSearch, '%_');
             $query = $query->whereLike('name', "%{$nameSearch}%");
@@ -261,6 +262,37 @@ final class UserController extends Controller
         return redirect()->route('login')->with([
             'toastShow' => true,
             'toastMsg' => 'Conta criada com sucesso! Pode autenticar agora.'
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroyTrashed(int $id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->forceDelete();
+
+        return redirect()->route(
+            'users.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuário removido com sucesso!'
+        ]);
+    }
+
+    public function restore(int $id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        return redirect()->route(
+            'users.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuário restaurado com sucesso!'
         ]);
     }
 }
