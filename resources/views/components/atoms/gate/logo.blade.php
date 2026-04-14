@@ -4,7 +4,7 @@
     @vite ('resources/css/components/atoms/gate/logo.css')
 @endpush
 
-@if (is_null($href))
+@if ($href === NULL)
     <img
         {{ $attributes->class(['gate-logo']) }}
         src="{{ $src }}"

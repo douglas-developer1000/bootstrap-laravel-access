@@ -20,7 +20,9 @@ class SuperuserMenuItem extends Component
         $this->menuData = [
             'Usuários' => route('users.index'),
             'Papéis' => route('roles.index'),
-            'Permissões' => route('permissions.index')
+            'Permissões' => route('permissions.index'),
+            'Pedidos' => route('register.orders.index'),
+            'Aprovações' => route('register.approvals.index')
         ];
     }
 

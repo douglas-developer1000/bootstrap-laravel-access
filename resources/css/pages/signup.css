@@ -1,0 +1,12 @@
+@scope (.signup-gate-main) {
+    :scope {
+        overflow-y: auto;
+    }
+    .generic-msg-box {
+        position: relative;
+    }
+    .logo {
+        width: var(--size, 7rem);
+        height: var(--size, 7rem);
+    }
+}

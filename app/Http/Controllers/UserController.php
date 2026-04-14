@@ -5,16 +5,27 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
+use App\Libraries\Utils\PhoneFormatter;
 use App\Models\User;
+use App\Services\Registration\RegisterApprovalService;
+use App\Services\UserService;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Auth\Events\Registered;
 
-class UserController extends Controller
+final class UserController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(
+        private UserService $userSvc,
+        private RegisterApprovalService $approvalSvc
+    ) {
+        // ...
+    }
 
     /**
      * Display a listing of the resource.
@@ -67,15 +78,14 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        $user = User::make([
+        $this->userSvc->create([
             ...$request->only([
                 'name',
                 'email'
             ]),
-            'email_verified_at' => Carbon::now()
+            'email_verified_at' => Carbon::now(),
+            'password' => Hash::make($request->input('password'))
         ]);
-        $user->password = Hash::make($request->input('password'));
-        $user->save();
 
         return redirect()->route('users.create')->with([
             'toastShow' => true,
@@ -97,8 +107,7 @@ class UserController extends Controller
     public function update(UserRequest $request)
     {
         $id = $request->route('user');
-        $user = User::findOrFail($id);
-        $user->update([
+        $this->userSvc->update($id, [
             'name' => $request->validated('name')
         ]);
         return redirect()->route('users.index')->with([
@@ -225,6 +234,33 @@ class UserController extends Controller
         ])->with([
             'toastShow' => true,
             'toastMsg' => 'Desvinculação executada com sucesso!'
+        ]);
+    }
+
+    public function createSigned()
+    {
+        return view('pages.users.create-signed');
+    }
+
+    public function storeSigned(UserRequest $request)
+    {
+        $registerApproval = $this->approvalSvc->findByEmail($request->email);
+        $this->approvalSvc->delete($registerApproval->id);
+
+        $phone = PhoneFormatter::clear($registerApproval->phone ?? $request->phone);
+        /** @var User $user */
+        $user = $this->userSvc->create(attributes: [
+            ...$request->only(['name', 'email', 'password']),
+            'phone' => $phone,
+        ]);
+        if (Role::where('name', 'user')->exists()) {
+            $user->assignRole('user');
+        }
+        event(new Registered($user));
+
+        return redirect()->route('login')->with([
+            'toastShow' => true,
+            'toastMsg' => 'Conta criada com sucesso! Pode autenticar agora.'
         ]);
     }
 }

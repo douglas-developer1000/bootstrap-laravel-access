@@ -1,3 +1,5 @@
+@props (['delay' => 5000])
+
 @push ('ecmascript-bottom')
     <script>
         window.toastShow = Boolean({{ session('toastShow', false) }});
@@ -12,6 +14,7 @@
         role="alert"
         aria-live="assertive"
         aria-atomic="true"
+        data-bs-delay="{{ $delay }}"
     >
         <div
             class="toast-header bg-success-subtle border-success-subtle text-success d-flex gap-2"

@@ -1,6 +1,6 @@
 .gate-logo {
-    width: 10.75rem;
-    height: 10.75rem;
+    width: var(--size, 10.75rem);
+    height: var(--size, 10.75rem);
 
     @media not (prefers-reduced-motion: reduce) {
         view-transition-name: initial-logo;

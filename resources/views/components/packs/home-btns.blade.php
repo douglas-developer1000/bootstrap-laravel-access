@@ -8,7 +8,7 @@
 <div class="d-flex flex-column py-3 w-100 gap-1">
     <div class="p-2">
         <a
-            href="/signin"
+            href="{{ route('login') }}"
             role="button"
             class="btn btn-outline-primary rounded-3 w-100 d-flex justify-content-center align-items-center gap-2"
         >
@@ -18,7 +18,7 @@
     </div>
     <div class="p-2">
         <a
-            href="/register-request"
+            href="{{ route('register.orders.create') }}"
             role="button"
             class="btn btn-outline-primary rounded-3 w-100 d-flex justify-content-center align-items-center gap-2"
         >

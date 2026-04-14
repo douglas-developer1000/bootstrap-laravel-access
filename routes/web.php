@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RegisterApprovalController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RegisterOrderController;
 
 Route::middleware('guest')->group(function () {
     Route::view('/', 'pages.home')->name('home');
@@ -12,8 +14,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/signin', [AuthController::class, 'login'])->name('login.post');
 
     Route::view('/forgot-password', 'pages.f-password')->name('password.request');
-    Route::view('/register-request', 'pages.r-request')->name('register.request');
+
+    Route::get('/register-order', [RegisterOrderController::class, 'create'])->name('register.orders.create');
+    Route::post('/register-order', [RegisterOrderController::class, 'store'])->name('register.orders.store');
 });
+
+Route::get('/signup', [UserController::class, 'createSigned'])->name('guest.users.create')->middleware(['signed', 'guest']);
+Route::post('/signup', [UserController::class, 'storeSigned'])->name('guest.users.store')->middleware('guest');
+
 Route::middleware('auth')->group(function () {
     Route::post('/signout', [AuthController::class, 'logout'])->name('logout');
     Route::view('/dashboard', 'pages.dashboard')->name('dashboard');
@@ -58,4 +66,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/{user}/attach/permissions/{permission}', [UserController::class, 'bindDirectPermission'])->name('users.bind.permissions');
         Route::post('/{user}/detach/permissions/{permission}', [UserController::class, 'unbindDirectPermission'])->name('roles.unbind.permissions');
     })->middleware('can:super-admin');
+
+    Route::prefix('register-orders')->group(function () {
+        Route::get('/', [RegisterOrderController::class, 'index'])->name('register.orders.index');
+        Route::delete('/{order}', [RegisterOrderController::class, 'destroy'])->name('register.orders.destroy');
+        Route::delete('/{order}/approval', [RegisterOrderController::class, 'approve'])->name('register.orders.approve');
+    })->middleware('can:super-admin');
+
+    Route::prefix('register-approvals')->group(function () {
+        Route::get('/', [RegisterApprovalController::class, 'index'])->name('register.approvals.index');
+        Route::delete('/{approval}', [RegisterApprovalController::class, 'destroy'])->name('register.approvals.destroy');
+    });
 });

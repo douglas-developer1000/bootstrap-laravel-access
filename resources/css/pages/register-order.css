@@ -1,4 +1,4 @@
-@scope(.r-request-gate-main) {
+@scope (.register-order-gate-main) {
     .generic-msg-box {
         position: relative;
         margin-bottom: -0.5rem;

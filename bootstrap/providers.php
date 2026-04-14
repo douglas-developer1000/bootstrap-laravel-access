@@ -2,10 +2,12 @@
 
 use App\Providers\{
     AppServiceProvider,
-    BladeComponentProvider
+    BladeComponentProvider,
+    ServiceServiceProvider
 };
 
 return [
     AppServiceProvider::class,
     BladeComponentProvider::class,
+    ServiceServiceProvider::class
 ];
