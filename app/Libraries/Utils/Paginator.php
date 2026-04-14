@@ -47,7 +47,7 @@ final class Paginator
         $input = $params['order'] ?? 'desc';
 
         $validator = Validator::make($params, [
-            'sort' => "nullable|in:asc,desc"
+            'order' => "nullable|in:asc,desc"
         ]);
         if ($validator->passes()) {
             return $input;
