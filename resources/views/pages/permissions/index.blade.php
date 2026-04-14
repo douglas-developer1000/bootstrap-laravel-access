@@ -12,7 +12,7 @@
             class="page-heading-row-custom"
         >
             <x-atoms.button
-                class="custom-top-btn btn-secondary"
+                class="btn-secondary"
                 format="anchor"
                 href="{{ route('permissions.create') }}"
             >
