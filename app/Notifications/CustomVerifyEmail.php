@@ -19,6 +19,7 @@ class CustomVerifyEmail extends VerifyEmail
         $verificationUrl = $this->verificationUrl($notifiable);
         return (new MailMessage)
             ->subject('Verifique seu endereço de e-mail')
+            ->from(config('mail.from.address'), config('app.superadmin.name'))
             ->view('emails.default-email', [
                 'url' => $verificationUrl,
                 'logo' => config('mail.logo'),
