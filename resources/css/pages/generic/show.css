@@ -1,8 +1,0 @@
-@scope (.page-heading-row-custom) {
-    .top-right-item {
-        position: absolute;
-        top: 50%;
-        right: 0;
-        transform: translateY(calc(-50% + 0.25rem));
-    }
-}

@@ -2,12 +2,11 @@
     @vite ([
         'resources/css/pages/generic/default.css',
         'resources/css/pages/generic/table.css',
-        'resources/css/pages/generic/show.css',
     ])
 @endpush
 <x-layout title="Visualizar Usuário">
     <x-packs.header>
-        <x-packs.page-heading-row class="page-heading-row-custom">
+        <x-packs.page-heading-row>
             <x-slot:heading>
                 Visualizar Usuário:
                 <span class="text-primary ms-2">{{ $user->name }}</span>
