@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Requests\User\Strategies;
 
 use App\Http\Requests\Checker;
-use Illuminate\Validation\Rule;
 
-class FastPersistence implements Checker
+final class Update implements Checker
 {
     protected int $nameMinSize;
     protected int $nameMaxSize;
@@ -27,10 +26,6 @@ class FastPersistence implements Checker
                 'required',
                 "min:{$this->nameMinSize}",
                 "max:{$this->nameMaxSize}"
-            ],
-            'email' => [
-                'email',
-                Rule::unique('users', 'email')
             ]
         ];
     }
@@ -41,9 +36,6 @@ class FastPersistence implements Checker
             'name.required' => 'Campo obrigatório',
             'name.min' => "Tamanho mínimo {$this->nameMinSize}",
             'name.max' => "Tamanho máximo excedido ($this->nameMaxSize)",
-
-            'email.email' => 'Campo inválido',
-            'email.unique' => 'Valor já utilizado'
         ];
     }
 }
