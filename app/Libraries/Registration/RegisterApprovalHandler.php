@@ -6,7 +6,7 @@ namespace App\Libraries\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\TokenBuilder;
-use App\Notifications\RegisterApprovalEmail;
+use App\Notifications\RegisterApprovalNotification;
 use App\Services\Contracts\RegistrationServiceInterface;
 use Carbon\Carbon;
 
@@ -32,7 +32,7 @@ class RegisterApprovalHandler implements HandlerInterface
                 );
             }
             $this->registrationService->updateModelPhone($approval, $phone);
-            $approval->notify(new RegisterApprovalEmail());
+            $approval->notify(new RegisterApprovalNotification);
             return false;
         }
         return true;

@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notification;
 use \Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 
-class RegisterApprovalEmail extends Notification
+class RegisterApprovalNotification extends Notification
 {
     use Queueable;
 
@@ -18,7 +18,7 @@ class RegisterApprovalEmail extends Notification
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via($notifiable): array
     {
         return ['mail'];
     }

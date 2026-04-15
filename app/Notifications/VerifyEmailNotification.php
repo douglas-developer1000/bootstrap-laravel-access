@@ -7,9 +7,19 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Auth\Notifications\VerifyEmail;
 
-class CustomVerifyEmail extends VerifyEmail
+class VerifyEmailNotification extends VerifyEmail
 {
     use Queueable;
+
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
+     */
+    public function via($notifiable): array
+    {
+        return ['mail'];
+    }
 
     /**
      * Get the mail representation of the notification.
