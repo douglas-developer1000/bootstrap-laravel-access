@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 #[Fillable(['email', 'phone', 'token', 'expiration_data'])]
 class RegisterApproval extends Model
 {
+    /** @use Factory<RegisterApproval> */
     use HasFactory, FormatDatetimeProperty, Notifiable;
 
     protected function casts(): array

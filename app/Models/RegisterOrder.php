@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 #[Fillable(['email', 'phone'])]
 class RegisterOrder extends Model
 {
+    /** @use HasFactory<RegisterOrder> */
     use HasFactory, FormatDatetimeProperty;
 
     protected function casts(): array
