@@ -16,8 +16,9 @@ final class AuthController extends Controller
      */
     public function login(AuthRequest $request): RedirectResponse
     {
+        $remember = $request->filled('remember');
         $credentials = $request->only('email', 'password');
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::attempt($credentials, $remember)) {
             return back()->withErrors([
                 'generic' => 'Email ou senha inválidos'
             ])->onlyInput('email');

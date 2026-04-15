@@ -48,6 +48,7 @@
                         label-text="Senha:"
                         required
                     />
+                    <x-molecules.remember-me-field class="align-self-start" />
                     <x-atoms.gate.btns-row>
                         <x-atoms.submit-btn class="btn-primary">
                             Autenticar
