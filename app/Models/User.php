@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Models\Traits\FormatDatetimeProperty;
-use App\Notifications\CustomResetPasswordNotification;
 use App\Notifications\CustomVerifyEmail;
+use App\Notifications\PreResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -42,7 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new CustomResetPasswordNotification($token));
+        $this->notify(new PreResetPasswordNotification($token));
     }
 
     /**

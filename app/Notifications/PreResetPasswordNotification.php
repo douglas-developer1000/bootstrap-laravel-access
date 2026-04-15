@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Auth\Notifications\ResetPassword;
 
-final class CustomResetPasswordNotification extends ResetPassword
+final class PreResetPasswordNotification extends ResetPassword
 {
     use Queueable;
 
@@ -17,6 +17,16 @@ final class CustomResetPasswordNotification extends ResetPassword
     public function __construct(string $token)
     {
         parent::__construct($token);
+    }
+
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
+     */
+    public function via($notifiable): array
+    {
+        return ['mail'];
     }
 
     protected function resetUrl($notifiable)
