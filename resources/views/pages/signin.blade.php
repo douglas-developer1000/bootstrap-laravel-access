@@ -58,7 +58,7 @@
                     >
                         <a
                             class="position-absolute text-decoration-none forgot-password"
-                            href="/forgot-password"
+                            href="{{ route('password.request') }}"
                             >Esqueceu sua senha?</a
                         >
                     </div>
