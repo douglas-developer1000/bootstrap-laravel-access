@@ -163,7 +163,7 @@
                                             <img
                                                 src="{{ $logo }}"
                                                 class="logo"
-                                                alt="Logotipo do responsável pela aplicação"
+                                                alt=""
                                                 style="
                                                     box-sizing: border-box;
                                                     font-family:
