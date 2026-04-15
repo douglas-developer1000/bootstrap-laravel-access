@@ -8,6 +8,7 @@
 @php
     $qs = request()->query->all();
 @endphp
+@use ('App\Libraries\Utils\DatetimeFormatter')
 
 <x-layout title="Vinculação de Usuário">
     <x-packs.header>
@@ -54,7 +55,9 @@
                         <tr>
                             <td>{{$perm->id}}</td>
                             <td>{{$perm->name}}</td>
-                            <td>{{$perm->created_at->format('d/m/Y')}}</td>
+                            <td>
+                                {{ DatetimeFormatter::formatToDate($perm->created_at) }}
+                            </td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"

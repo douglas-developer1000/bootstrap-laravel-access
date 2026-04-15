@@ -8,6 +8,7 @@
 @php
     $qs = request()->query->all();
 @endphp
+@use ('App\Libraries\Utils\DatetimeFormatter')
 
 <x-layout title="Lista de Papeis">
     <x-packs.header>
@@ -55,7 +56,9 @@
                         <tr>
                             <td>{{$role->id}}</td>
                             <td>{{$role->name}}</td>
-                            <td>{{$role->created_at->format('d/m/Y')}}</td>
+                            <td>
+                                {{ DatetimeFormatter::formatToDate($role->created_at) }}
+                            </td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"

@@ -86,7 +86,7 @@
                             <td>
                                 <div class="ellipsis">{{$user->email}}</div>
                             </td>
-                            <td>{{$user->created_at->format('d/m/Y')}}</td>
+                            <td>{{ $user->created_at_formatted }}</td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-end gap-1"

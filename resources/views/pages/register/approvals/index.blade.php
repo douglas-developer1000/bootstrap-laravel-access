@@ -53,7 +53,7 @@
                                 </div>
                             </td>
                             <td>{{ $approval->phone ?? '---' }}</td>
-                            <td>{{$approval->created_at->format('d/m/Y')}}</td>
+                            <td>{{ $approval->created_at_formatted }}</td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"

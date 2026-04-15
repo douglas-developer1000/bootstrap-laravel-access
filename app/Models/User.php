@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\FormatDatetimeProperty;
 use App\Notifications\CustomResetPasswordNotification;
 use App\Notifications\CustomVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles, SoftDeletes;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes, FormatDatetimeProperty;
 
     /**
      * Get the attributes that should be cast.
@@ -42,5 +43,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new CustomResetPasswordNotification($token));
+    }
+
+    /**
+     * Format the created_at to view
+     *
+     * @return string
+     */
+    public function getCreatedAtFormattedAttribute()
+    {
+        return $this->getPropertyFormatted('created_at');
     }
 }

@@ -8,6 +8,7 @@
 @php
     $qs = request()->query->all();
 @endphp
+@use ('App\Libraries\Utils\DatetimeFormatter')
 
 <x-layout title="Lista de Permissões">
     <x-packs.header>
@@ -57,7 +58,9 @@
                             <td>
                                 <div class="ellipsis">{{$perm->name}}</div>
                             </td>
-                            <td>{{$perm->created_at->format('d/m/Y')}}</td>
+                            <td>
+                                {{ DatetimeFormatter::formatToDate($perm->created_at) }}
+                            </td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"

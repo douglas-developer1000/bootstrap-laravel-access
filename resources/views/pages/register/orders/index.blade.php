@@ -51,7 +51,7 @@
                                 <div class="ellipsis">{{ $order->email }}</div>
                             </td>
                             <td>{{ $order->phone ?? '---' }}</td>
-                            <td>{{$order->created_at->format('d/m/Y')}}</td>
+                            <td>{{ $order->created_at_formatted }}</td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"
