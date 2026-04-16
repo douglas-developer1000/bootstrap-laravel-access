@@ -55,9 +55,11 @@ final class SettingsUserController extends Controller
             ...$request->only(['name', 'password']),
             ...($photoPath ? ['photo' => $photoPath] : []),
             'phone' => $phone,
-        ])->filter(fn($val, $key) => $user->$key !== $val)->toArray();
+        ])->filter(fn($val, $key) => $user->$key !== $val);
 
-        $this->userSvc->update($user->id, $inputs);
+        if ($inputs->isNotEmpty()) {
+            $this->userSvc->update($user->id, $inputs->toArray());
+        }
 
         return redirect()->route('settings.user.show')->with([
             'toastShow' => true,
