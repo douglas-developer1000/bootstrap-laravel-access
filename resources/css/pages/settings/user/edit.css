@@ -1,0 +1,43 @@
+@scope (.main-default) {
+    .form-label {
+        display: inline-block;
+        text-align: left;
+        font-size: 1em;
+        font-weight: 500;
+        width: 4.25em;
+        cursor: pointer;
+    }
+    .table th,
+    .table td {
+        padding-bottom: 1.25rem;
+        position: relative;
+    }
+    .invalid-feedback {
+        top: auto !important;
+        right: 0.5rem !important;
+        bottom: 0.25rem;
+    }
+    .photo-field {
+        > .row {
+            display: inline-flex;
+            flex-flow: nowrap;
+            column-gap: 1rem;
+
+            .form-control {
+                display: inline-block;
+                flex: 1;
+
+                &:hover::file-selector-button {
+                    color: var(--bs-body-color);
+                }
+                &::file-selector-button {
+                    background-color: var(--bs-secondary);
+                    color: var(--bs-body-bg);
+                    padding: 8px;
+                    border-radius: 5px;
+                    border: none;
+                }
+            }
+        }
+    }
+}

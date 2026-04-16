@@ -2,15 +2,16 @@
     'id' => uniqid('el_'),
     'name',
     'type' => 'text',
-    'label-text',
+    'label-text' => NULL,
     'placeholder' => NULL,
     'value' => '',
     'required' => false,
-    'autocomplete' => 'yes'
+    'autocomplete' => 'yes',
+    'position' => 'relative'
 ])
 
-<div class="row m-0 w-100 position-relative">
-    @if ($labelText !== null)
+<div class="row m-0 w-100 position-{{ $position }}">
+    @if (isset($labelText))
         <label
             for="{{ $id }}"
             class="form-label px-0 fs-075"

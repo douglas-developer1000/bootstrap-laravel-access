@@ -2,18 +2,22 @@
 
 namespace App\Providers;
 
+use App\Services\Contracts\ImgStoragerServiceInterface;
 use App\Services\Contracts\RegistrationServiceInterface;
+use App\Services\DropboxImgStoragerService;
+use App\Services\DropboxTokenProviderService;
 use App\Services\Registration\RegistrationService;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Dropbox\TokenProvider;
+// use App\Services\LocalImgStoragerService;
 
 final class ServiceServiceProvider extends ServiceProvider
 {
-    /** @var array{0: string, 1: string}[] */
-    protected array $bindables = [
-        [
-            RegistrationServiceInterface::class,
-            RegistrationService::class
-        ]
+    public $bindings = [
+        RegistrationServiceInterface::class => RegistrationService::class,
+        TokenProvider::class => DropboxTokenProviderService::class,
+        ImgStoragerServiceInterface::class => DropboxImgStoragerService::class
+        // ImgStoragerServiceInterface::class => LocalImgStoragerService::class
     ];
 
     /**
@@ -21,7 +25,7 @@ final class ServiceServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // 
     }
 
     /**
@@ -29,8 +33,6 @@ final class ServiceServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        collect($this->bindables)->each(
-            fn($arrBind) => $this->app->bind(...$arrBind)
-        );
+        // 
     }
 }

@@ -126,5 +126,12 @@ return [
     'superadmin' => [
         'email' => env('APP_SUPERADMIN_EMAIL', NULL),
         'name' => env('APP_RESPONSIBLE', "😄")
+    ],
+
+    'photo' => [
+        // Defined on kilobytes
+        'size' => env('APP_PHOTO_FILE_SIZE', 1024),
+        // Mime types
+        'mimes' => env('APP_PHOTO_MIMES', ['jpeg', 'jpg', 'png'])
     ]
 ];

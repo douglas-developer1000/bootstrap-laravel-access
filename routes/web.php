@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RegisterApprovalController;
 use App\Http\Controllers\RoleController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterOrderController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\SettingsUserController;
 use App\Http\Controllers\VerifyEmailController;
 
 Route::middleware('guest')->group(function () {
@@ -87,8 +89,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [RegisterApprovalController::class, 'index'])->name('register.approvals.index');
         Route::delete('/{approval}', [RegisterApprovalController::class, 'destroy'])->name('register.approvals.destroy');
     });
+
+    Route::prefix('settings')->group(function () {
+        Route::get('/user', [SettingsUserController::class, 'show'])->name('settings.user.show');
+        Route::get('/user/{user}', [SettingsUserController::class, 'edit'])->name('settings.user.edit');
+        Route::put('/user/{user}', [SettingsUserController::class, 'update'])->name('settings.user.update');
+    })->middleware('can:user');
 });
 
 Route::get('/email/verify', [VerifyEmailController::class, 'verify'])->middleware('auth')->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'handle'])->middleware(['auth', 'signed'])->name('verification.verify');
 Route::post('/email/verification-notification', [VerifyEmailController::class, 'resend'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+Route::get('/storage/app/{folder}/{filename}', [ImageController::class, 'find'])->name('user.photo.show');

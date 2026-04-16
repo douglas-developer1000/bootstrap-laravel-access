@@ -1,13 +1,7 @@
 <?php
 
-use App\Providers\{
-    AppServiceProvider,
-    BladeComponentProvider,
-    ServiceServiceProvider
-};
-
 return [
-    AppServiceProvider::class,
-    BladeComponentProvider::class,
-    ServiceServiceProvider::class
+    App\Providers\AppServiceProvider::class,
+    App\Providers\BladeComponentProvider::class,
+    App\Providers\ServiceServiceProvider::class,
 ];

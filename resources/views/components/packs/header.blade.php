@@ -40,18 +40,27 @@
     </nav>
 
     <div class="btns">
+        @can ('user')
+            <x-atoms.button
+                format="anchor"
+                class="btn btn-secondary"
+                href="{{ route('settings.user.show') }}"
+            >
+                <i class="bi bi-gear"></i>
+            </x-atoms.button>
+        @endcan
         <form
             action="{{ route('logout') }}"
             method="post"
         >
             @csrf
-            <button
-                type="submit"
+            <x-atoms.button
                 class="btn btn-primary"
+                type="submit"
                 title="Sair"
             >
                 <i class="bi bi-box-arrow-right"></i>
-            </button>
+            </x-atoms.button>
         </form>
     </div>
     {{ $slot }}
