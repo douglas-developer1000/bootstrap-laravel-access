@@ -48,7 +48,6 @@ class SettingsUserController extends Controller
                 'key' => 'photo',
                 'lastFolderName' => \strval($user->id)
             ])
-            // new LocalImgStoragerService($user, 'photo', \strval($user->id))
         );
 
         $photoPath = $profileSvc->storageProfileImg($request);
@@ -66,38 +65,4 @@ class SettingsUserController extends Controller
             'toastMsg' => 'Dados da conta editados com sucesso!'
         ]);
     }
-
-    /**
-     * Handle the file submit logic
-     *
-     * @return string|null The new file's path
-     */
-    // protected static function handleFile(Request $request, Model $model, string $name, string $folderName)
-    // {
-    //     if ($request->hasFile($name) && $request->file($name)->isValid()) {
-    //         $pathPhotoRecent = storage_path() . '/app/' . $model->$name;
-    //         if (File::exists($pathPhotoRecent)) {
-    //             File::delete($pathPhotoRecent);
-    //         }
-    //         $pathPhotoNew = $request->$name->store($folderName);
-    //         return $pathPhotoNew;
-    //     }
-    //     return NULL;
-    // }
-
-    /**
-     * Filter just the request fields modified.
-     *
-     * @return array<array-key, string>
-     */
-    // protected function detachRequest(Request $request, Authenticatable|Model|null $user)
-    // {
-    //     $filePath = self::handleFile($request, $user, 'photo', 'user-photos');
-    //     $inputs = collect([
-    //         ...$request->only(['name', 'phone']),
-    //         ...($filePath ? ['photo' => '' . $filePath] : [])
-    //     ])->filter(fn($val, $key) => $user->$key !== $val)->toArray();
-    //     $inputs['phone'] = PhoneFormatter::clear($inputs['phone'] ?? NULL);
-    //     return $inputs;
-    // }
 }
