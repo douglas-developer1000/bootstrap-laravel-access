@@ -14,4 +14,9 @@
         align-items: center;
         column-gap: 0.5rem;
     }
+    .photo-user {
+        --photo-user-size: 3rem;
+        width: var(--photo-user-size);
+        height: var(--photo-user-size);
+    }
 }

@@ -5,14 +5,27 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
 @endpush
+@php
+    $user = auth()->user();
+@endphp
+
 <header class="w-100 bg-light p-2 header-app">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid justify-content-start">
             <a
                 class="navbar-brand"
-                href="/dashboard"
-                ><i class="bi bi-person-circle px-2 fs-2"></i
-            ></a>
+                href="{{ route('dashboard') }}"
+            >
+                @if ($user->photo)
+                    <img
+                        src="{{ $user->photo }}"
+                        alt="foto do usuário"
+                        class="rounded-circle photo-user"
+                    />
+                @else
+                    <i class="bi bi-person-circle px-2 fs-1"></i>
+                @endif
+            </a>
             <!-- The Hamburger Button -->
             <button
                 class="navbar-toggler"
