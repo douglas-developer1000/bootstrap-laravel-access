@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\SettingsUserRequest;
@@ -12,7 +14,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
-class SettingsUserController extends Controller
+final class SettingsUserController extends Controller
 {
     use AuthorizesRequests;
 
