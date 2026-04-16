@@ -4,6 +4,7 @@
         'resources/css/pages/generic/table.css'
     ])
 @endpush
+@use ('App\Libraries\Utils\PhoneFormatter')
 
 @php
     $qs = request()->query->all();
@@ -50,7 +51,7 @@
                             <td>
                                 <div class="ellipsis">{{ $order->email }}</div>
                             </td>
-                            <td>{{ $order->phone ?? '---' }}</td>
+                            <td>{{ PhoneFormatter::toView($order->phone) }}</td>
                             <td>{{ $order->created_at_formatted }}</td>
                             <td>
                                 <div

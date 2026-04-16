@@ -34,4 +34,16 @@ final class PhoneFormatter
         }
         return Str::of($phone)->replaceMatches('|[\(\-\s\)]|', '')->toString();
     }
+
+    public static function toView(?string $value): string
+    {
+        if ($value === NULL) {
+            return 'N/A';
+        }
+        $phone = Str::of($value);
+        if ($phone->length() === 9) {
+            return $phone->replaceMatches('|^(\d{5})(\d+)$|', '$1 $2')->toString();
+        }
+        return $phone->replaceMatches('|^(\d{2})(\d{5})(\d+)$|', '($1) $2-$3')->toString();
+    }
 }
