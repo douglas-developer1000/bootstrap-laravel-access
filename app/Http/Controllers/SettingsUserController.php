@@ -6,14 +6,11 @@ use App\Http\Requests\User\SettingsUserRequest;
 use App\Libraries\Utils\PhoneFormatter;
 use App\Models\User;
 use App\Services\Contracts\ImgStoragerServiceInterface;
-use App\Services\LocalImgStoragerService;
 use App\Services\ProfileService;
 use App\Services\UserService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\File;
 
 class SettingsUserController extends Controller
 {
