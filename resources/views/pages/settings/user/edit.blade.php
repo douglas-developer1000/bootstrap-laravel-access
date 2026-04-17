@@ -5,7 +5,6 @@
         'resources/css/pages/settings/user/edit.css',
     ])
 @endpush
-@use ('App\Libraries\Utils\PhoneFormatter')
 
 <x-layout title="Configurações">
     <x-packs.header>
@@ -90,7 +89,7 @@
                                         name="phone"
                                         type="tel"
                                         placeholder="Insira o telefone do usuário"
-                                        :value="old('phone', PhoneFormatter::toView($user->phone))"
+                                        :value="old('phone', $user->phone)"
                                         autocomplete="no"
                                         position="static"
                                     />
