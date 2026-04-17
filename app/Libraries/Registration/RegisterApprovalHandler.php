@@ -7,12 +7,12 @@ namespace App\Libraries\Registration;
 use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\TokenBuilder;
 use App\Notifications\RegisterApprovalNotification;
-use App\Services\Contracts\RegistrationServiceInterface;
+use App\Services\Contracts\RegistrationInterface;
 use Carbon\Carbon;
 
 class RegisterApprovalHandler implements HandlerInterface
 {
-    public function __construct(protected RegistrationServiceInterface $registrationService)
+    public function __construct(protected RegistrationInterface $registrationService)
     {
         // ...
     }

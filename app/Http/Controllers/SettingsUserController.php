@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\SettingsUserRequest;
 use App\Libraries\Utils\PhoneFormatter;
 use App\Models\User;
-use App\Services\Contracts\ImgStoragerServiceInterface;
+use App\Services\Contracts\ImgStoragerInterface;
 use App\Services\ProfileService;
 use App\Services\UserService;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -42,7 +42,7 @@ final class SettingsUserController extends Controller
         $phone = PhoneFormatter::clear($request->validated('phone'));
 
         $profileSvc = new ProfileService(
-            app(ImgStoragerServiceInterface::class, [
+            app(ImgStoragerInterface::class, [
                 'model' => $user,
                 'key' => 'photo',
                 'lastFolderName' => \strval($user->id)

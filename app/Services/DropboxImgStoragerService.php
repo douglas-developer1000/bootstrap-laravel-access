@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Services\Contracts\ImgStoragerServiceInterface;
+use App\Services\Contracts\ImgStoragerInterface;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +14,7 @@ use Spatie\Dropbox\Client;
 use Spatie\Dropbox\TokenProvider;
 use Exception;
 
-class DropboxImgStoragerService implements ImgStoragerServiceInterface
+class DropboxImgStoragerService implements ImgStoragerInterface
 {
     protected Model $model;
     protected string $key;

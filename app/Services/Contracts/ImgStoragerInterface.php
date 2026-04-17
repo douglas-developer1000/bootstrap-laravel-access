@@ -6,7 +6,7 @@ namespace App\Services\Contracts;
 
 use Illuminate\Http\Request;
 
-interface ImgStoragerServiceInterface
+interface ImgStoragerInterface
 {
     public function persist(Request $request): ?string;
 

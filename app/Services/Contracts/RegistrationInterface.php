@@ -7,7 +7,7 @@ use App\Models\RegisterOrder;
 use App\Models\RegisterApproval;
 use \Illuminate\Support\Carbon;
 
-interface RegistrationServiceInterface
+interface RegistrationInterface
 {
     /**
      * Define the existence of an User instance with email
@@ -47,5 +47,5 @@ interface RegistrationServiceInterface
     /**
      * Store the registration handlers
      */
-    public function setHandlers(HandlerInterface ...$handlers): RegistrationServiceInterface;
+    public function setHandlers(HandlerInterface ...$handlers): RegistrationInterface;
 }

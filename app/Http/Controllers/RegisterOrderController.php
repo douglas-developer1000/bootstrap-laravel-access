@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Libraries\Registration\RegisterApprovalHandler;
-use App\Services\Contracts\RegistrationServiceInterface;
+use App\Services\Contracts\RegistrationInterface;
 use App\Http\Requests\RegisterOrder\RegisterOrderRequest;
 use App\Libraries\Registration\RegisterOrderHandler;
 use App\Libraries\Utils\Paginator;
@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 class RegisterOrderController extends Controller
 {
     public function __construct(
-        protected readonly RegistrationServiceInterface $registrationService,
+        protected readonly RegistrationInterface $registrationService,
         protected readonly RegisterOrderService $registerOrderService,
         protected readonly RegisterApprovalService $registerApprovalService
     ) {

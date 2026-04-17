@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Services\Contracts\ImgStoragerServiceInterface;
-use App\Services\Contracts\RegistrationServiceInterface;
+use App\Services\Contracts\ImgStoragerInterface;
+use App\Services\Contracts\RegistrationInterface;
 use App\Services\DropboxImgStoragerService;
 use App\Services\DropboxTokenProviderService;
 use App\Services\Registration\RegistrationService;
@@ -14,10 +14,10 @@ use Spatie\Dropbox\TokenProvider;
 final class ServiceServiceProvider extends ServiceProvider
 {
     public $bindings = [
-        RegistrationServiceInterface::class => RegistrationService::class,
+        RegistrationInterface::class => RegistrationService::class,
         TokenProvider::class => DropboxTokenProviderService::class,
-        ImgStoragerServiceInterface::class => DropboxImgStoragerService::class
-        // ImgStoragerServiceInterface::class => LocalImgStoragerService::class
+        ImgStoragerInterface::class => DropboxImgStoragerService::class
+        // ImgStoragerInterface::class => LocalImgStoragerService::class
     ];
 
     /**

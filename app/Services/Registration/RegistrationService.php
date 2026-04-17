@@ -8,7 +8,7 @@ use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\PhoneFormatter;
 use App\Repositories\RegisterOrderRepository;
 use App\Repositories\RegisterApprovalRepository;
-use App\Services\Contracts\RegistrationServiceInterface;
+use App\Services\Contracts\RegistrationInterface;
 use App\Models\{
     RegisterOrder,
     RegisterApproval
@@ -16,7 +16,7 @@ use App\Models\{
 use \Illuminate\Support\Carbon;
 use App\Repositories\UserRepository;
 
-final class RegistrationService implements RegistrationServiceInterface
+final class RegistrationService implements RegistrationInterface
 {
     /** @var array<int, HandlerInterface> */
     protected $handlers;
@@ -90,7 +90,7 @@ final class RegistrationService implements RegistrationServiceInterface
         }
     }
 
-    public function setHandlers(HandlerInterface ...$handlers): RegistrationServiceInterface
+    public function setHandlers(HandlerInterface ...$handlers): RegistrationInterface
     {
         $this->handlers = $handlers;
         return $this;

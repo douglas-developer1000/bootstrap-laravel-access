@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Services\Contracts\ImgStoragerServiceInterface;
+use App\Services\Contracts\ImgStoragerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
-class LocalImgStoragerService implements ImgStoragerServiceInterface
+class LocalImgStoragerService implements ImgStoragerInterface
 {
     protected Model $model;
     protected string $key;

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Libraries\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
-use App\Services\Contracts\RegistrationServiceInterface;
+use App\Services\Contracts\RegistrationInterface;
 
 final class RegisterOrderHandler implements HandlerInterface
 {
-    public function __construct(private RegistrationServiceInterface $registrationService)
+    public function __construct(private RegistrationInterface $registrationService)
     {
         // ...
     }
