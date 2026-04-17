@@ -50,6 +50,9 @@ class DropboxImgStoragerService implements ImgStoragerInterface
             $filename = $this->generateRandomFilename($extension);
             $path = $this->buildPath("{$parentFolder}", $filename);
             $this->client->upload($path, $resource);
+            if (\is_resource($resource)) {
+                fclose($resource);
+            }
 
             $sharedLink = $this->makeSharedLink($path);
             if ($sharedLink === NULL) {
