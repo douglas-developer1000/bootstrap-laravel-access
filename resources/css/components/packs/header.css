@@ -19,4 +19,7 @@
         width: var(--photo-user-size);
         height: var(--photo-user-size);
     }
+    .offcanvas.offcanvas-start {
+        width: min(80%, var(--bs-offcanvas-width));
+    }
 }
