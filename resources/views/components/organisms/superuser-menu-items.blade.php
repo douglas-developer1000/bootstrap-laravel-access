@@ -1,4 +1,4 @@
-@can ('super-admin')
+@if (auth()->user()->hasRole('super-admin'))
     @foreach ($menuItems as $label => $href)
         <li class="nav-item text-center w-auto">
             <a
@@ -12,4 +12,4 @@
             </a>
         </li>
     @endforeach
-@endcan
+@endif

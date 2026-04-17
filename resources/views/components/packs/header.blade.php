@@ -53,7 +53,7 @@
     </nav>
 
     <div class="btns">
-        @can ('user')
+        @can ('header.settings')
             <x-atoms.button
                 format="anchor"
                 class="btn btn-secondary"
