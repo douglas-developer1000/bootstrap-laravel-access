@@ -11,6 +11,4 @@ interface ImgStoragerServiceInterface
     public function persist(Request $request): ?string;
 
     public function remove(): bool;
-
-    // public function getImgPath(): string;
 }
