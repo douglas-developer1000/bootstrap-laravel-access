@@ -6,6 +6,8 @@ use App\Http\Requests\Auth\AuthRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use App\Libraries\Utils\DatetimeFormatter;
 
 final class AuthController extends Controller
 {
@@ -23,6 +25,7 @@ final class AuthController extends Controller
                 'generic' => 'Email ou senha inválidos'
             ])->onlyInput('email');
         }
+        $this->logSpecialGuest($credentials['email']);
         $request->session()->regenerate();
         return redirect()->route('dashboard');
     }
@@ -41,5 +44,17 @@ final class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    protected function logSpecialGuest(string $email): void
+    {
+        if ($email !== config('auth.special-guest-email')) {
+            return;
+        }
+        $dt = DatetimeFormatter::formatToDate(
+            datetime: now(),
+            timed: true
+        );
+        Log::channel('slack')->warning("Convidado autenticado em {$dt}!");
     }
 }

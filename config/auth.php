@@ -114,4 +114,6 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    'special-guest-email' => env('SPECIAL_GUEST_EMAIL')
+
 ];
