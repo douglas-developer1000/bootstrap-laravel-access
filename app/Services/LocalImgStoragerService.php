@@ -23,15 +23,15 @@ class LocalImgStoragerService implements ImgStoragerInterface
 
     public function persist(Request $request): ?string
     {
-        if ($request->hasFile($this->key) && $request->file($this->key)->isValid()) {
-            $key = $this->key;
-            // By default, upload files will be saved
-            // into 'storage/app/private/{$this->folderName}/'
-            $pathPhotoNew = $request->$key->store($this->lastFolderName);
-            // Output: '/storage/app/{$this->folderName}/newFilename.ext'
-            return $this->buildPath('', $this->makeStoragePath(false, $pathPhotoNew));
+        if (!$request->hasFile($this->key) || !$request->file($this->key)->isValid()) {
+            return NULL;
         }
-        return NULL;
+        $key = $this->key;
+        // By default, upload files will be saved
+        // into 'storage/app/private/{$this->folderName}/'
+        $pathPhotoNew = $request->$key->store($this->lastFolderName);
+        // Output: '/storage/app/{$this->folderName}/newFilename.ext'
+        return $this->buildPath('', $this->makeStoragePath(false, $pathPhotoNew));
     }
 
     // public function getOrCreateFolder(): ?string
