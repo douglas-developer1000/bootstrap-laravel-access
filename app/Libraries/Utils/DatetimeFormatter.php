@@ -23,14 +23,12 @@ final class DatetimeFormatter
      * @param bool $timed Define if time part must be put in the output
      * @return string|null The datetime formatted
      */
-    public static function formatToDate(?Carbon $datetime = NULL, ?string $timeZone = NULL, bool $timed = false): ?string
+    public static function formatToDate(?Carbon $datetime = NULL, ?string $timeZone = 'America/Sao_Paulo', bool $timed = false): ?string
     {
         if ($datetime === NULL) {
             return NULL;
         }
-        if ($timeZone !== NULL) {
-            $datetime->setTimezone(new DateTimeZone($timeZone));
-        }
+        $datetime->setTimezone(new DateTimeZone($timeZone));
         $timePart = $timed ? ' H:i:s' : '';
 
         // $locale = App::getLocale();

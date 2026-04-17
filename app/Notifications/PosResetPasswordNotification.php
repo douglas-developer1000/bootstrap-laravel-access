@@ -32,7 +32,6 @@ class PosResetPasswordNotification extends Notification
         /** @var string $now */
         $now = DatetimeFormatter::formatToDate(
             datetime: now(),
-            timeZone: 'America/Sao_Paulo',
             timed: true
         );
         return (new MailMessage)
