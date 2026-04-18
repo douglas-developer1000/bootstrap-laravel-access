@@ -25,7 +25,9 @@ final class AuthController extends Controller
                 'generic' => 'Email ou senha inválidos'
             ])->onlyInput('email');
         }
-        $this->logSpecialGuest($credentials['email']);
+        if (config('app.env') === 'production') {
+            $this->logSpecialGuest($credentials['email']);
+        }
         $request->session()->regenerate();
         return redirect()->route('dashboard');
     }
