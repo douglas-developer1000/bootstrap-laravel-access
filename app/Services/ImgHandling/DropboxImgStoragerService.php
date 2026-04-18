@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Services\ImgHandling;
 
-use App\Services\Contracts\ImgStoragerInterface;
+use App\Services\Abstracts\AbstractImgConverter;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
@@ -12,9 +12,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Spatie\Dropbox\Client;
 use Spatie\Dropbox\TokenProvider;
+use App\Services\Contracts\ImgConverterInterface;
 use Exception;
 
-class DropboxImgStoragerService implements ImgStoragerInterface
+class DropboxImgStoragerService extends AbstractImgConverter
 {
     protected Model $model;
     protected string $key;
@@ -22,10 +23,13 @@ class DropboxImgStoragerService implements ImgStoragerInterface
 
     protected $client;
 
+    protected ImgConverterInterface $imgConverter;
+
     public function __construct(Model $model, string $key, string $lastFolderName)
     {
+        parent::__construct($key);
+
         $this->model = $model;
-        $this->key = $key;
         $this->lastFolderName = $lastFolderName;
 
         $this->client = new Client(
@@ -43,12 +47,14 @@ class DropboxImgStoragerService implements ImgStoragerInterface
             return NULL;
         }
         try {
-            $file = $request->file($this->key);
-            $resource = fopen($file->getRealPath(), 'r');
-
-            $extension = $request->file($this->key)->extension();
-            $filename = $this->generateRandomFilename($extension);
-            $path = $this->buildPath("{$parentFolder}", $filename);
+            $resource = $this->processImg($request);
+            if ($resource === NULL) {
+                return NULL;
+            }
+            $path = $this->buildPath(
+                "{$parentFolder}",
+                $this->generateRandomFilename('webp')
+            );
             $this->client->upload($path, $resource);
             if (\is_resource($resource)) {
                 fclose($resource);
@@ -200,18 +206,5 @@ class DropboxImgStoragerService implements ImgStoragerInterface
             Log::warning($exception->getMessage());
         }
         return false;
-    }
-
-    protected function generateRandomFilename($extension = 'png', $length = 16)
-    {
-        // Generate secure random bytes and convert to hex
-        // Note: bin2hex doubles the length of bytes provided
-        $randomString = bin2hex(random_bytes($length / 2));
-        return implode('.', [$randomString, $extension]);
-    }
-
-    protected function buildPath(string ...$list): string
-    {
-        return implode(DIRECTORY_SEPARATOR, $list);
     }
 }
