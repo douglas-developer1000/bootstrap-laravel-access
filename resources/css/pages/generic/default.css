@@ -15,11 +15,21 @@
     }
     .fieldset-tag {
         padding: 0.5em;
+        position: relative;
     }
     .field-legend {
         margin: 0 0 0 0.25em;
         width: max-content;
         padding: 0 0.25em;
         float: none;
+    }
+    .fieldset-top-btn {
+        position: absolute;
+        right: 0.5em;
+        top: -2.25em;
+        z-index: 1;
+    }
+    .icon-s2::before {
+        transform: scale(1.5);
     }
 }
