@@ -5,6 +5,7 @@
         justify-content: center;
         flex: 1;
         position: relative;
+        overflow-y: auto;
     }
     .content {
         width: min(100vw, 35rem);
