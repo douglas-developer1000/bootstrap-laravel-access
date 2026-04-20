@@ -31,11 +31,24 @@ final class PrepareInfinityFreeBuild extends Command
         $this->clearTasksPre();
         $this->cacheTasks();
         $this->runProdDependencies();
+        $this->runAssetsBuild();
 
         $this->runZipProcess();
         $this->clearTasksPos();
 
         $this->info('End of artisan command!');
+    }
+
+    protected function runAssetsBuild()
+    {
+        $this->info('Command: "npm run build" running...');
+
+        // Define onde o comando será executado
+        Process::path(base_path())
+            // Executa o comando
+            ->run('npm run build');
+
+        $this->info('End of assets build command!');
     }
 
     public function runZipProcess()
