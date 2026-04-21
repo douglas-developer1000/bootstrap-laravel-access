@@ -200,5 +200,20 @@ return [
                 'token' => env('REGISTER_APPROVAL_TOKEN_COLUMN_SIZE', 40)
             ]
         ]
+    ],
+
+    'states' => [
+        'source' => env('STATES_DB_SOURCE', NULL),
+        'columns' => [
+            'acronym' => env('STATES_DB_COLUMN_ACRONYM', 'acronym'),
+            'name' => env('STATES_DB_COLUMN_NAME', 'name'),
+        ]
+    ],
+    'cities' => [
+        'source' => env('CITIES_DB_SOURCE', NULL),
+        'columns' => [
+            'name' => env('CITIES_DB_COLUMN_NAME', 'name'),
+            'state_id' => env('CITIES_DB_COLUMN_STATE_ID', 'state_id'),
+        ]
     ]
 ];
