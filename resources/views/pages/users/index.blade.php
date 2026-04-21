@@ -160,6 +160,7 @@
                                         >
                                             <i class="bi bi-wrench"></i>
                                         </x-atoms.button>
+                                        {{-- Gate defined on provider --}}
                                         @can ('remove-user', $user)
                                             <x-atoms.button
                                                 class="btn-danger"
