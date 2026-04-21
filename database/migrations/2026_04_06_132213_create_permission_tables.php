@@ -5,10 +5,12 @@ use App\Libraries\Traits\EagerRoleTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Libraries\Enums\PermissionNameEnum;
+use App\Libraries\Traits\EagerPermissionTrait;
 
 return new class extends Migration
 {
-    use EagerRoleTrait;
+    use EagerRoleTrait, EagerPermissionTrait;
 
     /**
      * @var array<int, string> $roles
@@ -16,6 +18,13 @@ return new class extends Migration
     protected array $roles = [
         RoleNameEnum::SUPER_ADMIN->value,
         RoleNameEnum::USER->value,
+    ];
+
+    /**
+     * @var array<int, string> $permissions
+     */
+    protected array $permissions = [
+        PermissionNameEnum::HEADER_SETTINGS->value
     ];
 
     /**
@@ -139,6 +148,7 @@ return new class extends Migration
             ->forget(config('permission.cache.key'));
 
         $this->makeRoles(...$this->roles);
+        $this->makePermissions(...$this->permissions);
     }
 
     /**
@@ -157,5 +167,6 @@ return new class extends Migration
         Schema::dropIfExists($tableNames['permissions']);
 
         $this->clearRoles(...$this->roles);
+        $this->clearPermissions(...$this->permissions);
     }
 };

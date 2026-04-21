@@ -53,7 +53,8 @@
     </nav>
 
     <div class="btns">
-        @can ('header.settings')
+        @use ('App\Libraries\Enums\PermissionNameEnum')
+        @can (PermissionNameEnum::HEADER_SETTINGS->value)
             <x-atoms.button
                 format="anchor"
                 class="btn btn-secondary"
