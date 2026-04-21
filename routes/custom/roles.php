@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
+use App\Libraries\Enums\RoleNameEnum;
 
 Route::prefix('roles')->group(function () {
     Route::get('/', [RoleController::class, 'index'])->name('roles.index');
@@ -15,4 +16,4 @@ Route::prefix('roles')->group(function () {
     Route::get('/{role}/attach', [RoleController::class, 'attach'])->name('roles.attach');
     Route::post('/{role}/attach/{permission}', [RoleController::class, 'bind'])->name('roles.bind');
     Route::post('/{role}/detach/{permission}', [RoleController::class, 'unbind'])->name('roles.unbind');
-})->middleware('can:super-admin');
+})->middleware('role:' . RoleNameEnum::SUPER_ADMIN->value);
