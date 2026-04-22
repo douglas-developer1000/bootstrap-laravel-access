@@ -12,20 +12,15 @@ return new class extends Migration
 {
     use EagerRoleTrait, EagerPermissionTrait;
 
-    /**
-     * @var array<int, string> $roles
-     */
-    protected array $roles = [
-        RoleNameEnum::SUPER_ADMIN->value,
-        RoleNameEnum::USER->value,
-    ];
+    protected function getRoleNames(): array
+    {
+        return array_column(RoleNameEnum::cases(), 'value');
+    }
 
-    /**
-     * @var array<int, string> $permissions
-     */
-    protected array $permissions = [
-        PermissionNameEnum::HEADER_SETTINGS->value
-    ];
+    protected function getPermissionNames(): array
+    {
+        return array_column(PermissionNameEnum::cases(), 'value');
+    }
 
     /**
      * Run the migrations.
@@ -147,8 +142,8 @@ return new class extends Migration
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
 
-        $this->makeRoles(...$this->roles);
-        $this->makePermissions(...$this->permissions);
+        $this->makeRoles(...$this->getRoleNames());
+        $this->makePermissions(...$this->getPermissionNames());
     }
 
     /**
@@ -166,7 +161,7 @@ return new class extends Migration
         Schema::dropIfExists($tableNames['roles']);
         Schema::dropIfExists($tableNames['permissions']);
 
-        $this->clearRoles(...$this->roles);
-        $this->clearPermissions(...$this->permissions);
+        $this->clearRoles(...$this->getRoleNames());
+        $this->clearPermissions(...$this->getPermissionNames());
     }
 };
