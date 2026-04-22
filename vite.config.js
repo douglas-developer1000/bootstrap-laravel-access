@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/js/app.ts',
                 'resources/js/bootstrap.ts',
                 'resources/js/components/packs/success-toast.ts',
+                'resources/js/components/pages/customers/create.ts',
 
                 'resources/css/pages/signup.css',
                 'resources/css/pages/signin.css',
@@ -33,6 +34,14 @@ export default defineConfig({
         }),
     ],
     server: {
+        ...(
+            process.env.NODE_ENV === 'development' ? {
+                host: '0.0.0.0',
+                port: 5173,
+                cors: true,
+                host: true,
+            } : {}
+        ),
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },
