@@ -1,6 +1,7 @@
 @props ([
     'id' => uniqid('el_'),
     'name',
+    'errorName' => $name,
     'type' => 'text',
     'label-text' => NULL,
     'placeholder' => NULL,
@@ -18,9 +19,9 @@
             >{{ $labelText }}</label
         >
     @endif
-    @php ($errorMsgId = $errors->has($name) ? uniqid('err_') : '')
+    @php ($errorMsgId = $errors->has($errorName) ? uniqid('err_') : '')
     <input
-        class="form-control fs-085 rounded-0 pe-0 @error($name) is-invalid @enderror"
+        class="form-control fs-085 rounded-0 pe-0 @error($errorName) is-invalid @enderror"
         @if ($placeholder !== null)
             placeholder="{{ $placeholder }}"
         @endif
@@ -28,7 +29,7 @@
         id="{{ $id }}"
         type="{{ $type }}"
         value="{{ $value }}"
-        @error ($name)
+        @error ($errorName)
             aria-describedby="{{ $errorMsgId }}"
         @enderror
         @if ($required !== false)
@@ -36,7 +37,7 @@
         @endif
         autocomplete="{{ $autocomplete }}"
     />
-    @error ($name)
+    @error ($errorName)
         <div
             id="{{ $errorMsgId }}"
             class="invalid-feedback position-absolute end-0 w-auto px-0 fs-075"

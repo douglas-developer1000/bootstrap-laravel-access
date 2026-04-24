@@ -198,7 +198,13 @@ return [
                 'email' => env('REGISTER_APPROVAL_EMAIL_COLUMN_SIZE', 250),
                 'phone' => env('REGISTER_APPROVAL_PHONE_COLUMN_SIZE', 11),
                 'token' => env('REGISTER_APPROVAL_TOKEN_COLUMN_SIZE', 40)
-            ]
+            ],
+            'client' => [
+                'name' => env('CUSTOMER_NAME_COLUMN_SIZE', 250),
+                'email' => env('CUSTOMER_EMAIL_COLUMN_SIZE', 250),
+                'hostess' => env('CUSTOMER_HOSTESS_COLUMN_SIZE', 250),
+                'phone' => env('CUSTOMER_PHONE_COLUMN_SIZE', 11),
+            ],
         ]
     ],
 

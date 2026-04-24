@@ -9,7 +9,7 @@ export default defineConfig({
                 'resources/js/app.ts',
                 'resources/js/bootstrap.ts',
                 'resources/js/components/packs/success-toast.ts',
-                'resources/js/components/pages/customers/create.ts',
+                'resources/js/components/pages/customers/create-edit.ts',
 
                 'resources/css/pages/signup.css',
                 'resources/css/pages/signin.css',
@@ -29,6 +29,7 @@ export default defineConfig({
                 'resources/css/components/packs/gate-back-img.css',
                 'resources/css/components/packs/header.css',
                 'resources/css/components/packs/page-heading-row.css',
+                'resources/css/pages/customers/show.css',
             ],
             refresh: true,
         }),

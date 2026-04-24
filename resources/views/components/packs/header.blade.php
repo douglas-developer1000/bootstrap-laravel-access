@@ -46,6 +46,7 @@
                 <div class="offcanvas-body">
                     <ul class="navbar-nav w-auto flex-grow-1 pe-3">
                         <x-superuser-menu-items />
+                        <x-user-menu-items />
                     </ul>
                 </div>
             </div>

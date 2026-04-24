@@ -20,7 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () use ($customDir) {
         'users.php',
         'register-orders.php',
         'register-approvals.php',
-        'settings.php'
+        'settings.php',
+        'customers.php'
     ])->each(function (string $filename) use ($customDir) {
         include_once $customDir . DIRECTORY_SEPARATOR . $filename;
     });
