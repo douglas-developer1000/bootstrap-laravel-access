@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Libraries\Enums\RoleNameEnum;
 
-Route::prefix('users')->group(function () {
+Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('users.index');
     Route::get('/create', [UserController::class, 'create'])->name('users.create');
     Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
@@ -23,4 +25,4 @@ Route::prefix('users')->group(function () {
     Route::get('/{user}/attach/permissions', [UserController::class, 'attachDirectPermissions'])->name('users.attach.permissions');
     Route::post('/{user}/attach/permissions/{permission}', [UserController::class, 'bindDirectPermission'])->name('users.bind.permissions');
     Route::post('/{user}/detach/permissions/{permission}', [UserController::class, 'unbindDirectPermission'])->name('roles.unbind.permissions');
-})->middleware('role:' . RoleNameEnum::SUPER_ADMIN->value);
+});
