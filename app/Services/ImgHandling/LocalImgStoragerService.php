@@ -66,7 +66,7 @@ class LocalImgStoragerService extends AbstractImgConverter
         $path = $this->makeStoragePath(true, $folderPath);
         try {
             if (!file_exists($path)) {
-                mkdir(directory: $path, permissions: 0644, recursive: true);
+                mkdir(directory: $path, permissions: 0755, recursive: true);
             } else if (!is_dir($path)) {
                 throw new \Exception("DirectoryErrot: path must me a folder", 1);
             }
