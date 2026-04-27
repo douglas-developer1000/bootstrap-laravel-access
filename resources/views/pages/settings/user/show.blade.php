@@ -42,19 +42,39 @@
                 <table class="table tabular-data">
                     <tbody>
                         <tr>
-                            <th scope="row">Nome</th>
+                            <th
+                                scope="row"
+                                style="width: 5rem"
+                            >
+                                Nome
+                            </th>
                             <td>{{ $user->name }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Email</th>
+                            <th
+                                scope="row"
+                                style="width: 5rem"
+                            >
+                                Email
+                            </th>
                             <td>{{ $user->email }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Inicio</th>
+                            <th
+                                scope="row"
+                                style="width: 5rem"
+                            >
+                                Inicio
+                            </th>
                             <td>{{ $user->created_at_formatted }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Telefone</th>
+                            <th
+                                scope="row"
+                                style="width: 5rem"
+                            >
+                                Telefone
+                            </th>
                             <td>{{ PhoneFormatter::toView($user->phone) }}</td>
                         </tr>
                     </tbody>

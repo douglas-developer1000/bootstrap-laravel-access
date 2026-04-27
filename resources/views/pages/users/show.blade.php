@@ -30,11 +30,17 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
+                            <th
+                                scope="col"
+                                style="width: 2.5em"
+                            >
+                                ID
+                            </th>
                             <th scope="col">Nome</th>
                             <th
                                 scope="col"
                                 class="last-thdata"
+                                style="width: 4em"
                             >
                                 Ações
                             </th>
@@ -106,7 +112,12 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
+                            <th
+                                scope="col"
+                                style="width: 2.5em"
+                            >
+                                ID
+                            </th>
                             <th scope="col">Nome</th>
                         </tr>
                     </thead>
@@ -146,11 +157,17 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
+                            <th
+                                scope="col"
+                                style="width: 2.5em"
+                            >
+                                ID
+                            </th>
                             <th scope="col">Nome</th>
                             <th
                                 scope="col"
                                 class="last-thdata"
+                                style="width: 4em"
                             >
                                 Ações
                             </th>

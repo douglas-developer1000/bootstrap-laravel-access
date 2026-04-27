@@ -39,6 +39,9 @@ body {
 .cursor-pointer {
     cursor: pointer;
 }
+.visibility-collapsed {
+    visibility: collapse;
+}
 
 @view-transition {
     navigation: auto;

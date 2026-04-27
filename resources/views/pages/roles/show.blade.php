@@ -29,11 +29,17 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
+                            <th
+                                scope="col"
+                                style="width: 2em"
+                            >
+                                ID
+                            </th>
                             <th scope="col">Nome</th>
                             <th
                                 scope="col"
                                 class="last-thdata"
+                                style="width: 4em"
                             >
                                 Ações
                             </th>
@@ -43,7 +49,11 @@
                         @forelse ($permissions as $perm)
                             <tr>
                                 <td>{{$perm->id}}</td>
-                                <td>{{$perm->name}}</td>
+                                <td>
+                                    <div class="ellipsis">
+                                        {{ $perm->name }}
+                                    </div>
+                                </td>
                                 <td>
                                     <div
                                         class="w-100 d-flex justify-content-between gap-1"

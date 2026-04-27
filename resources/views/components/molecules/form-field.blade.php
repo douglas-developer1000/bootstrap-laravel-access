@@ -11,7 +11,14 @@
     'position' => 'relative'
 ])
 
-<div class="row m-0 w-100 position-{{ $position }}">
+<div
+    {{ $attributes->class([
+        'row',
+        'm-0',
+        'w-100',
+        "position-{$position}"
+    ]) }}
+>
     @if (isset($labelText))
         <label
             for="{{ $id }}"

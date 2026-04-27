@@ -31,15 +31,17 @@
                 label-text="Nome:"
                 placeholder="Insira o nome da permissão"
             />
-            <table
-                class="table table-hover table-striped list-table tabular-data"
-            >
+            <x-molecules.table-index>
+                <x-slot:cols>
+                    <col class="col-remain-created_at" />
+                </x-slot:cols>
                 <thead>
                     <tr>
                         <x-app-table-head sort="id">ID</x-app-table-head>
                         <x-app-table-head sort="name">Nome</x-app-table-head>
                         <x-app-table-head
                             default
+                            colRemain
                             sort="created_at"
                             >Criação</x-app-table-head
                         >
@@ -111,7 +113,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-molecules.table-index>
             <x-app-pagination :paginator="$list" />
         </section>
         <x-packs.success-toast />

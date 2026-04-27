@@ -23,16 +23,24 @@
                 label-text="Nome:"
                 placeholder="Insira um email"
             />
-            <table
-                class="table table-hover table-striped list-table tabular-data"
-            >
+            <x-molecules.table-index>
+                <x-slot:cols>
+                    <col class="col-remain-phone" />
+                    <col class="col-remain-created_at" />
+                </x-slot:cols>
                 <thead>
                     <tr>
                         <x-app-table-head sort="id">ID</x-app-table-head>
                         <x-app-table-head sort="name">E-mail</x-app-table-head>
-                        <th scope="col">Telefone</th>
+                        <th
+                            scope="col"
+                            class="col-remain"
+                        >
+                            Telefone
+                        </th>
                         <x-app-table-head
                             default
+                            colRemain
                             sort="created_at"
                             >Criação</x-app-table-head
                         >
@@ -59,7 +67,7 @@
                             <td>{{ $approval->created_at_formatted }}</td>
                             <td>
                                 <div
-                                    class="w-100 d-flex justify-content-between gap-1"
+                                    class="w-100 d-flex justify-content-center gap-1"
                                 >
                                     <x-atoms.button
                                         class="btn-danger"
@@ -100,7 +108,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-molecules.table-index>
             <x-app-pagination :paginator="$list" />
         </section>
         <x-packs.success-toast />

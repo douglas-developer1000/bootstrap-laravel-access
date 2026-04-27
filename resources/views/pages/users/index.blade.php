@@ -1,7 +1,7 @@
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
-        'resources/css/pages/generic/table.css'
+        'resources/css/pages/generic/table.css',
     ])
 @endpush
 
@@ -55,16 +55,23 @@
                 placeholder="Insira o nome do Usuário"
                 key-term="name"
             />
-            <table
-                class="table table-hover table-striped list-table tabular-data"
-            >
+            <x-molecules.table-index>
+                <x-slot:cols>
+                    <col class="col-remain-email" />
+                    <col class="col-remain-created_at" />
+                </x-slot:cols>
                 <thead>
                     <tr>
                         <x-app-table-head sort="id">ID</x-app-table-head>
                         <x-app-table-head sort="name">Nome</x-app-table-head>
-                        <x-app-table-head sort="email">Email</x-app-table-head>
+                        <x-app-table-head
+                            colRemain
+                            sort="email"
+                            >Email</x-app-table-head
+                        >
                         <x-app-table-head
                             default
+                            colRemain
                             sort="created_at"
                             >Criação</x-app-table-head
                         >
@@ -81,7 +88,12 @@
                         <tr>
                             <td>{{$user->id}}</td>
                             <td>
-                                <div class="ellipsis">{{$user->name}}</div>
+                                <a
+                                    class="ellipsis text-decoration-none text-info"
+                                    href="{{ route('users.show', ['user' => $user->id]) }}"
+                                    title="Visualizar dados do usuário"
+                                    >{{ $user->name }}</a
+                                >
                             </td>
                             <td>
                                 <div class="ellipsis">{{$user->email}}</div>
@@ -148,14 +160,6 @@
                                         <x-atoms.button
                                             format="anchor"
                                             class="btn-secondary"
-                                            href="{{ route('users.show', ['user' => $user->id]) }}"
-                                            title="Visualizar dados do usuário"
-                                        >
-                                            <i class="bi bi-sunglasses"></i>
-                                        </x-atoms.button>
-                                        <x-atoms.button
-                                            format="anchor"
-                                            class="btn-secondary"
                                             href="{{ route('users.edit', ['user' => $user->id]) }}"
                                         >
                                             <i class="bi bi-wrench"></i>
@@ -204,7 +208,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-molecules.table-index>
             <x-app-pagination :paginator="$list" />
         </section>
         <x-packs.success-toast />

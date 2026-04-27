@@ -1,6 +1,8 @@
-@props (['sort'])
+@props (['sort', 'colRemain' => false])
 
-<th scope="col">
+<th
+    {{ $attributes->class(['col-remain' => $colRemain])->merge(['scope' => 'col']) }}
+>
     <a
         class="text-decoration-none position-relative"
         href="{{ $makeHref(request()->url()) }}"

@@ -1,27 +1,66 @@
 @scope (.tabular-data) {
     :scope {
         margin-bottom: 0;
+        table-layout: fixed;
+        width: 100%;
+    }
+    .table-colgroup {
+        col.col-first {
+            width: 3.5em;
+        }
+        col.col-first ~ col[class^="col-remain"]:not(.col-last) {
+            visibility: collapse;
+            width: 0px;
+            opacity: 0;
+        }
+        col.col-first ~ col:not(.col-last) {
+            width: auto;
+        }
+        col.col-last {
+            width: 6.5em;
+        }
+    }
+    @media screen and (min-width: 768px) {
+        .table-colgroup {
+            col.col-second + col[class^="col-remain"]:not(.col-last) {
+                visibility: visible;
+                width: 45%;
+            }
+        }
+        th + th.col-remain {
+            opacity: 1;
+            pointer-events: all;
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        .table-colgroup {
+            col.col-first ~ col[class^="col-remain"]:not(.col-last) {
+                visibility: visible;
+                width: auto;
+            }
+        }
+        th ~ th.col-remain {
+            opacity: 1;
+            pointer-events: all;
+        }
     }
     th {
         font-weight: 500;
         font-style: normal;
-
-        &:nth-child(1) {
-            width: 3.5em;
-        }
-        &.last-thdata {
-            width: 3.25rem;
-        }
-    }
-    td:has(.ellipsis) {
-        max-width: 15rem;
     }
     td:not(.no-values):last-child {
         display: flex;
         justify-content: space-between;
+        padding-block: 0.8rem;
     }
-    tbody td {
+    tbody td,
+    tbody th {
         vertical-align: middle;
+        overflow: hidden;
+    }
+    th.col-remain {
+        opacity: 0;
+        pointer-events: none;
     }
     .no-values {
         text-align: center;

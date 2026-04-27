@@ -34,16 +34,23 @@
                 label-text="Nome:"
                 placeholder="Insira o nome do cliente"
             />
-            <table
-                class="table table-hover table-striped list-table tabular-data"
-            >
+            <x-molecules.table-index>
+                <x-slot:cols>
+                    <col class="col-remain-email" />
+                    <col class="col-remain-created_at" />
+                </x-slot:cols>
                 <thead>
                     <tr>
                         <x-app-table-head sort="id">ID</x-app-table-head>
                         <x-app-table-head sort="name">Nome</x-app-table-head>
-                        <x-app-table-head sort="email">E-mail</x-app-table-head>
+                        <x-app-table-head
+                            colRemain
+                            sort="email"
+                            >E-mail</x-app-table-head
+                        >
                         <x-app-table-head
                             default
+                            colRemain
                             sort="created_at"
                             >Criação</x-app-table-head
                         >
@@ -60,7 +67,12 @@
                         <tr>
                             <td>{{$customer->id}}</td>
                             <td>
-                                <div class="ellipsis">{{$customer->name}}</div>
+                                <a
+                                    href="{{ route('customers.show', ['customer' => $customer->id]) }}"
+                                    class="ellipsis text-decoration-none text-info"
+                                    title="Visualizar dados do cliente"
+                                    >{{$customer->name}}</a
+                                >
                             </td>
                             <td>
                                 <div class="ellipsis">{{$customer->email}}</div>
@@ -70,14 +82,6 @@
                                 <div
                                     class="w-100 d-flex justify-content-between gap-1"
                                 >
-                                    <x-atoms.button
-                                        format="anchor"
-                                        class="btn-secondary"
-                                        href="{{ route('customers.show', ['customer' => $customer->id]) }}"
-                                        title="Visualizar dados do cliente"
-                                    >
-                                        <i class="bi bi-sunglasses"></i>
-                                    </x-atoms.button>
                                     <x-atoms.button
                                         format="anchor"
                                         class="btn-secondary"
@@ -124,7 +128,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-molecules.table-index>
             <x-app-pagination :paginator="$list" />
         </section>
         <x-packs.success-toast />

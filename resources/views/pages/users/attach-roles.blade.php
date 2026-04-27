@@ -30,15 +30,17 @@
                 label-text="Nome:"
                 placeholder="Insira o nome do papel"
             />
-            <table
-                class="table table-hover table-striped list-table tabular-data"
-            >
+            <x-molecules.table-index>
+                <x-slot:cols>
+                    <col class="col-remain-created_at" />
+                </x-slot:cols>
                 <thead>
                     <tr>
                         <x-app-table-head sort="id">ID</x-app-table-head>
                         <x-app-table-head sort="name">Nome</x-app-table-head>
                         <x-app-table-head
                             default
+                            colRemain
                             sort="created_at"
                             >Criação</x-app-table-head
                         >
@@ -54,13 +56,15 @@
                     @forelse ($roles as $role)
                         <tr>
                             <td>{{$role->id}}</td>
-                            <td>{{$role->name}}</td>
+                            <td>
+                                <div class="ellipsis">{{ $role->name }}</div>
+                            </td>
                             <td>
                                 {{ DatetimeFormatter::formatToDate($role->created_at) }}
                             </td>
                             <td>
                                 <div
-                                    class="w-100 d-flex justify-content-between gap-1"
+                                    class="w-100 d-flex justify-content-center gap-1"
                                 >
                                     <x-atoms.button
                                         class="btn-primary"
@@ -110,7 +114,7 @@
                         </tr>
                     @endforelse
                 </tbody>
-            </table>
+            </x-molecules.table-index>
             <x-app-pagination :paginator="$roles" />
         </section>
         <x-packs.success-toast />

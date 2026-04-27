@@ -1,7 +1,6 @@
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
-        'resources/css/pages/generic/table.css',
         'resources/css/pages/settings/user/edit.css',
     ])
 @endpush
@@ -32,79 +31,42 @@
                 >
                     @csrf
                     @method ('PUT')
-                    <table class="table tabular-data">
-                        <tbody>
-                            <tr>
-                                <td
-                                    class="no-values photo-field"
-                                    colspan="2"
-                                >
-                                    <x-molecules.form-field
-                                        name="photo"
-                                        type="file"
-                                        label-text="Foto:"
-                                        :value="old('photo', $user->photo)"
-                                        position="static"
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    @php
-                                        $idName = uniqid('el_');
-                                    @endphp
-                                    <label
-                                        for="{{ $idName }}"
-                                        class="form-label"
-                                        >Nome</label
-                                    >
-                                </th>
-                                <td>
-                                    <x-molecules.form-field
-                                        :id="$idName"
-                                        name="name"
-                                        type="text"
-                                        placeholder="Insira o nome do usuário"
-                                        required
-                                        :value="old('name', $user->name)"
-                                        autocomplete="no"
-                                        position="static"
-                                    />
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    @php
-                                        $idPhone = uniqid('el_');
-                                    @endphp
-                                    <label
-                                        for="{{ $idPhone }}"
-                                        class="form-label"
-                                        >Telefone</label
-                                    >
-                                </th>
-                                <td>
-                                    <x-molecules.form-field
-                                        :id="$idPhone"
-                                        name="phone"
-                                        type="tel"
-                                        placeholder="Insira o telefone do usuário"
-                                        :value="old('phone', $user->phone)"
-                                        autocomplete="no"
-                                        position="static"
-                                    />
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="d-flex w-100 justify-content-end mt-2">
-                        <x-atoms.button
-                            class="btn btn-primary"
-                            type="submit"
-                            title="Salvar"
-                        >
-                            Atualizar
-                        </x-atoms.button>
+                    <div>
+                        <x-molecules.form-field
+                            class="grid-field"
+                            name="photo"
+                            type="file"
+                            label-text="Foto:"
+                            :value="old('photo', $user->photo)"
+                        />
+                        <x-molecules.form-field
+                            class="grid-field"
+                            name="name"
+                            type="text"
+                            label-text="Nome:"
+                            placeholder="Insira o nome do usuário"
+                            {{-- required --}}
+                            :value="old('name', $user->name)"
+                            autocomplete="no"
+                        />
+                        <x-molecules.form-field
+                            class="grid-field"
+                            label-text="Telefone:"
+                            name="phone"
+                            type="tel"
+                            placeholder="Insira o telefone do usuário"
+                            :value="old('phone', $user->phone)"
+                            autocomplete="no"
+                        />
+                        <div class="d-flex w-100 justify-content-end mt-2">
+                            <x-atoms.button
+                                class="btn btn-primary"
+                                type="submit"
+                                title="Salvar"
+                            >
+                                Atualizar
+                            </x-atoms.button>
+                        </div>
                     </div>
                 </form>
             </fieldset>
