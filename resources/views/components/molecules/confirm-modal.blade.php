@@ -1,4 +1,11 @@
-@props (['id', 'heading', 'negative-text', 'positive-text', 'href' => '', 'method' => ''])
+@props ([
+    'id',
+    'heading',
+    'negativeText',
+    'positiveText',
+    'href' => '',
+    'method' => ''
+])
 
 <div
     class="modal fade"

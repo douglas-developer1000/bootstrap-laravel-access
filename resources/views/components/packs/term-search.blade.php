@@ -1,4 +1,9 @@
-@props (['id' => 'term-'.uniqid(), 'labelText', 'placeholder', 'keyTerm' => 'q'])
+@props ([
+    'id' => 'term-'.uniqid(),
+    'labelText',
+    'placeholder',
+    'keyTerm' => 'q'
+])
 
 <form
     method="get"

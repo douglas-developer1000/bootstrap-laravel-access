@@ -3,7 +3,7 @@
     'name',
     'errorName' => $name,
     'type' => 'text',
-    'label-text' => NULL,
+    'labelText' => NULL,
     'placeholder' => NULL,
     'value' => '',
     'required' => false,

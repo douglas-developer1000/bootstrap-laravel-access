@@ -1,4 +1,4 @@
-@props (['href', 'mobile-href', 'img-alt'])
+@props (['href', 'mobileHref', 'imgAlt'])
 
 @push ('styling')
     @vite ('resources/css/components/packs/gate-back-img.css')
@@ -12,7 +12,7 @@
         />
         <img
             class="back-img"
-            src="{{ $mobileHref  }}"
+            src="{{ $mobileHref }}"
             alt="{{ $imgAlt }}"
         />
     </picture>
