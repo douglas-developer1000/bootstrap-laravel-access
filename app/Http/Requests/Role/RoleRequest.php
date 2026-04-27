@@ -7,6 +7,7 @@ namespace App\Http\Requests\Role;
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
 use App\Http\Requests\Role\Strategies\Persistence;
+use App\Http\Requests\Role\Strategies\Update;
 use Exception;
 
 final class RoleRequest extends CustomFormRequest
@@ -16,10 +17,9 @@ final class RoleRequest extends CustomFormRequest
         $method = strtolower($this->method());
         switch ($method) {
             case 'post':
-                return new Persistence($method);
+                return new Persistence();
             case 'put':
-                return new Persistence(
-                    method: $method,
+                return new Update(
                     id: $this->route('role')
                 );
             default:

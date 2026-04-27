@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Role\Strategies;
 
 use App\Http\Requests\Checker;
@@ -7,25 +9,8 @@ use Illuminate\Validation\Rule;
 
 class Persistence implements Checker
 {
-    public function __construct(
-        /** @var string $method **/
-        protected string $method,
-        protected string|null $id = NULL
-    ) {
-        // ...
-    }
-
     public function rules(): array
     {
-        if ($this->method === 'put') {
-            return [
-                'name' => [
-                    'required',
-                    'min:3',
-                    Rule::unique('roles', 'name')->ignore($this->id ?? 0, 'id')
-                ]
-            ];
-        }
         return [
             'name' => [
                 'required',
