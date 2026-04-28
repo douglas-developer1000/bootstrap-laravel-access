@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/bootstrap.ts',
                 'resources/js/components/packs/success-toast.ts',
                 'resources/js/pages/customers/create-edit.ts',
+                'resources/js/pages/generic/multiselection.ts',
 
                 'resources/css/pages/signup.css',
                 'resources/css/pages/signin.css',

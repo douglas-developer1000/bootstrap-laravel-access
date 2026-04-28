@@ -5,10 +5,18 @@
     ])
 @endpush
 
+@push ('ecmascript-bottom')
+    @vite ([
+        'resources/js/pages/generic/multiselection.ts'
+    ])
+@endpush
+
 @php
     $trashed = request()->boolean('trashed');
     $subject = 'Usuários' . ($trashed ? ' Removidos' : '');
     $qs = request()->query->all();
+
+    $formRemotionGroupId = uniqid('form_');
 @endphp
 
 <x-layout title="Lista de {{ $subject  }}">
@@ -50,11 +58,42 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            <x-packs.term-search
-                label-text="Nome:"
-                placeholder="Insira o nome do Usuário"
-                key-term="name"
-            />
+            @if ($errors->has('remotion') || $errors->has('remotion.*'))
+                <div
+                    class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
+                >
+                    {{ $message }}
+                </div>
+            @endif
+            <div class="d-flex flex-wrap justify-content-between row-gap-2">
+                <x-packs.term-search
+                    label-text="Nome:"
+                    placeholder="Insira o nome do Usuário"
+                    key-term="name"
+                />
+                <x-atoms.button
+                    class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmModalGroupRemove"
+                    title="Remover vários usuários"
+                    disabled
+                >
+                    Remover selecionados
+                </x-atoms.button>
+                <x-molecules.confirm-modal
+                    id="GroupRemove"
+                    href="{!!
+                        route('users.group.destroy', $qs)
+                    !!}"
+                    :formId="$formRemotionGroupId"
+                    heading="Remover estes usuários?"
+                    :method="method_field('DELETE')"
+                    negative-text="Manter"
+                    positive-text="Remover usuários"
+                >
+                    Isso removerá os usuários selecionados permanentemente.
+                </x-molecules.confirm-modal>
+            </div>
             <x-molecules.table-index>
                 <x-slot:cols>
                     <col class="col-remain-email" />
@@ -62,7 +101,12 @@
                 </x-slot:cols>
                 <thead>
                     <tr>
-                        <x-app-table-head sort="id">ID</x-app-table-head>
+                        <th scope="col">
+                            <input
+                                type="checkbox"
+                                class="form-check-input cursor-pointer multiselection-all"
+                            />
+                        </th>
                         <x-app-table-head sort="name">Nome</x-app-table-head>
                         <x-app-table-head
                             colRemain
@@ -86,7 +130,18 @@
                 <tbody>
                     @forelse ($list as $user)
                         <tr>
-                            <td>{{$user->id}}</td>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    name="remotion[]"
+                                    value="{{ $user->id }}"
+                                    class="form-check-input cursor-pointer multiselection-item"
+                                    form="{{ $formRemotionGroupId }}"
+                                    @cannot ('remove-user', $user)
+                                        disabled
+                                    @endcannot
+                                />
+                            </td>
                             <td>
                                 <a
                                     class="ellipsis text-decoration-none text-info"

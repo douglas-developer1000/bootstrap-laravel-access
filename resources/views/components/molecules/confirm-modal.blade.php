@@ -4,6 +4,7 @@
     'negativeText',
     'positiveText',
     'href' => '',
+    'formId' => uniqid('form_'),
     'method' => ''
 ])
 
@@ -42,6 +43,7 @@
                 <form
                     action="{{ $href }}"
                     method="post"
+                    id="{{ $formId }}"
                 >
                     {{ $method }}
                     @csrf

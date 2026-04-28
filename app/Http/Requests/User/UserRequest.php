@@ -6,6 +6,7 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
+use App\Http\Requests\User\Strategies\Destroy;
 use App\Http\Requests\User\Strategies\FastPersistence;
 use App\Http\Requests\User\Strategies\Persistence;
 use App\Http\Requests\User\Strategies\Update;
@@ -33,6 +34,8 @@ final class UserRequest extends CustomFormRequest
                     'post' => new Persistence($this),
                     default => throw new Exception("Method Not Implemented", 1),
                 };
+            case route('users.group.destroy'):
+                return new Destroy($this);
             default:
                 throw new Exception("Method Not Implemented", 1);
         }

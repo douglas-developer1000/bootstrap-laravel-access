@@ -22,4 +22,9 @@ final class UserService
     {
         return $this->repository->update($id, $attributes);
     }
+
+    public function removeList(array $ids, bool $forceDelete = false)
+    {
+        return $this->repository->destroy($ids, $forceDelete);
+    }
 }

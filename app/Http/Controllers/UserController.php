@@ -295,4 +295,25 @@ final class UserController extends Controller
             'toastMsg' => 'Usuário restaurado com sucesso!'
         ]);
     }
+
+    public function removeGroup(UserRequest $request)
+    {
+        $qs = collect(request()->query() ?? []);
+        $forceDelete = $qs->contains(
+            fn($value, $key) => $key === 'trashed' && $value === '1'
+        );
+
+        $remotions = collect($request->validated('remotion'))->map(
+            fn($val) => \intval($val)
+        )->all();
+        $this->userSvc->removeList($remotions, $forceDelete);
+
+        return redirect()->route(
+            'users.index',
+            $qs->all()
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuários removidos com sucesso!'
+        ]);
+    }
 }

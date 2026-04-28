@@ -11,4 +11,14 @@ class UserRepository extends AbstractRepository
     {
         parent::__construct(User::class);
     }
+
+    public function destroy(array $ids, bool $forceDelete): void
+    {
+        $query = $this->loadModel()::whereIn('id', $ids);
+        if ($forceDelete) {
+            $query->forceDelete();
+        } else {
+            $query->delete();
+        }
+    }
 }
