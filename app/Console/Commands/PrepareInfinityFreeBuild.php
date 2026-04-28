@@ -26,6 +26,9 @@ final class PrepareInfinityFreeBuild extends Command
      * 
      * - $ composer install
      * - $ composer dump-autoload
+     * 
+     * This execution must run before required migrations to access
+     * the their database schemas generation (on schema.sql file)
      */
     public function handle()
     {
@@ -36,6 +39,7 @@ final class PrepareInfinityFreeBuild extends Command
 
         $this->runZipProcess();
         $this->clearTasksPos();
+        $this->buildDatabasePreSchema();
 
         $this->info('End of artisan command!');
     }
@@ -136,6 +140,16 @@ final class PrepareInfinityFreeBuild extends Command
             $fileSource = $this->buildPath($basePath, $filename);
             $zip->addFile($fileSource, $filename);
         }
+    }
+
+    protected function buildDatabasePreSchema()
+    {
+        $outputPath = $this->buildPath(storage_path('builds'), 'schemas.sql');
+        $this->runBashCommand(
+            "php artisan migrate --pretend > {$outputPath}",
+            'Gerando schema do banco de dados...',
+            'Schema do banco de dados gerado!'
+        );
     }
 
     protected function clearTasksPre()
