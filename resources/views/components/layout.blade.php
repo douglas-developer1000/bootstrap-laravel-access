@@ -22,6 +22,27 @@
     <title>{{ $title ?? '' }}</title>
 
     <link
+        rel="icon"
+        href="/images/favicon/favicon-16x16.png"
+        type="image/png"
+        sizes="16x16"
+    />
+    <link
+        rel="icon"
+        href="/images/favicon/favicon-32x32.png"
+        type="image/png"
+        sizes="32x32"
+    />
+
+    @foreach ([60, 72, 76, 114, 120, 144, 152, 167, 180] as $size)
+        <link
+            rel="apple-touch-icon"
+            href="/images/favicon/apple/apple-touch-icon-{{ "{$size}x{$size}" }}.png"
+            sizes="{{ "{$size}x{$size}" }}"
+        />
+    @endforeach
+
+    <link
         rel="preconnect"
         href="https://fonts.googleapis.com"
     />
