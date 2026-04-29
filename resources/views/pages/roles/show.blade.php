@@ -98,7 +98,7 @@
                         @empty
                             <tr>
                                 <td
-                                    colspan="2"
+                                    colspan="3"
                                     class="no-values"
                                 >
                                     Sem permissões vinculadas
