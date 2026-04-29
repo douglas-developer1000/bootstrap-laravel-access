@@ -17,6 +17,7 @@ Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function 
     Route::delete('/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     Route::get('/{role}/attach', [RoleController::class, 'attach'])->name('roles.attach');
+    Route::post('/{role}/attach/group', [RoleController::class, 'attachGroup'])->name('roles.group.attach');
     Route::post('/{role}/attach/{permission}', [RoleController::class, 'bind'])->name('roles.bind');
     Route::post('/{role}/detach/{permission}', [RoleController::class, 'unbind'])->name('roles.unbind');
 });

@@ -4,9 +4,15 @@
         'resources/css/pages/generic/table.css'
     ])
 @endpush
+@push ('ecmascript-bottom')
+    @vite ([
+        'resources/js/pages/generic/multiselection.ts'
+    ])
+@endpush
 
 @php
     $qs = request()->query->all();
+    $formAttachGroupId = uniqid('form_');
 @endphp
 @use ('App\Libraries\Utils\DatetimeFormatter')
 
@@ -25,17 +31,57 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            <x-packs.term-search
-                label-text="Nome:"
-                placeholder="Insira o nome da permissão"
-            />
+            @if ($errors->has('attachment') || $errors->has('attachment.*'))
+                <div
+                    class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
+                >
+                    {{ $message }}
+                </div>
+            @endif
+            <div class="d-flex flex-wrap justify-content-between row-gap-2">
+                <x-packs.term-search
+                    label-text="Nome:"
+                    placeholder="Insira o nome da permissão"
+                />
+                <x-atoms.button
+                    class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmModalGroupAttach"
+                    title="Vincular várias permissões"
+                    data-form="{{ $formAttachGroupId }}"
+                    data-name="attachment[]"
+                    disabled
+                >
+                    Vincular selecionados
+                </x-atoms.button>
+                <x-molecules.confirm-modal
+                    id="GroupAttach"
+                    href="{!!
+                        route('roles.group.attach', collect([
+                            'role' => $role->id
+                        ])->merge($qs)->all())
+                    !!}"
+                    :formId="$formAttachGroupId"
+                    heading="Vincular estas permissões?"
+                    negative-text="Manter"
+                    positive-text="Vincular permissões"
+                >
+                    Isso vinculará as permissões selecionadas ao papel
+                    <span class="fw-medium">{{ $role->name }}</span>.
+                </x-molecules.confirm-modal>
+            </div>
             <x-molecules.table-index>
                 <x-slot:cols>
                     <col class="col-remain-created_at" />
                 </x-slot:cols>
                 <thead>
                     <tr>
-                        <x-app-table-head sort="id">ID</x-app-table-head>
+                        <th scope="col">
+                            <input
+                                type="checkbox"
+                                class="form-check-input cursor-pointer multiselection-all"
+                            />
+                        </th>
                         <x-app-table-head sort="name">Nome</x-app-table-head>
                         <x-app-table-head
                             default
@@ -54,7 +100,13 @@
                 <tbody>
                     @forelse ($list as $perm)
                         <tr>
-                            <td>{{$perm->id}}</td>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    value="{{ $perm->id }}"
+                                    class="form-check-input cursor-pointer multiselection-item"
+                                />
+                            </td>
                             <td>{{$perm->name}}</td>
                             <td>
                                 {{ DatetimeFormatter::formatToDate($perm->created_at) }}

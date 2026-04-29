@@ -45,7 +45,7 @@ class RoleController extends Controller
         return view('pages.roles.create');
     }
 
-    public function store(RoleRequest  $request)
+    public function store(RoleRequest $request)
     {
         Role::create(['name' => $request->validated('name')]);
         return redirect()->route('roles.index')->with([
@@ -148,6 +148,22 @@ class RoleController extends Controller
         )->with([
             'toastShow' => true,
             'toastMsg' => 'Papéis removidos com sucesso!'
+        ]);
+    }
+
+    public function attachGroup(RoleRequest $request, Role $role)
+    {
+        $permissions = Permission::whereIn(
+            'id',
+            $request->validated('attachment')
+        )->get('name')->pluck('name')->all();
+        $role->givePermissionTo(...$permissions);
+
+        return redirect()->route('roles.attach', [
+            'role' => $role->id
+        ])->with([
+            'toastShow' => true,
+            'toastMsg' => 'Vinculação executada com sucesso!'
         ]);
     }
 }
