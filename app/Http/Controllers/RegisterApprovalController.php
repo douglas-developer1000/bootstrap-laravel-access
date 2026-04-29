@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RegisterApproval\RegisterApprovalRequest;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
 use App\Models\RegisterApproval;
 
-class RegisterApprovalController extends Controller
+final class RegisterApprovalController extends Controller
 {
     public function index(Request $request)
     {
@@ -38,6 +41,22 @@ class RegisterApprovalController extends Controller
         )->with([
             'toastShow' => true,
             'toastMsg' => 'Aprovação removida com sucesso!'
+        ]);
+    }
+
+    public function removeGroup(RegisterApprovalRequest $request)
+    {
+        $remotions = collect($request->validated('remotion'))->map(
+            fn($val) => \intval($val)
+        )->all();
+        RegisterApproval::whereIn('id', $remotions)->delete();
+
+        return redirect()->route(
+            'register.approvals.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Aprovações removidas com sucesso!'
         ]);
     }
 }
