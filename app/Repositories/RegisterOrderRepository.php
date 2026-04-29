@@ -42,4 +42,9 @@ final class RegisterOrderRepository extends AbstractRepository
         }
         return $this->loadModel()::query()->firstWhere('email', $email);
     }
+
+    public function destroy(array $ids)
+    {
+        $this->loadModel()::whereIn('id', $ids)->delete();
+    }
 }

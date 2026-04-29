@@ -8,6 +8,8 @@ use App\Libraries\Enums\RoleNameEnum;
 
 Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function () {
     Route::get('/', [RegisterOrderController::class, 'index'])->name('register.orders.index');
+    Route::delete('/group', [RegisterOrderController::class, 'removeGroup'])->name('register.orders.group.destroy');
+    Route::delete('/group/approval', [RegisterOrderController::class, 'approveGroup'])->name('register.orders.group.approve');
     Route::delete('/{order}', [RegisterOrderController::class, 'destroy'])->name('register.orders.destroy');
     Route::delete('/{order}/approval', [RegisterOrderController::class, 'approve'])->name('register.orders.approve');
 });

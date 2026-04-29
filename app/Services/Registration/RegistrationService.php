@@ -13,8 +13,8 @@ use App\Models\{
     RegisterOrder,
     RegisterApproval
 };
-use \Illuminate\Support\Carbon;
 use App\Repositories\UserRepository;
+use Carbon\Carbon;
 
 final class RegistrationService implements RegistrationInterface
 {

@@ -70,7 +70,7 @@ class RegisterOrderController extends Controller
         ]);
     }
 
-    public function approve(RegisterOrder $order)
+    protected function approveOrder(RegisterOrder $order)
     {
         $this->registerOrderService->delete($order->id);
         $token = TokenBuilder::build();
@@ -89,6 +89,11 @@ class RegisterOrderController extends Controller
         /** @var RegisterApproval $registerApproval */
         $registerApproval = $this->registerApprovalService->create($fields);
         $registerApproval->notify(new RegisterApprovalNotification);
+    }
+
+    public function approve(RegisterOrder $order)
+    {
+        $this->approveOrder($order);
 
         return redirect()->route(
             'register.orders.index',
@@ -109,6 +114,39 @@ class RegisterOrderController extends Controller
         )->with([
             'toastShow' => true,
             'toastMsg' => 'Pedido removido com sucesso!'
+        ]);
+    }
+
+    public function removeGroup(RegisterOrderRequest $request)
+    {
+        $remotions = collect($request->validated('remotion'))->map(
+            fn($val) => \intval($val)
+        )->all();
+        $this->registerOrderService->removeList($remotions);
+
+        return redirect()->route(
+            'register.orders.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Pedidos removidos com sucesso!'
+        ]);
+    }
+
+    public function approveGroup(RegisterOrderRequest $request)
+    {
+        collect($request->validated('approvement'))->map(
+            fn($val) => RegisterOrder::find($val)
+        )->each(
+            fn(RegisterOrder $order) => $this->approveOrder($order)
+        );
+
+        return redirect()->route(
+            'register.orders.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Pedidos aprovados com sucesso!'
         ]);
     }
 }

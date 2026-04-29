@@ -18,4 +18,9 @@ final class RegisterOrderService
     {
         return $this->repository->delete($id);
     }
+
+    public function removeList(array $ids)
+    {
+        return $this->repository->destroy($ids);
+    }
 }
