@@ -4,9 +4,15 @@
         'resources/css/pages/generic/table.css'
     ])
 @endpush
+@push ('ecmascript-bottom')
+    @vite ([
+        'resources/js/pages/generic/multiselection.ts'
+    ])
+@endpush
 
 @php
     $qs = request()->query->all();
+    $formRemotionGroupId = uniqid('form_');
 @endphp
 @use ('App\Libraries\Utils\DatetimeFormatter')
 
@@ -27,17 +33,53 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            <x-packs.term-search
-                label-text="Nome:"
-                placeholder="Insira o nome da permissão"
-            />
+            @if ($errors->has('remotion') || $errors->has('remotion.*'))
+                <div
+                    class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
+                >
+                    {{ $message }}
+                </div>
+            @endif
+            <div class="d-flex flex-wrap justify-content-between row-gap-2">
+                <x-packs.term-search
+                    label-text="Nome:"
+                    placeholder="Insira o nome da permissão"
+                />
+                <x-atoms.button
+                    class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmModalGroupRemove"
+                    title="Remover várias permissões"
+                    disabled
+                >
+                    Remover selecionados
+                </x-atoms.button>
+                <x-molecules.confirm-modal
+                    id="GroupRemove"
+                    href="{!!
+                        route('permissions.group.destroy', $qs)
+                    !!}"
+                    :formId="$formRemotionGroupId"
+                    heading="Remover estas permissões?"
+                    :method="method_field('DELETE')"
+                    negative-text="Manter"
+                    positive-text="Remover permissões"
+                >
+                    Isso removerá as permissões selecionadas permanentemente.
+                </x-molecules.confirm-modal>
+            </div>
             <x-molecules.table-index>
                 <x-slot:cols>
                     <col class="col-remain-created_at" />
                 </x-slot:cols>
                 <thead>
                     <tr>
-                        <x-app-table-head sort="id">ID</x-app-table-head>
+                        <th scope="col">
+                            <input
+                                type="checkbox"
+                                class="form-check-input cursor-pointer multiselection-all"
+                            />
+                        </th>
                         <x-app-table-head sort="name">Nome</x-app-table-head>
                         <x-app-table-head
                             default
@@ -56,7 +98,15 @@
                 <tbody>
                     @forelse ($list as $perm)
                         <tr>
-                            <td>{{$perm->id}}</td>
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    name="remotion[]"
+                                    value="{{ $perm->id }}"
+                                    class="form-check-input cursor-pointer multiselection-item"
+                                    form="{{ $formRemotionGroupId }}"
+                                />
+                            </td>
                             <td>
                                 <div class="ellipsis">{{$perm->name}}</div>
                             </td>

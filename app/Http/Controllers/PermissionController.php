@@ -73,4 +73,20 @@ class PermissionController extends Controller
             'toastMsg' => 'Permissão removida com sucesso!'
         ]);
     }
+
+    public function removeGroup(PermissionRequest $request)
+    {
+        $remotions = collect($request->validated('remotion'))->map(
+            fn($val) => \intval($val)
+        )->all();
+        Permission::whereIn('id', $remotions)->delete();
+
+        return redirect()->route(
+            'permissions.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Permissões removidas com sucesso!'
+        ]);
+    }
 }
