@@ -82,4 +82,9 @@ final class CustomerService
     {
         return $this->customerPhoneRepo->findByCustomer($customer);
     }
+
+    public function removeList(array $ids)
+    {
+        return $this->customerRepo->destroy($ids);
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
 use App\Http\Requests\Customer\Strategies\Persistence;
 use App\Http\Requests\Customer\Strategies\Update;
+use App\Http\Requests\Customer\Strategies\Destroy;
 
 final class CustomerRequest extends CustomFormRequest
 {
@@ -23,6 +24,8 @@ final class CustomerRequest extends CustomFormRequest
                 return new Update(
                     id: $customer->id,
                 );
+            case 'delete':
+                return new Destroy();
             default:
                 throw new \Exception("Method Not Implemented", 1);
         }

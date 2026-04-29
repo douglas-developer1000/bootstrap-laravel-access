@@ -30,6 +30,10 @@ Route::put('/{customer}', [CustomerController::class, 'update'])
     ->name('customers.update')
     ->middleware('can:' . PermissionNameEnum::CUSTOMER_UPDATE->value);
 
+Route::delete('/group', [CustomerController::class, 'removeGroup'])
+    ->name('customers.group.destroy')
+    ->middleware('can:' . PermissionNameEnum::CUSTOMER_DESTROY->value);
+
 Route::delete('/{customer}', [CustomerController::class, 'destroy'])
     ->name('customers.destroy')
     ->middleware('can:' . PermissionNameEnum::CUSTOMER_DESTROY->value);

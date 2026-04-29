@@ -109,4 +109,20 @@ class CustomerController extends Controller
             'toastMsg' => 'Cliente removido com sucesso!'
         ]);
     }
+
+    public function removeGroup(CustomerRequest $request)
+    {
+        $remotions = collect($request->validated('remotion'))->map(
+            fn($val) => \intval($val)
+        )->all();
+        $this->svc->removeList($remotions);
+
+        return redirect()->route(
+            'customers.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Clientes removidos com sucesso!'
+        ]);
+    }
 }

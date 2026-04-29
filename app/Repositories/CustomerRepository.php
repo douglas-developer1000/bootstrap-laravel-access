@@ -13,4 +13,9 @@ final class CustomerRepository extends AbstractRepository
     {
         parent::__construct(Customer::class);
     }
+
+    public function destroy(array $ids): void
+    {
+        $this->loadModel()::whereIn('id', $ids)->delete();
+    }
 }
