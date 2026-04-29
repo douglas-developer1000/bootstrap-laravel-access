@@ -50,6 +50,8 @@
                     data-bs-toggle="modal"
                     data-bs-target="#confirmModalGroupRemove"
                     title="Remover vários papéis"
+                    data-form="{{ $formRemotionGroupId }}"
+                    data-name="remotion[]"
                     disabled
                 >
                     Remover selecionados
@@ -102,10 +104,8 @@
                             <td>
                                 <input
                                     type="checkbox"
-                                    name="remotion[]"
                                     value="{{ $role->id }}"
                                     class="form-check-input cursor-pointer multiselection-item"
-                                    form="{{ $formRemotionGroupId }}"
                                     @if ($role->name === 'super-admin' || $role->name === 'user')
                                         disabled
                                     @endif
