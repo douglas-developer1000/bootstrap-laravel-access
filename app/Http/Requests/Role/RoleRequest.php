@@ -6,6 +6,7 @@ namespace App\Http\Requests\Role;
 
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
+use App\Http\Requests\Role\Strategies\Destroy;
 use App\Http\Requests\Role\Strategies\Persistence;
 use App\Http\Requests\Role\Strategies\Update;
 use Exception;
@@ -22,6 +23,8 @@ final class RoleRequest extends CustomFormRequest
                 return new Update(
                     id: $this->route('role')
                 );
+            case 'delete':
+                return new Destroy();
             default:
                 throw new Exception("Method Not Implemented", 1);
         }

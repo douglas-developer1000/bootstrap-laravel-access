@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Role\RoleRequest;
@@ -130,6 +132,22 @@ class RoleController extends Controller
         ])->with([
             'toastShow' => true,
             'toastMsg' => 'Desvinculação executada com sucesso!'
+        ]);
+    }
+
+    public function removeGroup(RoleRequest $request)
+    {
+        $remotions = collect($request->validated('remotion'))->map(
+            fn($val) => \intval($val)
+        )->all();
+        Role::whereIn('id', $remotions)->delete();
+
+        return redirect()->route(
+            'roles.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Papéis removidos com sucesso!'
         ]);
     }
 }

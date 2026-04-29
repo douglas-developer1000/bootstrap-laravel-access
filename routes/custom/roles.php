@@ -13,6 +13,7 @@ Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function 
     Route::get('/{role}/edit/', [RoleController::class, 'edit'])->name('roles.edit');
     Route::post('/', [RoleController::class, 'store'])->name('roles.store');
     Route::put('/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/group', [RoleController::class, 'removeGroup'])->name('roles.group.destroy');
     Route::delete('/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     Route::get('/{role}/attach', [RoleController::class, 'attach'])->name('roles.attach');
