@@ -27,4 +27,9 @@ final class UserService
     {
         return $this->repository->destroy($ids, $forceDelete);
     }
+
+    public function restoreList(array $ids)
+    {
+        $this->repository->restore($ids);
+    }
 }

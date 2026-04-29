@@ -18,7 +18,7 @@ Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function 
     Route::get('/trashed', [UserController::class, 'index'])->name('users.trashed.index');
     Route::delete('/trashed/{user}', [UserController::class, 'destroyTrashed'])->name('users.trashed.destroy');
     Route::post('/trashed/{user}/restore', [UserController::class, 'restore'])->name('users.trashed.restore');
-
+    Route::post('/trashed/restore/group', [UserController::class, 'restoreGroup'])->name('users.trashed.group.restore');
 
     Route::get('/{user}/attach/roles', [UserController::class, 'attachRoles'])->name('users.attach.roles');
     Route::post('/{user}/attach/roles/{role}', [UserController::class, 'bindRole'])->name('users.bind.roles');

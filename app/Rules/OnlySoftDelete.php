@@ -9,6 +9,11 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 
 final class OnlySoftDelete implements ValidationRule
 {
+    public function __construct(protected string $target)
+    {
+        // ...
+    }
+
     /**
      * Run the validation rule.
      *
@@ -19,7 +24,7 @@ final class OnlySoftDelete implements ValidationRule
         $item = User::onlyTrashed()->find($value);
 
         if ($item && empty($item->deleted_at)) {
-            $fail("Remoção inválida");
+            $fail("{$this->target} inválida");
         }
     }
 }

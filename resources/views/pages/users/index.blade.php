@@ -16,7 +16,8 @@
     $subject = 'Usuários' . ($trashed ? ' Removidos' : '');
     $qs = request()->query->all();
 
-    $formRemotionGroupId = uniqid('form_');
+    $formRemotionGroupId = uniqid('formRemove_');
+    $formRestarionGroupId = uniqid('formRestore_');
 @endphp
 
 <x-layout title="Lista de {{ $subject  }}">
@@ -71,28 +72,59 @@
                     placeholder="Insira o nome do Usuário"
                     key-term="name"
                 />
-                <x-atoms.button
-                    class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmModalGroupRemove"
-                    title="Remover vários usuários"
-                    disabled
+                <div
+                    class="d-flex justify-content-end flex-grow-1 column-gap-2"
                 >
-                    Remover selecionados
-                </x-atoms.button>
-                <x-molecules.confirm-modal
-                    id="GroupRemove"
-                    href="{!!
+                    @if ($trashed)
+                        <x-atoms.button
+                            class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmModalGroupRestore"
+                            title="Restaurar vários usuários"
+                            disabled
+                            data-form="{{ $formRestarionGroupId }}"
+                            data-name="restoration[]"
+                        >
+                            Restaurar selecionados
+                        </x-atoms.button>
+                        <x-molecules.confirm-modal
+                            id="GroupRestore"
+                            href="{!!
+                                route('users.trashed.group.restore')
+                            !!}"
+                            :formId="$formRestarionGroupId"
+                            heading="Restaurar estes usuários?"
+                            negative-text="Manter"
+                            positive-text="Restaurar usuários"
+                        >
+                            Isso restaurará os usuários selecionados.
+                        </x-molecules.confirm-modal>
+                    @endif
+                    <x-atoms.button
+                        class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmModalGroupRemove"
+                        title="Remover vários usuários"
+                        data-form="{{ $formRemotionGroupId }}"
+                        data-name="remotion[]"
+                        disabled
+                    >
+                        Remover selecionados
+                    </x-atoms.button>
+                    <x-molecules.confirm-modal
+                        id="GroupRemove"
+                        href="{!!
                         route('users.group.destroy', $qs)
                     !!}"
-                    :formId="$formRemotionGroupId"
-                    heading="Remover estes usuários?"
-                    :method="method_field('DELETE')"
-                    negative-text="Manter"
-                    positive-text="Remover usuários"
-                >
-                    Isso removerá os usuários selecionados permanentemente.
-                </x-molecules.confirm-modal>
+                        :formId="$formRemotionGroupId"
+                        heading="Remover estes usuários?"
+                        :method="method_field('DELETE')"
+                        negative-text="Manter"
+                        positive-text="Remover usuários"
+                    >
+                        Isso removerá os usuários selecionados permanentemente.
+                    </x-molecules.confirm-modal>
+                </div>
             </div>
             <x-molecules.table-index>
                 <x-slot:cols>
@@ -133,10 +165,8 @@
                             <td>
                                 <input
                                     type="checkbox"
-                                    name="remotion[]"
                                     value="{{ $user->id }}"
                                     class="form-check-input cursor-pointer multiselection-item"
-                                    form="{{ $formRemotionGroupId }}"
                                     @cannot ('remove-user', $user)
                                         disabled
                                     @endcannot

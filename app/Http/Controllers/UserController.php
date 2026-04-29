@@ -316,4 +316,20 @@ final class UserController extends Controller
             'toastMsg' => 'Usuários removidos com sucesso!'
         ]);
     }
+
+    public function restoreGroup(UserRequest $request)
+    {
+        $restorations = collect($request->validated('restoration'))->map(
+            fn($val) => \intval($val)
+        )->all();
+        $this->userSvc->restoreList($restorations);
+
+        return redirect()->route(
+            'users.index',
+            ['trashed' => '1']
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuários restaurados com sucesso!'
+        ]);
+    }
 }

@@ -39,7 +39,7 @@ final class Destroy implements Checker
         ];
 
         if ($this->forceDelete) {
-            $rules['remotion.*'][] = new OnlySoftDelete();
+            $rules['remotion.*'][] = new OnlySoftDelete('Remoção');
         }
 
         return $rules;

@@ -50,3 +50,11 @@ $checkItems.forEach(($item) => {
         updateSubmitBtn(...$checkItems);
     });
 });
+$submitBtns.forEach(($btn) => {
+    $btn.addEventListener("click", () => {
+        $checkItems.forEach(($check) => {
+            $check.setAttribute("form", $btn.dataset.form ?? "");
+            $check.setAttribute("name", $btn.dataset.name ?? "");
+        });
+    });
+});

@@ -21,4 +21,9 @@ class UserRepository extends AbstractRepository
             $query->delete();
         }
     }
+
+    public function restore(array $ids): void
+    {
+        User::withTrashed()->whereIn('id', $ids)->restore();
+    }
 }
