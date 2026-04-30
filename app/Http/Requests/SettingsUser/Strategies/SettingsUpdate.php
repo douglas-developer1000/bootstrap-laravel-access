@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\User\Strategies;
+namespace App\Http\Requests\SettingsUser\Strategies;
 
 use App\Http\Requests\Checker;
 use App\Rules\PhoneValid;

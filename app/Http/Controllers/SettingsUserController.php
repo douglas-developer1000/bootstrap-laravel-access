@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\User\SettingsUserRequest;
+use App\Http\Requests\SettingsUser\SettingsUserRequest;
 use App\Libraries\Utils\PhoneFormatter;
 use App\Models\User;
 use App\Services\Contracts\ImgStoragerInterface;

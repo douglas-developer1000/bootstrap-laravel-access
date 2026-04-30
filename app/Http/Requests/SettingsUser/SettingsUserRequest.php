@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\SettingsUser;
 
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
-use App\Http\Requests\User\Strategies\SettingsUpdate;
+use App\Http\Requests\SettingsUser\Strategies\SettingsUpdate;
 use \Exception;
 
 final class SettingsUserRequest extends CustomFormRequest
