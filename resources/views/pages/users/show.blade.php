@@ -2,8 +2,19 @@
     @vite ([
         'resources/css/pages/generic/default.css',
         'resources/css/pages/generic/table.css',
+        'resources/css/pages/generic/show.css',
     ])
 @endpush
+@push ('ecmascript-bottom')
+    @vite ([
+        'resources/js/pages/generic/poli-multiselection.ts'
+    ])
+@endpush
+@php
+    $formRoleDetachGroupId = uniqid('form_');
+    $formPermissionDetachGroupId = uniqid('form_');
+@endphp
+
 <x-layout title="Visualizar Usuário">
     <x-packs.header>
         <x-packs.page-heading-row>
@@ -19,14 +30,41 @@
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >
                 <legend class="field-legend bg-light">Papéis</legend>
-                <x-atoms.button
-                    class="btn-secondary fieldset-top-btn"
-                    format="anchor"
-                    href="{{ route('users.attach.roles', ['user' => $user->id]) }}"
-                    title="Vincular papel"
+                <div class="fieldset-top-btn">
+                    <x-atoms.button
+                        class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer detachment"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmModalGroupRoleDetach"
+                        title="Desvincular vários papéis"
+                        data-form="{{ $formRoleDetachGroupId }}"
+                        data-name="detachment[]"
+                        data-key="roles"
+                        disabled
+                    >
+                        <i class="bi bi-scissors"></i>
+                    </x-atoms.button>
+                    <x-atoms.button
+                        class="btn-secondary"
+                        format="anchor"
+                        href="{{ route('users.attach.roles', ['user' => $user->id]) }}"
+                        title="Vincular papel"
+                    >
+                        <i class="bi bi-plus h-1 icon-s2"></i>
+                    </x-atoms.button>
+                </div>
+                <x-molecules.confirm-modal
+                    id="GroupRoleDetach"
+                    href="{!!
+                        route('users.unbind.roles.group', [ 'user' => $user->id ])
+                    !!}"
+                    :formId="$formRoleDetachGroupId"
+                    heading="Desvincular estes papéis?"
+                    :method="method_field('DELETE')"
+                    negative-text="Manter"
+                    positive-text="Desvincular papéis"
                 >
-                    <i class="bi bi-plus h-1 icon-s2"></i>
-                </x-atoms.button>
+                    Isso desvinculará os papéis selecionados do usuário {{ $user->name }}.
+                </x-molecules.confirm-modal>
                 <table class="table tabular-data">
                     <thead>
                         <tr>
@@ -34,7 +72,11 @@
                                 scope="col"
                                 style="width: 2.5em"
                             >
-                                ID
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input cursor-pointer multiselection-all"
+                                    data-key="roles"
+                                />
                             </th>
                             <th scope="col">Nome</th>
                             <th
@@ -49,7 +91,14 @@
                     <tbody>
                         @forelse ($roles as $role)
                             <tr>
-                                <td>{{$role->id}}</td>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        value="{{ $role->id }}"
+                                        class="form-check-input cursor-pointer multiselection-item"
+                                        data-key="roles"
+                                    />
+                                </td>
                                 <td>{{$role->name}}</td>
                                 <td>
                                     <div
@@ -67,13 +116,14 @@
                                             id="{{ $role->id }}"
                                             href="{{
                                                 route(
-                                                    'roles.unbind.roles',
+                                                    'users.unbind.roles',
                                                     [
                                                         'user' => $user->id,
                                                         'role' => $role->id,
                                                     ]
                                                 )
                                             }}"
+                                            :method="method_field('DELETE')"
                                             heading="Desvincular este papel?"
                                             negative-text="Agora não"
                                             positive-text="Desvincular papel"
@@ -146,14 +196,42 @@
                 <legend class="field-legend bg-light">
                     Permissões diretas
                 </legend>
-                <x-atoms.button
-                    class="btn-secondary fieldset-top-btn"
-                    format="anchor"
-                    href="{{ route('users.attach.permissions', ['user' => $user->id]) }}"
-                    title="Vincular permissão direta"
+                <div class="fieldset-top-btn">
+                    <x-atoms.button
+                        class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer detachment"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmModalGroupPermissionDetach"
+                        title="Desvincular vários papéis"
+                        data-form="{{ $formPermissionDetachGroupId }}"
+                        data-name="detachment[]"
+                        data-key="direct-permissions"
+                        disabled
+                    >
+                        <i class="bi bi-scissors"></i>
+                    </x-atoms.button>
+                    <x-atoms.button
+                        class="btn-secondary"
+                        format="anchor"
+                        href="{{ route('users.attach.permissions', ['user' => $user->id]) }}"
+                        title="Vincular permissão direta"
+                    >
+                        <i class="bi bi-plus h-1 icon-s2"></i>
+                    </x-atoms.button>
+                </div>
+                <x-molecules.confirm-modal
+                    id="GroupPermissionDetach"
+                    href="{!!
+                        route('users.unbind.permissions.group', ['user' => $user->id])
+                    !!}"
+                    :formId="$formPermissionDetachGroupId"
+                    heading="Desvincular estas permissões?"
+                    :method="method_field('DELETE')"
+                    negative-text="Manter"
+                    positive-text="Desvincular permissões"
                 >
-                    <i class="bi bi-plus h-1 icon-s2"></i>
-                </x-atoms.button>
+                    Isso disvinculará as permissões diretas selecionadas do
+                    usuário {{ $user->name }}.
+                </x-molecules.confirm-modal>
                 <table class="table tabular-data">
                     <thead>
                         <tr>
@@ -161,7 +239,11 @@
                                 scope="col"
                                 style="width: 2.5em"
                             >
-                                ID
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input cursor-pointer multiselection-all"
+                                    data-key="direct-permissions"
+                                />
                             </th>
                             <th scope="col">Nome</th>
                             <th
@@ -176,7 +258,14 @@
                     <tbody>
                         @forelse ($dPermissions as $perm)
                             <tr>
-                                <td>{{$perm->id}}</td>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        value="{{ $perm->id }}"
+                                        class="form-check-input cursor-pointer multiselection-item"
+                                        data-key="direct-permissions"
+                                    />
+                                </td>
                                 <td>{{$perm->name}}</td>
                                 <td>
                                     <div
@@ -194,13 +283,14 @@
                                             id="{{ $perm->id }}"
                                             href="{{
                                                 route(
-                                                    'roles.unbind.permissions',
+                                                    'users.unbind.permissions',
                                                     [
                                                         'user' => $user->id,
                                                         'permission' => $perm->id,
                                                     ]
                                                 )
                                             }}"
+                                            :method="method_field('DELETE')"
                                             heading="Desvincular esta permissão?"
                                             negative-text="Agora não"
                                             positive-text="Desvincular permissão"

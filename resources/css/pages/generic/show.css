@@ -1,0 +1,7 @@
+@scope (.fieldset-top-btn) {
+    .detachment:disabled {
+        --bs-btn-disabled-bg: #9ca2a8;
+        --bs-btn-disabled-border-color: #9ca2a8;
+        opacity: 1;
+    }
+}

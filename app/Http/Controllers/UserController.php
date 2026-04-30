@@ -186,7 +186,7 @@ final class UserController extends Controller
         ]);
     }
 
-    public function attachRoleGroup(UserRequest $request, User $user)
+    public function bindRoleGroup(UserRequest $request, User $user)
     {
         $roles = Role::whereIn(
             'id',
@@ -364,6 +364,38 @@ final class UserController extends Controller
         )->with([
             'toastShow' => true,
             'toastMsg' => 'Usuários restaurados com sucesso!'
+        ]);
+    }
+
+    public function unbindRoleGroup(UserRequest $request, User $user)
+    {
+        $roles = Role::whereIn(
+            'id',
+            $request->validated('detachment')
+        )->get('name')->pluck('name')->all();
+        $user->removeRole(...$roles);
+
+        return redirect()->route('users.show', [
+            'user' => $user->id
+        ])->with([
+            'toastShow' => true,
+            'toastMsg' => 'Desvinculações executadas com sucesso!'
+        ]);
+    }
+
+    public function unbindDirectPermissionGroup(UserRequest $request, User $user)
+    {
+        $permissions = Permission::whereIn(
+            'id',
+            $request->validated('detachment')
+        )->get('name')->pluck('name')->all();
+        $user->revokePermissionTo($permissions);
+
+        return redirect()->route('users.show', [
+            'user' => $user->id
+        ])->with([
+            'toastShow' => true,
+            'toastMsg' => 'Desvinculações executadas com sucesso!'
         ]);
     }
 }

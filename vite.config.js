@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/components/packs/success-toast.ts',
                 'resources/js/pages/customers/create-edit.ts',
                 'resources/js/pages/generic/multiselection.ts',
+                'resources/js/pages/generic/poli-multiselection.ts',
 
                 'resources/css/pages/signup.css',
                 'resources/css/pages/signin.css',
@@ -31,6 +32,7 @@ export default defineConfig({
                 'resources/css/components/packs/header.css',
                 'resources/css/components/packs/page-heading-row.css',
                 'resources/css/pages/customers/show.css',
+                'resources/css/pages/generic/show.css',
             ],
             refresh: true,
         }),

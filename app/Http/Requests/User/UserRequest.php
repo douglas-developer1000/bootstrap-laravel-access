@@ -13,6 +13,8 @@ use App\Http\Requests\User\Strategies\Restore;
 use App\Http\Requests\User\Strategies\Update;
 use App\Http\Requests\User\Strategies\AttachRoles;
 use App\Http\Requests\User\Strategies\AttachPermissions;
+use App\Http\Requests\User\Strategies\DetachRoles;
+use App\Http\Requests\User\Strategies\DetachPermissions;
 use Exception;
 
 final class UserRequest extends CustomFormRequest
@@ -45,6 +47,10 @@ final class UserRequest extends CustomFormRequest
                 return new AttachRoles();
             case route('users.bind.permissions.group', $this->route('user', 0)):
                 return new AttachPermissions();
+            case route('users.unbind.roles.group', $this->route('user', 0)):
+                return new DetachRoles();
+            case route('users.unbind.permissions.group', $this->route('user', 0)):
+                return new DetachPermissions();
             default:
                 throw new Exception("Method Not Implemented", 1);
         }
