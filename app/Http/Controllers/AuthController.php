@@ -36,7 +36,6 @@ final class AuthController extends Controller
      * Summary of logout
      * 
      * @param Request $request
-     * @return void
      */
     public function logout(Request $request): RedirectResponse
     {
