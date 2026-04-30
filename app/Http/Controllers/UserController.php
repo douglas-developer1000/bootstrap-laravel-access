@@ -186,6 +186,23 @@ final class UserController extends Controller
         ]);
     }
 
+    public function attachGroup(UserRequest $request, User $user)
+    {
+        $roles = Role::whereIn(
+            'id',
+            $request->validated('attachment')
+        )->get('name')->pluck('name')->all();
+        $user->assignRole(...$roles);
+
+        return redirect()->route('users.attach.roles', [
+            'user' => $user->id,
+            ...(request()->query() ?? [])
+        ])->with([
+            'toastShow' => true,
+            'toastMsg' => 'Vinculação executada com sucesso!'
+        ]);
+    }
+
     protected function findUnlinkedPermissions(User $user)
     {
         $ids = $user->getAllPermissions()->map(fn(Permission $perm) => $perm->id)->all();
