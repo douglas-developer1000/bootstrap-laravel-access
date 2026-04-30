@@ -151,7 +151,7 @@ class RoleController extends Controller
         ]);
     }
 
-    public function attachGroup(RoleRequest $request, Role $role)
+    public function bindGroup(RoleRequest $request, Role $role)
     {
         $permissions = Permission::whereIn(
             'id',
@@ -164,6 +164,22 @@ class RoleController extends Controller
         ])->with([
             'toastShow' => true,
             'toastMsg' => 'Vinculação executada com sucesso!'
+        ]);
+    }
+
+    public function unbindGroup(RoleRequest $request, Role $role)
+    {
+        $permissions = Permission::whereIn(
+            'id',
+            $request->validated('detachment')
+        )->get('name')->pluck('name')->all();
+        $role->revokePermissionTo($permissions);
+
+        return redirect()->route('roles.show', [
+            'role' => $role->id
+        ])->with([
+            'toastShow' => true,
+            'toastMsg' => 'Desvinculação executada com sucesso!'
         ]);
     }
 }

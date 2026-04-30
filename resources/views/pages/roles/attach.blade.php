@@ -57,7 +57,7 @@
                 <x-molecules.confirm-modal
                     id="GroupAttach"
                     href="{!!
-                        route('roles.group.attach', collect([
+                        route('roles.group.bind', collect([
                             'role' => $role->id
                         ])->merge($qs)->all())
                     !!}"
