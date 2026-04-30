@@ -11,7 +11,8 @@ use App\Http\Requests\User\Strategies\FastPersistence;
 use App\Http\Requests\User\Strategies\Persistence;
 use App\Http\Requests\User\Strategies\Restore;
 use App\Http\Requests\User\Strategies\Update;
-use App\Http\Requests\User\Strategies\Attach;
+use App\Http\Requests\User\Strategies\AttachRoles;
+use App\Http\Requests\User\Strategies\AttachPermissions;
 use Exception;
 
 final class UserRequest extends CustomFormRequest
@@ -41,7 +42,9 @@ final class UserRequest extends CustomFormRequest
             case route('users.trashed.group.restore'):
                 return new Restore();
             case route('users.bind.roles.group', $this->route('user', 0)):
-                return new Attach();
+                return new AttachRoles();
+            case route('users.bind.permissions.group', $this->route('user', 0)):
+                return new AttachPermissions();
             default:
                 throw new Exception("Method Not Implemented", 1);
         }

@@ -186,7 +186,7 @@ final class UserController extends Controller
         ]);
     }
 
-    public function attachGroup(UserRequest $request, User $user)
+    public function attachRoleGroup(UserRequest $request, User $user)
     {
         $roles = Role::whereIn(
             'id',
@@ -200,6 +200,23 @@ final class UserController extends Controller
         ])->with([
             'toastShow' => true,
             'toastMsg' => 'Vinculação executada com sucesso!'
+        ]);
+    }
+
+    public function bindPermissionGroup(UserRequest $request, User $user)
+    {
+        $permissions = Permission::whereIn(
+            'id',
+            $request->validated('attachment')
+        )->get('name')->pluck('name')->all();
+        $user->givePermissionTo(...$permissions);
+
+        return redirect()->route('users.attach.permissions', [
+            'user' => $user->id,
+            ...(request()->query() ?? [])
+        ])->with([
+            'toastShow' => true,
+            'toastMsg' => 'Vinculações executadas com sucesso!'
         ]);
     }
 

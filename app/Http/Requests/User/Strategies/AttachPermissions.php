@@ -6,7 +6,7 @@ namespace App\Http\Requests\User\Strategies;
 
 use App\Http\Requests\Checker;
 
-final class Attach implements Checker
+final class AttachPermissions implements Checker
 {
 
     public function rules(): array
@@ -17,7 +17,7 @@ final class Attach implements Checker
                 'array',
                 'min:1',
             ],
-            'attachment.*' => 'integer|exists:roles,id',
+            'attachment.*' => 'integer|exists:permissions,id',
         ];
     }
 
