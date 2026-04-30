@@ -21,24 +21,14 @@ final class UserRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
         $url = url()->current();
         switch ($url) {
             case route('users.update', $this->route('user', 0)):
-                return match ($method) {
-                    'put' => new Update(),
-                    default => throw new Exception("Method Not Implemented", 1),
-                };
+                return new Update();
             case route('users.store'):
-                return match ($method) {
-                    'post' => new FastPersistence(),
-                    default => throw new Exception("Method Not Implemented", 1),
-                };
+                return new FastPersistence();
             case route('guest.users.store'):
-                return match ($method) {
-                    'post' => new Persistence($this),
-                    default => throw new Exception("Method Not Implemented", 1),
-                };
+                return new Persistence($this);
             case route('users.group.destroy'):
                 return new Destroy($this);
             case route('users.trashed.group.restore'):

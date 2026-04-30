@@ -15,16 +15,14 @@ final class CustomerRequest extends CustomFormRequest
 
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
-        switch ($method) {
-            case 'post':
+        $url = url()->current();
+        switch ($url) {
+            case route('customers.store'):
                 return new Persistence();
-            case 'put':
+            case route('customers.update', $this->route('customer', 0)):
                 $customer = $this->route('customer');
-                return new Update(
-                    id: $customer->id,
-                );
-            case 'delete':
+                return new Update(id: $customer->id);
+            case route('customers.group.destroy'):
                 return new Destroy();
             default:
                 throw new \Exception("Method Not Implemented", 1);

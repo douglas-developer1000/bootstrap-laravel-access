@@ -9,13 +9,13 @@ use App\Http\Requests\CustomFormRequest;
 use App\Http\Requests\ForgotPassword\Strategies\Post;
 use \Exception;
 
-class ForgotPasswordRequest extends CustomFormRequest
+final class ForgotPasswordRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
-        switch ($method) {
-            case 'post':
+        $url = url()->current();
+        switch ($url) {
+            case route('password.email'):
                 return new Post();
             default:
                 throw new Exception("Method Not Implemented", 1);

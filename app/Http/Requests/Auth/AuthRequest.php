@@ -14,8 +14,9 @@ final class AuthRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        switch (strtolower($this->method())) {
-            case 'post':
+        $url = url()->current();
+        switch ($url) {
+            case route('login.post'):
                 return new Login();
             default:
                 throw new Exception("Method Not Implemented", 1);

@@ -15,15 +15,13 @@ final class PermissionRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
-        switch ($method) {
-            case 'post':
+        $url = url()->current();
+        switch ($url) {
+            case route('permissions.store'):
                 return new Persistence();
-            case 'put':
-                return new Update(
-                    id: $this->route('permission')
-                );
-            case 'delete':
+            case route('permissions.update', $this->route('permission', 0)):
+                return new Update(id: $this->route('permission'));
+            case route('permissions.group.destroy'):
                 return new Destroy();
             default:
                 throw new Exception("Method Not Implemented", 1);

@@ -17,32 +17,18 @@ final class RoleRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
-        switch ($method) {
-            case 'post':
-                $url = url()->current();
-                switch ($url) {
-                    case route('roles.store'):
-                        return new Persistence();
-                    case route('roles.group.bind', $this->route('role', 0)):
-                        return new Attach();
-                    default:
-                        throw new Exception("Method Not Implemented", 1);
-                }
-            case 'put':
-                return new Update(
-                    id: $this->route('role')
-                );
-            case 'delete':
-                $url = url()->current();
-                switch ($url) {
-                    case route('roles.group.destroy'):
-                        return new Destroy();
-                    case route('roles.group.unbind', $this->route('role', 0)):
-                        return new Detach();
-                    default:
-                        throw new Exception("Method Not Implemented", 1);
-                }
+        $url = url()->current();
+        switch ($url) {
+            case route('roles.store'):
+                return new Persistence();
+            case route('roles.group.bind', $this->route('role', 0)):
+                return new Attach();
+            case route('roles.update', $this->route('role', 0)):
+                return new Update(id: $this->route('role', 0));
+            case route('roles.group.destroy'):
+                return new Destroy();
+            case route('roles.group.unbind', $this->route('role', 0)):
+                return new Detach();
             default:
                 throw new Exception("Method Not Implemented", 1);
         }

@@ -9,14 +9,14 @@ use App\Http\Requests\CustomFormRequest;
 use App\Http\Requests\ResetPassword\Strategies\Post;
 use \Exception;
 
-class ResetPasswordRequest extends CustomFormRequest
+final class ResetPasswordRequest extends CustomFormRequest
 {
 
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
-        switch ($method) {
-            case 'post':
+        $url = url()->current();
+        switch ($url) {
+            case route('password.update'):
                 return new Post();
             default:
                 throw new Exception("Method Not Implemented", 1);

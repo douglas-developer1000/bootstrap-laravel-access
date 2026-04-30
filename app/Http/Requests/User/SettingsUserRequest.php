@@ -13,9 +13,9 @@ final class SettingsUserRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
-        switch ($method) {
-            case 'put':
+        $url = url()->current();
+        switch ($url) {
+            case route('settings.user.update', $this->route('user', 0)):
                 return new SettingsUpdate();
             default:
                 throw new Exception("Method Not Implemented", 1);

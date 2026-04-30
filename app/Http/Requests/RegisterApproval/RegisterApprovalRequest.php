@@ -13,9 +13,9 @@ final class RegisterApprovalRequest extends CustomFormRequest
 {
     protected function pickChecker(): Checker
     {
-        $method = strtolower($this->method());
-        switch ($method) {
-            case 'delete':
+        $url = url()->current();
+        switch ($url) {
+            case route('register.approvals.group.destroy'):
                 return new Destroy();
             default:
                 throw new Exception("Method Not Implemented", 1);
