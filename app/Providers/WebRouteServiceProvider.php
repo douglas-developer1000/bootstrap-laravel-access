@@ -51,7 +51,7 @@ final class WebRouteServiceProvider extends ServiceProvider
             ])->each(function (array $item) {
                 [$prefix, $filename] = $item;
 
-                Route::middleware(['web', 'auth', 'verified'])
+                Route::middleware(['web', 'auth', 'verified', 'throttle:60,1'])
                     ->prefix($prefix)
                     ->group(
                         base_path(
