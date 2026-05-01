@@ -105,9 +105,8 @@ final class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request)
+    public function update(UserRequest $request, int $id)
     {
-        $id = $request->route('user');
         $this->userSvc->update($id, [
             'name' => $request->validated('name')
         ]);

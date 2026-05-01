@@ -24,7 +24,7 @@ final class UserRequest extends CustomFormRequest
         $url = url()->current();
         switch ($url) {
             case route('users.update', $this->route('user', 0)):
-                return new Update();
+                return new Update($this);
             case route('users.store'):
                 return new FastPersistence();
             case route('guest.users.store'):
