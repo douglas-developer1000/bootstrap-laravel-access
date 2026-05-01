@@ -9,19 +9,14 @@ use App\Services\PasswordService;
 
 final class ForgotPasswordController extends Controller
 {
-    public function __construct(protected PasswordService $svc)
-    {
-        // ...
-    }
-
     public function screen()
     {
         return view('pages.forgot-password');
     }
 
-    public function ask(ForgotPasswordRequest $request)
+    public function ask(ForgotPasswordRequest $request, PasswordService $svc)
     {
-        ['ok' => $ok, 'message' => $message] = $this->svc->sendResetLink(
+        ['ok' => $ok, 'message' => $message] = $svc->sendResetLink(
             $request->only('email')
         );
         if (!$ok) {

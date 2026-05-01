@@ -13,19 +13,14 @@ use App\Models\User;
 
 final class ResetPasswordController extends Controller
 {
-    public function __construct(protected PasswordService $svc)
-    {
-        // ...
-    }
-
     public function reset(string $token)
     {
         return view('pages.reset-password', ['token' => $token]);
     }
 
-    public function update(ResetPasswordRequest $request)
+    public function update(ResetPasswordRequest $request, PasswordService $svc)
     {
-        $status = $this->svc->reset(
+        $status = $svc->reset(
             $request->only(['email', 'password', 'password_confirmation', 'token']),
             function (User $user, string $password) {
                 $user->forceFill([

@@ -22,10 +22,8 @@ final class UserController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(
-        private UserService $userSvc,
-        private RegisterApprovalService $approvalSvc
-    ) {
+    public function __construct(private UserService $userSvc)
+    {
         // ...
     }
 
@@ -278,10 +276,10 @@ final class UserController extends Controller
         return view('pages.users.create-signed');
     }
 
-    public function storeSigned(UserRequest $request)
+    public function storeSigned(UserRequest $request, RegisterApprovalService $approvalSvc)
     {
-        $registerApproval = $this->approvalSvc->findByEmail($request->email);
-        $this->approvalSvc->delete($registerApproval->id);
+        $registerApproval = $approvalSvc->findByEmail($request->email);
+        $approvalSvc->delete($registerApproval->id);
 
         $phone = PhoneFormatter::clear($registerApproval->phone ?? $request->phone);
         /** @var User $user */

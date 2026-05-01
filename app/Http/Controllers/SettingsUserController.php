@@ -18,12 +18,6 @@ final class SettingsUserController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(
-        protected UserService $userSvc,
-    ) {
-        // ...
-    }
-
     public function show(Request $request)
     {
         /** @var Authenticatable $user */
@@ -36,7 +30,7 @@ final class SettingsUserController extends Controller
         return view('pages.settings.user.edit', ['user' => $user]);
     }
 
-    public function update(SettingsUserRequest $request, User $user)
+    public function update(SettingsUserRequest $request, UserService $userSvc, User $user)
     {
         $this->authorize('update', $user);
         $phone = PhoneFormatter::clear($request->validated('phone'));
@@ -58,7 +52,7 @@ final class SettingsUserController extends Controller
         ])->filter(fn($val, $key) => $user->$key !== $val);
 
         if ($inputs->isNotEmpty()) {
-            $this->userSvc->update($user->id, $inputs->toArray());
+            $userSvc->update($user->id, $inputs->toArray());
         }
 
         return redirect()->route('settings.user.show')->with([
