@@ -8,7 +8,7 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.ts',
                 'resources/js/bootstrap.ts',
-                'resources/js/components/packs/success-toast.ts',
+                'resources/js/components/packs/toast.ts',
                 'resources/js/pages/customers/create-edit.ts',
                 'resources/js/pages/generic/multiselection.ts',
                 'resources/js/pages/generic/poli-multiselection.ts',

@@ -39,6 +39,6 @@
                 </x-atoms.gate.btns-row>
             </x-atoms.gate.card>
         </x-atoms.gate.container>
-        <x-packs.success-toast />
+        <x-packs.toast />
     </main>
 </x-layout>

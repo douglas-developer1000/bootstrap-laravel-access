@@ -69,6 +69,6 @@
                 </div>
             </fieldset>
         </section>
-        <x-packs.success-toast />
+        <x-packs.toast />
     </main>
 </x-layout>

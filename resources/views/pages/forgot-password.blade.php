@@ -46,6 +46,6 @@
                 </x-atoms.gate.card>
             </form>
         </x-atoms.gate.container>
-        <x-packs.success-toast />
+        <x-packs.toast />
     </main>
 </x-layout>

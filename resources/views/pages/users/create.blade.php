@@ -48,6 +48,6 @@
                 </x-atoms.submit-btn>
             </form>
         </section>
-        <x-packs.success-toast />
+        <x-packs.toast />
     </main>
 </x-layout>

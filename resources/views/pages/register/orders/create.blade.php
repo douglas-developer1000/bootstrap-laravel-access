@@ -52,7 +52,7 @@
                     </x-atoms.gate.btns-row>
                 </x-atoms.gate.card>
             </form>
-            <x-packs.success-toast delay="3000" />
+            <x-packs.toast delay="3000" />
         </x-atoms.gate.container>
     </main>
 </x-layout>

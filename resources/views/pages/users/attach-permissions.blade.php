@@ -169,6 +169,6 @@
             </x-molecules.table-index>
             <x-app-pagination :paginator="$permissions" />
         </section>
-        <x-packs.success-toast />
+        <x-packs.toast />
     </main>
 </x-layout>
