@@ -64,10 +64,7 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th
-                                scope="col"
-                                style="width: 2em"
-                            >
+                            <th scope="col">
                                 <input
                                     type="checkbox"
                                     class="form-check-input cursor-pointer multiselection-all"

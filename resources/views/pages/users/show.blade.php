@@ -68,10 +68,7 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th
-                                scope="col"
-                                style="width: 2.5em"
-                            >
+                            <th scope="col">
                                 <input
                                     type="checkbox"
                                     class="form-check-input cursor-pointer multiselection-all"
@@ -162,25 +159,18 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th
-                                scope="col"
-                                style="width: 2.5em"
-                            >
-                                ID
-                            </th>
                             <th scope="col">Nome</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($permissions as $perm)
                             <tr>
-                                <td>{{$perm->id}}</td>
                                 <td>{{$perm->name}}</td>
                             </tr>
                         @empty
                             <tr>
                                 <td
-                                    colspan="2"
+                                    colspan="1"
                                     class="no-values"
                                 >
                                     Sem permissões vinculadas
@@ -235,10 +225,7 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th
-                                scope="col"
-                                style="width: 2.5em"
-                            >
+                            <th scope="col">
                                 <input
                                     type="checkbox"
                                     class="form-check-input cursor-pointer multiselection-all"

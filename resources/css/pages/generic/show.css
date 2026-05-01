@@ -6,3 +6,8 @@
         opacity: 1;
     }
 }
+@scope (.tabular-data) {
+    thead th:first-child {
+        width: 2em;
+    }
+}

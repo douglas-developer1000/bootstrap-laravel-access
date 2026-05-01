@@ -6,7 +6,7 @@
     }
     .table-colgroup {
         col.col-first {
-            width: 3.5em;
+            width: 2.5em;
         }
         col.col-first ~ col[class^="col-remain"]:not(.col-last) {
             visibility: collapse;
@@ -53,8 +53,8 @@
         justify-content: space-between;
         padding-block: 0.8rem;
     }
-    tbody td,
-    tbody th {
+    thead th,
+    tbody td {
         vertical-align: middle;
         overflow: hidden;
     }
