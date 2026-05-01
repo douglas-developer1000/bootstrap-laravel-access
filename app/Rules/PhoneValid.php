@@ -10,7 +10,7 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 use Illuminate\Support\Str;
 use Closure;
 
-class PhoneValid implements ValidationRule
+final class PhoneValid implements ValidationRule
 {
     public function __construct(protected readonly int $phoneMaxSize)
     {

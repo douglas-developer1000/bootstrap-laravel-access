@@ -7,7 +7,7 @@ namespace App\Http\Requests\Customer\Strategies;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-class Update extends Persistence
+final class Update extends Persistence
 {
     protected $id;
 

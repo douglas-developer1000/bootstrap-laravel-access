@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Components\Molecules;
 
 use Illuminate\Contracts\View\View;
@@ -10,7 +12,7 @@ use Illuminate\Pagination\UrlWindow;
 use App\Libraries\Utils\Paginator as PaginatorBuilder;
 use Closure;
 
-class RootPagination extends Component
+final class RootPagination extends Component
 {
     /** @var Collection<string, string> */
     protected Collection $qs;
@@ -66,9 +68,9 @@ class RootPagination extends Component
 
         return array_filter([
             $window['first'],
-            is_array($window['slider']) ? '...' : null,
+            \is_array($window['slider']) ? '...' : null,
             $window['slider'],
-            is_array($window['last']) ? '...' : null,
+            \is_array($window['last']) ? '...' : null,
             $window['last'],
         ]);
     }

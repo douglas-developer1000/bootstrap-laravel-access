@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use App\View\Components\Atoms\TableHead;
@@ -9,7 +11,7 @@ use App\View\Components\Molecules\UserMenuItem;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 
-class BladeComponentProvider extends ServiceProvider
+final class BladeComponentProvider extends ServiceProvider
 {
     /**
      * Register services.

@@ -10,7 +10,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Libraries\Utils\DatetimeFormatter;
 
-class PosResetPasswordNotification extends Notification
+final class PosResetPasswordNotification extends Notification
 {
     use Queueable;
 

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 #[Fillable(['type', 'customer_id', 'number', 'created_at'])]
-class CustomerPhone extends Model
+final class CustomerPhone extends Model
 {
     public const UPDATED_AT = NULL;
 

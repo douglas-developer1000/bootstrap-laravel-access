@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Components\Atoms;
 
 use Illuminate\View\Component;
@@ -8,7 +10,7 @@ use Illuminate\Support\Collection;
 use App\Libraries\Utils\Paginator as PaginatorBuilder;
 use Closure;
 
-class TableHead extends Component
+final class TableHead extends Component
 {
     /** @var Collection<string, string> */
     protected Collection $qs;

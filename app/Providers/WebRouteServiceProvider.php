@@ -7,7 +7,7 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
-class WebRouteServiceProvider extends ServiceProvider
+final class WebRouteServiceProvider extends ServiceProvider
 {
     /**
      * Register services.

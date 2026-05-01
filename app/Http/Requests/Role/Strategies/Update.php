@@ -7,7 +7,7 @@ namespace App\Http\Requests\Role\Strategies;
 use App\Http\Requests\Checker;
 use Illuminate\Validation\Rule;
 
-class Update implements Checker
+final class Update implements Checker
 {
     public function __construct(
         protected string|null $id = NULL

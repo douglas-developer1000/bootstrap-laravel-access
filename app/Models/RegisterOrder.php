@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Libraries\Utils\PhoneFormatter;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 #[Fillable(['email', 'phone'])]
-class RegisterOrder extends Model
+final class RegisterOrder extends Model
 {
     /** @use HasFactory<RegisterOrder> */
     use HasFactory, FormatDatetimeProperty;

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ForgotPassword\ForgotPasswordRequest;
 use App\Services\PasswordService;
 
-class ForgotPasswordController extends Controller
+final class ForgotPasswordController extends Controller
 {
     public function __construct(protected PasswordService $svc)
     {

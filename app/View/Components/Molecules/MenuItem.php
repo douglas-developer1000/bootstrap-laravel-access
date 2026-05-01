@@ -8,7 +8,7 @@ use Illuminate\View\Component;
 
 abstract class MenuItem extends Component
 {
-    protected $url;
+    protected string $url;
 
     public function __construct(protected array $menuData)
     {

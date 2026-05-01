@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['email', 'phone', 'token', 'expiration_data'])]
-class RegisterApproval extends Model
+final class RegisterApproval extends Model
 {
     /** @use Factory<RegisterApproval> */
     use HasFactory, FormatDatetimeProperty, Notifiable;

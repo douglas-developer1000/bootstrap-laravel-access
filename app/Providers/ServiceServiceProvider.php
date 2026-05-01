@@ -17,7 +17,7 @@ use App\Services\ImgHandling\DropboxImgStoragerService;
 
 final class ServiceServiceProvider extends ServiceProvider
 {
-    public $bindings = [
+    public array $bindings = [
         RegistrationInterface::class => RegistrationService::class,
         TokenProvider::class => DropboxTokenProviderService::class,
         ImgConverterInterface::class => InterventionImgConverterService::class

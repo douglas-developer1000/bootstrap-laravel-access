@@ -10,7 +10,7 @@ use App\Notifications\RegisterApprovalNotification;
 use App\Services\Contracts\RegistrationInterface;
 use Carbon\Carbon;
 
-class RegisterApprovalHandler implements HandlerInterface
+final class RegisterApprovalHandler implements HandlerInterface
 {
     public function __construct(protected RegistrationInterface $registrationService)
     {

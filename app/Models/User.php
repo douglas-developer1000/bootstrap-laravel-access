@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Models\Traits\FormatDatetimeProperty;
@@ -17,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['name', 'email', 'password', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+final class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, SoftDeletes, FormatDatetimeProperty;

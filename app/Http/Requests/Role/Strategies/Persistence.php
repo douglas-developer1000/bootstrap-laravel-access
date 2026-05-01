@@ -7,7 +7,7 @@ namespace App\Http\Requests\Role\Strategies;
 use App\Http\Requests\Checker;
 use Illuminate\Validation\Rule;
 
-class Persistence implements Checker
+final class Persistence implements Checker
 {
     public function rules(): array
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 // use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,7 +11,7 @@ use Illuminate\Notifications\Notification;
 use \Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 
-class RegisterApprovalNotification extends Notification
+final class RegisterApprovalNotification extends Notification
 {
     use Queueable;
 

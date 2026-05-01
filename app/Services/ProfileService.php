@@ -7,7 +7,7 @@ namespace App\Services;
 use App\Services\Contracts\ImgStoragerInterface;
 use Illuminate\Http\Request;
 
-class ProfileService
+final class ProfileService
 {
     public function __construct(protected ImgStoragerInterface $imgStorager)
     {

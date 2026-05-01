@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Libraries\Enums\RoleNameEnum;
 use App\Libraries\Traits\EagerRoleTrait;
 use Illuminate\Database\Migrations\Migration;

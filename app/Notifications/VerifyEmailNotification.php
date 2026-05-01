@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 // use Illuminate\Contracts\Queue\ShouldQueue;
@@ -7,7 +9,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Auth\Notifications\VerifyEmail;
 
-class VerifyEmailNotification extends VerifyEmail
+final class VerifyEmailNotification extends VerifyEmail
 {
     use Queueable;
 

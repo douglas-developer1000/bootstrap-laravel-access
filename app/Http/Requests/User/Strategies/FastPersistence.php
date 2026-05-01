@@ -7,7 +7,7 @@ namespace App\Http\Requests\User\Strategies;
 use App\Http\Requests\Checker;
 use Illuminate\Validation\Rule;
 
-class FastPersistence implements Checker
+final class FastPersistence implements Checker
 {
     protected int $nameMinSize;
     protected int $nameMaxSize;

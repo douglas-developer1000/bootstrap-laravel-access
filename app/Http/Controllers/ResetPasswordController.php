@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ResetPassword\ResetPasswordRequest;
@@ -9,7 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
 use App\Models\User;
 
-class ResetPasswordController extends Controller
+final class ResetPasswordController extends Controller
 {
     public function __construct(protected PasswordService $svc)
     {

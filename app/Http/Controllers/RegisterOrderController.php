@@ -17,7 +17,7 @@ use App\Services\Registration\RegisterApprovalService;
 use App\Services\Registration\RegisterOrderService;
 use Illuminate\Http\Request;
 
-class RegisterOrderController extends Controller
+final class RegisterOrderController extends Controller
 {
     public function __construct(
         protected readonly RegistrationInterface $registrationService,

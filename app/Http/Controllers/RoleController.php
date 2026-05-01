@@ -10,7 +10,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
 
-class RoleController extends Controller
+final class RoleController extends Controller
 {
     public function index(Request $request)
     {

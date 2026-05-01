@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 
-class ImageController extends Controller
+final class ImageController extends Controller
 {
     /**
      * Find resource item inside of application's storage folder
