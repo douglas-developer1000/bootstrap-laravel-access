@@ -57,4 +57,12 @@ final class PasswordService
         );
         return $this->defineOutput($status, PasswordBroker::PASSWORD_RESET);
     }
+
+    public function getResetLinkSentMsg()
+    {
+        return $this->defineOutput(
+            Password::RESET_LINK_SENT,
+            PasswordBroker::RESET_LINK_SENT
+        )['message'];
+    }
 }

@@ -15,7 +15,6 @@ final class Post implements Checker
             'email' => [
                 'required',
                 'email',
-                'exists:users,email',
             ]
         ];
     }
@@ -25,7 +24,6 @@ final class Post implements Checker
         return [
             'email.required' => 'Campo obrigatório',
             'email.email' => 'Campo inválido',
-            'email.exists' => 'Campo inválido',
         ];
     }
 }
