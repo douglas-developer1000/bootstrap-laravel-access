@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/pages/customers/create-edit.ts',
                 'resources/js/pages/generic/multiselection.ts',
                 'resources/js/pages/generic/poli-multiselection.ts',
+                'resources/js/pages/generic/phonemask.ts',
 
                 'resources/css/pages/signup.css',
                 'resources/css/pages/signin.css',

@@ -5,6 +5,9 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
 @endpush
+@push ('ecmascript-bottom')
+    @vite ('resources/js/pages/generic/phonemask.ts')
+@endpush
 
 <x-layout title="Solicitação de registro">
     <main class="gate-main register-order-gate-main w-100 vh-100 p-0 d-flex">

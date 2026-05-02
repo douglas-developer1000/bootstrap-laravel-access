@@ -4,6 +4,9 @@
         'resources/css/pages/settings/user/edit.css',
     ])
 @endpush
+@push ('ecmascript-bottom')
+    @vite ('resources/js/pages/generic/phonemask.ts')
+@endpush
 
 <x-layout title="Configurações">
     <x-packs.header>
@@ -45,13 +48,14 @@
                             type="text"
                             label-text="Nome:"
                             placeholder="Insira o nome do usuário"
-                            {{-- required --}}
+                            required
                             :value="old('name', $user->name)"
                             autocomplete="no"
                         />
                         <x-molecules.form-field
                             class="grid-field"
                             label-text="Telefone:"
+                            id="phone"
                             name="phone"
                             type="tel"
                             placeholder="Insira o telefone do usuário"
