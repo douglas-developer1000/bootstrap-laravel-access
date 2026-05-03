@@ -307,14 +307,7 @@ final class UserController extends Controller
     public function removeGroup(UserRequest $request)
     {
         $qs = collect(request()->query() ?? []);
-        $forceDelete = $qs->contains(
-            fn($value, $key) => $key === 'trashed' && $value === '1'
-        );
-
-        $remotions = collect($request->validated('remotion'))->map(
-            fn($val) => \intval($val)
-        )->all();
-        $this->userSvc->removeList($remotions, $forceDelete);
+        $this->userSvc->removeUserList($request, $qs);
 
         return redirect()->route(
             'users.index',
@@ -327,10 +320,7 @@ final class UserController extends Controller
 
     public function restoreGroup(UserRequest $request)
     {
-        $restorations = collect($request->validated('restoration'))->map(
-            fn($val) => \intval($val)
-        )->all();
-        $this->userSvc->restoreList($restorations);
+        $this->userSvc->restoreList($request);
 
         return redirect()->route(
             'users.index',

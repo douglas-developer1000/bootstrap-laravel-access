@@ -8,21 +8,15 @@ use App\Libraries\Dtos\UserCreationDto;
 use App\Libraries\Utils\PhoneFormatter;
 use App\Models\RegisterApproval;
 use App\Models\User;
-use App\Repositories\UserRepository;
 use App\Services\Contracts\ImgStoragerInterface;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Collection;
 
 final class UserService
 {
-    public function __construct(
-        protected UserRepository $repository,
-    ) {
-        // ...
-    }
-
     public function createInternalUser(Request $request): User|null
     {
         /**
@@ -104,13 +98,32 @@ final class UserService
         }
     }
 
-    public function removeList(array $ids, bool $forceDelete = false)
+    protected function convertIntegerList(array $list): array
     {
-        return $this->repository->destroy($ids, $forceDelete);
+        return collect($list)->map(fn($val) => \intval($val))->all();
     }
 
-    public function restoreList(array $ids)
+    public function removeUserList(Request $request, Collection $qs)
     {
-        $this->repository->restore($ids);
+        $query = User::whereIn(
+            'id',
+            $this->convertIntegerList($request->validated('remotion'))
+        );
+        $forceDelete = $qs->contains(
+            fn($value, $key) => $key === 'trashed' && $value === '1'
+        );
+        if ($forceDelete) {
+            $query->forceDelete();
+        } else {
+            $query->delete();
+        }
+    }
+
+    public function restoreList(Request $request)
+    {
+        User::withTrashed()->whereIn(
+            'id',
+            $this->convertIntegerList($request->validated('restoration'))
+        )->restore();
     }
 }
