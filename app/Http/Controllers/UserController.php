@@ -8,23 +8,20 @@ use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
 use App\Models\User;
-use App\Services\Registration\RegisterApprovalService;
 use App\Services\UserService;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 final class UserController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(private UserService $userSvc)
+    public function __construct(protected UserService $userSvc)
     {
         // ...
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the users (used by super-admin).
      */
     public function index(Request $request)
     {
@@ -48,7 +45,7 @@ final class UserController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show the view for user visualization (used by super-admin)
      */
     public function show(User $user)
     {
@@ -63,7 +60,7 @@ final class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the view for user creation (used by super-admin)
      */
     public function create()
     {
@@ -71,7 +68,36 @@ final class UserController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Show the view for user edition (used by super-admin)
+     */
+    public function edit(User $user)
+    {
+        return view('pages.users.edit', ['user' => $user]);
+    }
+
+    /**
+     * Show the view for external user creation
+     */
+    public function createSigned()
+    {
+        return view('pages.users.create-signed');
+    }
+
+    /**
+     * Update the user by super-admin access
+     */
+    public function update(UserRequest $request, int $id)
+    {
+        $this->userSvc->updateUser($id, $request->validated('name'));
+
+        return redirect()->route('users.index')->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuário editado com sucesso!'
+        ]);
+    }
+
+    /**
+     * Store an user during an internal creation
      */
     public function store(UserRequest $request)
     {
@@ -84,186 +110,9 @@ final class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Store an user by the newly authenticated user themselves
      */
-    public function edit(User $user)
-    {
-        return view('pages.users.edit', ['user' => $user]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UserRequest $request, int $id)
-    {
-        $this->userSvc->updateUser($id, $request->validated('name'));
-        return redirect()->route('users.index')->with([
-            'toastShow' => true,
-            'toastMsg' => 'Usuário editado com sucesso!'
-        ]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $user)
-    {
-        $this->authorize('remove-user', $user);
-        $user->delete();
-
-        return redirect()->route(
-            'users.index',
-            request()->query() ?? []
-        )->with([
-            'toastShow' => true,
-            'toastMsg' => 'Usuário removido com sucesso!'
-        ]);
-    }
-
-    protected function findUnlinkedRoles(User $user)
-    {
-        $ids = $user->roles->map(fn(Role $role) => $role->id)->all();
-        return Role::whereNotIn('id', $ids);
-    }
-
-    public function attachRoles(Request $request, User $user)
-    {
-        $query = $this->findUnlinkedRoles($user);
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
-
-        if ($search) {
-            $search = addcslashes($search, '%_');
-            $query = $query->whereLike('name', "%{$search}%");
-        }
-
-        $group = Paginator::buildGroup($request->only('group'));
-        $roles = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: ['id', 'name', 'created_at']
-        );
-
-        return view('pages.users.attach-roles', ['user' => $user, 'roles' => $roles]);
-    }
-
-    public function bindRole(User $user, Role $role)
-    {
-        $user->assignRole($role);
-
-        return redirect()->route('users.attach.roles', [
-            'user' => $user->id,
-            ...(request()->query() ?? [])
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Vinculação executada com sucesso!'
-        ]);
-    }
-
-    public function unbindRole(User $user, Role $role)
-    {
-        $user->removeRole($role);
-
-        return redirect()->route('users.show', [
-            'user' => $user->id
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Desvinculação executada com sucesso!'
-        ]);
-    }
-
-    public function bindRoleGroup(UserRequest $request, User $user)
-    {
-        $roles = Role::whereIn(
-            'id',
-            $request->validated('attachment')
-        )->get('name')->pluck('name')->all();
-        $user->assignRole(...$roles);
-
-        return redirect()->route('users.attach.roles', [
-            'user' => $user->id,
-            ...(request()->query() ?? [])
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Vinculação executada com sucesso!'
-        ]);
-    }
-
-    public function bindPermissionGroup(UserRequest $request, User $user)
-    {
-        $permissions = Permission::whereIn(
-            'id',
-            $request->validated('attachment')
-        )->get('name')->pluck('name')->all();
-        $user->givePermissionTo(...$permissions);
-
-        return redirect()->route('users.attach.permissions', [
-            'user' => $user->id,
-            ...(request()->query() ?? [])
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Vinculações executadas com sucesso!'
-        ]);
-    }
-
-    protected function findUnlinkedPermissions(User $user)
-    {
-        $ids = $user->getAllPermissions()->map(fn(Permission $perm) => $perm->id)->all();
-        return Permission::whereNotIn('id', $ids);
-    }
-
-    public function attachDirectPermissions(Request $request, User $user)
-    {
-        $query = $this->findUnlinkedPermissions($user);
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
-
-        if ($search) {
-            $search = addcslashes($search, '%_');
-            $query = $query->whereLike('name', "%{$search}%");
-        }
-
-        $group = Paginator::buildGroup($request->only('group'));
-        $permissions = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: ['id', 'name', 'created_at']
-        );
-
-        return view('pages.users.attach-permissions', ['user' => $user, 'permissions' => $permissions]);
-    }
-
-    public function bindDirectPermission(User $user, Permission $permission)
-    {
-        $user->givePermissionTo($permission);
-
-        return redirect()->route('users.attach.permissions', [
-            'user' => $user->id,
-            ...(request()->query() ?? [])
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Vinculação executada com sucesso!'
-        ]);
-    }
-
-    public function unbindDirectPermission(User $user, Permission $permission)
-    {
-        $user->revokePermissionTo($permission);
-
-        return redirect()->route('users.show', [
-            'user' => $user->id
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Desvinculação executada com sucesso!'
-        ]);
-    }
-
-    public function createSigned()
-    {
-        return view('pages.users.create-signed');
-    }
-
-    public function storeSigned(UserRequest $request, RegisterApprovalService $approvalSvc)
+    public function storeSigned(UserRequest $request)
     {
         $this->userSvc->createExternalUser($request);
 
@@ -274,12 +123,12 @@ final class UserController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the user (for a soft-deletion)
      */
-    public function destroyTrashed(int $id)
+    public function destroy(User $user)
     {
-        $user = User::onlyTrashed()->findOrFail($id);
-        $user->forceDelete();
+        $this->authorize('remove-user', $user);
+        $this->userSvc->removeUser(id: \intval($user->id));
 
         return redirect()->route(
             'users.index',
@@ -290,20 +139,25 @@ final class UserController extends Controller
         ]);
     }
 
-    public function restore(int $id)
+    /**
+     * Remove the user (after a soft-deletion)
+     */
+    public function destroyTrashed(int $id)
     {
-        $user = User::onlyTrashed()->findOrFail($id);
-        $user->restore();
+        $this->userSvc->removeUser(id: $id, trashed: true);
 
         return redirect()->route(
             'users.index',
             request()->query() ?? []
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuário restaurado com sucesso!'
+            'toastMsg' => 'Usuário removido com sucesso!'
         ]);
     }
 
+    /**
+     * Remove the user list (on both soft-deletion and force-deletion)
+     */
     public function removeGroup(UserRequest $request)
     {
         $qs = collect(request()->query() ?? []);
@@ -318,9 +172,28 @@ final class UserController extends Controller
         ]);
     }
 
+    /**
+     * Restore an user soft-deleted
+     */
+    public function restore(int $id)
+    {
+        $this->userSvc->restore($id);
+
+        return redirect()->route(
+            'users.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Usuário restaurado com sucesso!'
+        ]);
+    }
+
+    /**
+     * Restore a soft-deleted user list
+     */
     public function restoreGroup(UserRequest $request)
     {
-        $this->userSvc->restoreList($request);
+        $this->userSvc->restoreGroup($request);
 
         return redirect()->route(
             'users.index',
@@ -328,38 +201,6 @@ final class UserController extends Controller
         )->with([
             'toastShow' => true,
             'toastMsg' => 'Usuários restaurados com sucesso!'
-        ]);
-    }
-
-    public function unbindRoleGroup(UserRequest $request, User $user)
-    {
-        $roles = Role::whereIn(
-            'id',
-            $request->validated('detachment')
-        )->get('name')->pluck('name')->all();
-        $user->removeRole(...$roles);
-
-        return redirect()->route('users.show', [
-            'user' => $user->id
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Desvinculações executadas com sucesso!'
-        ]);
-    }
-
-    public function unbindDirectPermissionGroup(UserRequest $request, User $user)
-    {
-        $permissions = Permission::whereIn(
-            'id',
-            $request->validated('detachment')
-        )->get('name')->pluck('name')->all();
-        $user->revokePermissionTo($permissions);
-
-        return redirect()->route('users.show', [
-            'user' => $user->id
-        ])->with([
-            'toastShow' => true,
-            'toastMsg' => 'Desvinculações executadas com sucesso!'
         ]);
     }
 }

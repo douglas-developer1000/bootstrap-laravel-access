@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Libraries\Enums\RoleNameEnum;
+use App\Http\Controllers\RoleUserController;
+use App\Http\Controllers\PermissionUserController;
 
 Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('users.index');
@@ -15,20 +17,21 @@ Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function 
     Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/group', [UserController::class, 'removeGroup'])->name('users.group.destroy');
     Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
     Route::get('/trashed', [UserController::class, 'index'])->name('users.trashed.index');
     Route::delete('/trashed/{user}', [UserController::class, 'destroyTrashed'])->name('users.trashed.destroy');
     Route::post('/trashed/{user}/restore', [UserController::class, 'restore'])->name('users.trashed.restore');
     Route::post('/trashed/restore/group', [UserController::class, 'restoreGroup'])->name('users.trashed.group.restore');
 
-    Route::get('/{user}/attach/roles', [UserController::class, 'attachRoles'])->name('users.attach.roles');
-    Route::post('/{user}/attach/roles/group', [UserController::class, 'bindRoleGroup'])->name('users.bind.roles.group');
-    Route::post('/{user}/attach/roles/{role}', [UserController::class, 'bindRole'])->name('users.bind.roles');
-    Route::delete('/{user}/detach/roles/group', [UserController::class, 'unbindRoleGroup'])->name('users.unbind.roles.group');
-    Route::delete('/{user}/detach/roles/{role}', [UserController::class, 'unbindRole'])->name('users.unbind.roles');
+    Route::get('/{user}/attach/roles', [RoleUserController::class, 'getRoles'])->name('users.attach.roles');
+    Route::post('/{user}/attach/roles/group', [RoleUserController::class, 'bindRoleGroup'])->name('users.bind.roles.group');
+    Route::post('/{user}/attach/roles/{role}', [RoleUserController::class, 'bindRole'])->name('users.bind.roles');
+    Route::delete('/{user}/detach/roles/group', [RoleUserController::class, 'unbindRoleGroup'])->name('users.unbind.roles.group');
+    Route::delete('/{user}/detach/roles/{role}', [RoleUserController::class, 'unbindRole'])->name('users.unbind.roles');
 
-    Route::get('/{user}/attach/permissions', [UserController::class, 'attachDirectPermissions'])->name('users.attach.permissions');
-    Route::post('/{user}/attach/permissions/group', [UserController::class, 'bindPermissionGroup'])->name('users.bind.permissions.group');
-    Route::post('/{user}/attach/permissions/{permission}', [UserController::class, 'bindDirectPermission'])->name('users.bind.permissions');
-    Route::delete('/{user}/detach/permissions/group', [UserController::class, 'unbindDirectPermissionGroup'])->name('users.unbind.permissions.group');
-    Route::delete('/{user}/detach/permissions/{permission}', [UserController::class, 'unbindDirectPermission'])->name('users.unbind.permissions');
+    Route::get('/{user}/attach/permissions', [PermissionUserController::class, 'getDirectPermissions'])->name('users.attach.permissions');
+    Route::post('/{user}/attach/permissions/group', [PermissionUserController::class, 'bindDirectPermissionGroup'])->name('users.bind.permissions.group');
+    Route::post('/{user}/attach/permissions/{permission}', [PermissionUserController::class, 'bindDirectPermission'])->name('users.bind.permissions');
+    Route::delete('/{user}/detach/permissions/group', [PermissionUserController::class, 'unbindDirectPermissionGroup'])->name('users.unbind.permissions.group');
+    Route::delete('/{user}/detach/permissions/{permission}', [PermissionUserController::class, 'unbindDirectPermission'])->name('users.unbind.permissions');
 });

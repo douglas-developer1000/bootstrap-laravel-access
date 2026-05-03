@@ -27,6 +27,9 @@ final class SettingsUserController extends Controller
         return view('pages.settings.user.edit', ['user' => $user]);
     }
 
+    /**
+     * Update the user's data by the authenticated user themselves
+     */
     public function update(SettingsUserRequest $request, UserService $userSvc, User $user)
     {
         $this->authorize('update', $user);

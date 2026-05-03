@@ -64,15 +64,6 @@ abstract class AbstractRepository implements RepositoryInterface
         return $this->loadModel()::query()->where('id', $id)->update($attributes);
     }
 
-    public function exists(array $attributes = []): bool
-    {
-        $query = $this->loadModel()::query();
-        if (\sizeof($attributes) > 0) {
-            $query = $query->where($attributes);
-        }
-        return $query->exists();
-    }
-
     /**
      * Get the available model instance.
      */

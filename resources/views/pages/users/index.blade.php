@@ -122,7 +122,7 @@
                         negative-text="Manter"
                         positive-text="Remover usuários"
                     >
-                        Isso removerá os usuários selecionados permanentemente.
+                        Isso removerá os usuários selecionados {{ $trashed ? 'permanentemente' : 'temporariamente' }}.
                     </x-molecules.confirm-modal>
                 </div>
             </div>

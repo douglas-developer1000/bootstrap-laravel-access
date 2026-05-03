@@ -17,6 +17,36 @@ use Illuminate\Support\Collection;
 
 final class UserService
 {
+    protected function convertIntegerList(array $list): array
+    {
+        return collect($list)->map(fn($val) => \intval($val))->all();
+    }
+
+    protected function handleUserPhoto(Request $request, User $user): string|null
+    {
+        return (new ProfileService(
+            app(ImgStoragerInterface::class, [
+                'model' => $user,
+                'key' => 'photo',
+                'lastFolderName' => \strval($user->id)
+            ])
+        ))->storageProfileImg($request);
+    }
+
+    /**
+     * Remove the register approval from database and return the user's phone
+     * 
+     * @param string $email The request's email
+     * @param string $phone The request's phone used as default phone value
+     * @return ?string The phone from the stored register approval or request
+     */
+    protected function deleteRegisterApproval(string $email, ?string $phone): string|null
+    {
+        $registerApproval = RegisterApproval::where(['email' => $email])->first(['id', 'phone']);
+        $registerApproval->delete();
+        return PhoneFormatter::clear($registerApproval->phone ?? $phone);
+    }
+
     public function createInternalUser(Request $request): User|null
     {
         /**
@@ -39,20 +69,6 @@ final class UserService
         );
     }
 
-    /**
-     * Remove the register approval from database and return the user's phone
-     * 
-     * @param string $email The request's email
-     * @param string $phone The request's phone used as default phone value
-     * @return ?string The phone from the stored register approval or request
-     */
-    protected function deleteRegisterApproval(string $email, ?string $phone): string|null
-    {
-        $registerApproval = RegisterApproval::where(['email' => $email])->first(['id', 'phone']);
-        $registerApproval->delete();
-        return PhoneFormatter::clear($registerApproval->phone ?? $phone);
-    }
-
     public function createExternalUser(Request $request): void
     {
         $user = User::create((new UserCreationDto(
@@ -72,17 +88,6 @@ final class UserService
         User::where(['id' => $id])->update(['name' => $name]);
     }
 
-    protected function handleUserPhoto(Request $request, User $user): string|null
-    {
-        return (new ProfileService(
-            app(ImgStoragerInterface::class, [
-                'model' => $user,
-                'key' => 'photo',
-                'lastFolderName' => \strval($user->id)
-            ])
-        ))->storageProfileImg($request);
-    }
-
     public function updateUserByOwner(Request $request, User $user)
     {
         $photoPath = $this->handleUserPhoto($request, $user);
@@ -98,9 +103,13 @@ final class UserService
         }
     }
 
-    protected function convertIntegerList(array $list): array
+    public function removeUser(int $id, bool $trashed = false)
     {
-        return collect($list)->map(fn($val) => \intval($val))->all();
+        if ($trashed) {
+            User::onlyTrashed()->where(['id' => $id])->forceDelete();
+        } else {
+            User::where(['id' => $id])->delete();
+        }
     }
 
     public function removeUserList(Request $request, Collection $qs)
@@ -119,9 +128,14 @@ final class UserService
         }
     }
 
-    public function restoreList(Request $request)
+    public function restore(int $id): void
     {
-        User::withTrashed()->whereIn(
+        User::onlyTrashed()->where(['id' => $id])->restore();
+    }
+
+    public function restoreGroup(Request $request)
+    {
+        User::onlyTrashed()->whereIn(
             'id',
             $this->convertIntegerList($request->validated('restoration'))
         )->restore();

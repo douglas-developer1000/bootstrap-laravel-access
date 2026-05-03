@@ -11,9 +11,9 @@ use App\Repositories\RegisterApprovalRepository;
 use App\Services\Contracts\RegistrationInterface;
 use App\Models\{
     RegisterOrder,
-    RegisterApproval
+    RegisterApproval,
+    User
 };
-use App\Repositories\UserRepository;
 use Carbon\Carbon;
 
 final class RegistrationService implements RegistrationInterface
@@ -24,14 +24,13 @@ final class RegistrationService implements RegistrationInterface
     public function __construct(
         protected readonly RegisterOrderRepository $registerOrderRepository,
         protected readonly RegisterApprovalRepository $approvalRepository,
-        protected readonly UserRepository $userRepository,
     ) {
         // ...
     }
 
     public function existsUserByEmail(string $email): bool
     {
-        return $this->userRepository->exists(['email' => $email]);
+        return User::where(['email' => $email])->exists();
     }
 
     public function findRegisterOrderByEmail(string $email): ?RegisterOrder
