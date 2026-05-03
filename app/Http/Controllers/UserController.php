@@ -7,16 +7,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
-use App\Libraries\Utils\PhoneFormatter;
 use App\Models\User;
 use App\Services\Registration\RegisterApprovalService;
 use App\Services\UserService;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Auth\Events\Registered;
 
 final class UserController extends Controller
 {
@@ -79,14 +75,7 @@ final class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        $this->userSvc->create([
-            ...$request->only([
-                'name',
-                'email'
-            ]),
-            'email_verified_at' => Carbon::now(),
-            'password' => Hash::make($request->input('password'))
-        ]);
+        $this->userSvc->createInternalUser($request);
 
         return redirect()->route('users.create')->with([
             'toastShow' => true,
@@ -278,23 +267,11 @@ final class UserController extends Controller
 
     public function storeSigned(UserRequest $request, RegisterApprovalService $approvalSvc)
     {
-        $registerApproval = $approvalSvc->findByEmail($request->email);
-        $approvalSvc->delete($registerApproval->id);
-
-        $phone = PhoneFormatter::clear($registerApproval->phone ?? $request->phone);
-        /** @var User $user */
-        $user = $this->userSvc->create(attributes: [
-            ...$request->only(['name', 'email', 'password']),
-            'phone' => $phone,
-        ]);
-        if (Role::where('name', 'user')->exists()) {
-            $user->assignRole('user');
-        }
-        event(new Registered($user));
+        $this->userSvc->createExternalUser($request);
 
         return redirect()->route('login')->with([
             'toastShow' => true,
-            'toastMsg' => 'Conta criada com sucesso! Pode autenticar agora.'
+            'toastMsg' => 'Conta criada com sucesso! Autenticação liberada!'
         ]);
     }
 
