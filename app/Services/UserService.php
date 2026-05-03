@@ -9,6 +9,7 @@ use App\Libraries\Utils\PhoneFormatter;
 use App\Models\RegisterApproval;
 use App\Models\User;
 use App\Repositories\UserRepository;
+use App\Services\Contracts\ImgStoragerInterface;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -72,9 +73,35 @@ final class UserService
         event(new Registered($user));
     }
 
-    public function update(int $id, array $attributes = []): int
+    public function updateUser(int $id, string $name)
     {
-        return $this->repository->update($id, $attributes);
+        User::where(['id' => $id])->update(['name' => $name]);
+    }
+
+    protected function handleUserPhoto(Request $request, User $user): string|null
+    {
+        return (new ProfileService(
+            app(ImgStoragerInterface::class, [
+                'model' => $user,
+                'key' => 'photo',
+                'lastFolderName' => \strval($user->id)
+            ])
+        ))->storageProfileImg($request);
+    }
+
+    public function updateUserByOwner(Request $request, User $user)
+    {
+        $photoPath = $this->handleUserPhoto($request, $user);
+
+        $inputs = collect([
+            ...$request->only(['name', 'password']),
+            ...($photoPath ? ['photo' => $photoPath] : []),
+            'phone' => PhoneFormatter::clear($request->validated('phone')),
+        ])->filter(fn($val, $key) => $user->$key !== $val);
+
+        if ($inputs->isNotEmpty()) {
+            User::where(['id' => $user->id])->update($inputs->toArray());
+        }
     }
 
     public function removeList(array $ids, bool $forceDelete = false)

@@ -96,9 +96,7 @@ final class UserController extends Controller
      */
     public function update(UserRequest $request, int $id)
     {
-        $this->userSvc->update($id, [
-            'name' => $request->validated('name')
-        ]);
+        $this->userSvc->updateUser($id, $request->validated('name'));
         return redirect()->route('users.index')->with([
             'toastShow' => true,
             'toastMsg' => 'Usuário editado com sucesso!'

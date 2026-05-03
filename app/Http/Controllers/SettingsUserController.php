@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SettingsUser\SettingsUserRequest;
-use App\Libraries\Utils\PhoneFormatter;
 use App\Models\User;
-use App\Services\Contracts\ImgStoragerInterface;
-use App\Services\ProfileService;
 use App\Services\UserService;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -33,27 +30,7 @@ final class SettingsUserController extends Controller
     public function update(SettingsUserRequest $request, UserService $userSvc, User $user)
     {
         $this->authorize('update', $user);
-        $phone = PhoneFormatter::clear($request->validated('phone'));
-
-        $profileSvc = new ProfileService(
-            app(ImgStoragerInterface::class, [
-                'model' => $user,
-                'key' => 'photo',
-                'lastFolderName' => \strval($user->id)
-            ])
-        );
-
-        $photoPath = $profileSvc->storageProfileImg($request);
-
-        $inputs = collect([
-            ...$request->only(['name', 'password']),
-            ...($photoPath ? ['photo' => $photoPath] : []),
-            'phone' => $phone,
-        ])->filter(fn($val, $key) => $user->$key !== $val);
-
-        if ($inputs->isNotEmpty()) {
-            $userSvc->update($user->id, $inputs->toArray());
-        }
+        $userSvc->updateUserByOwner($request, $user);
 
         return redirect()->route('settings.user.show')->with([
             'toastShow' => true,
