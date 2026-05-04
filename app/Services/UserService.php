@@ -33,7 +33,9 @@ final class UserService
             #[Override]
             public function getSortColumns(): array
             {
-                return ['created_at', 'id', 'name'];
+                return collect(parent::getSortColumns())->merge(
+                    ['created_at', 'id', 'name']
+                )->all();
             }
 
             #[Override]
