@@ -61,6 +61,7 @@
                             placeholder="Insira o telefone do usuário"
                             :value="old('phone', $user->phone)"
                             autocomplete="no"
+                            data-mask="phone"
                         />
                         <div class="d-flex w-100 justify-content-end mt-2">
                             <x-atoms.button

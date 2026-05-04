@@ -8,7 +8,8 @@
     'value' => '',
     'required' => false,
     'autocomplete' => 'yes',
-    'position' => 'relative'
+    'position' => 'relative',
+    'dataMask' => NULL,
 ])
 
 <div
@@ -43,6 +44,9 @@
             required
         @endif
         autocomplete="{{ $autocomplete }}"
+        @if ($dataMask !== NULL)
+            data-mask={{ $dataMask }}
+        @endif
     />
     @error ($errorName)
         <div

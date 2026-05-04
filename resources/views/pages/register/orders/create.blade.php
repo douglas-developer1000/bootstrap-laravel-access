@@ -47,6 +47,7 @@
                         placeholder="(xx) xxxx-xxxx"
                         label-text="Telefone:"
                         :value="old('phone', '')"
+                        data-mask="phone"
                     />
                     <x-atoms.gate.btns-row>
                         <x-atoms.submit-btn class="btn-primary">

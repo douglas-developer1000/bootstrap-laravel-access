@@ -6,4 +6,4 @@ declare global {
     }
 }
 
-new Inputmask("(99) 99999-9999").mask("#phone");
+new Inputmask("(99) 99999-9999").mask("[data-mask='phone']");
