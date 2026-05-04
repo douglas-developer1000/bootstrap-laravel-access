@@ -6,11 +6,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Permission\PermissionRequest;
 use App\Libraries\Utils\Paginator;
+use App\Services\PermissionService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 
 final class PermissionController extends Controller
 {
+    public function __construct(protected PermissionService $svc)
+    {
+        // ...
+    }
     public function index(Request $request)
     {
         $group = Paginator::buildGroup($request->only('group'));
@@ -38,7 +43,7 @@ final class PermissionController extends Controller
 
     public function store(PermissionRequest $request)
     {
-        Permission::create(['name' => $request->validated('name')]);
+        $this->svc->createPermission($request->validated('name'));
         return redirect()->route('permissions.index')->with([
             'toastShow' => true,
             'toastMsg' => 'Permissão criada com sucesso!'
@@ -52,11 +57,9 @@ final class PermissionController extends Controller
 
     public function update(PermissionRequest $request)
     {
-        $id = $request->route('permission');
-        $permission = Permission::findOrFail($id);
-        $permission->update([
-            'name' => $request->validated('name')
-        ]);
+        $permission = Permission::findById($request->route('permission'));
+        $this->svc->updatePermission(permission: $permission, name: $request->validated('name'));
+
         return redirect()->route('permissions.index')->with([
             'toastShow' => true,
             'toastMsg' => 'Permissão editada com sucesso!'
@@ -65,7 +68,7 @@ final class PermissionController extends Controller
 
     public function destroy(Permission $permission)
     {
-        $permission->delete();
+        $this->svc->removePermission($permission);
 
         return redirect()->route(
             'permissions.index',
@@ -78,10 +81,7 @@ final class PermissionController extends Controller
 
     public function removeGroup(PermissionRequest $request)
     {
-        $remotions = collect($request->validated('remotion'))->map(
-            fn($val) => \intval($val)
-        )->all();
-        Permission::whereIn('id', $remotions)->delete();
+        $this->svc->removePermissionList($request->validated('remotion'));
 
         return redirect()->route(
             'permissions.index',
