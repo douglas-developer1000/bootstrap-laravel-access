@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use \BackedEnum;
 
+/**
+ * @method static BackedEnum[] cases()
+ */
 trait StorableEnumTrait
 {
     public static function combineEnumValues(): array
@@ -32,14 +35,14 @@ trait StorableEnumTrait
         return $resultado;
     }
 
-    public static function defineRequestBooleanEnumKeys($key): array
+    public static function defineRequestBooleanEnumKeys(string $key): array
     {
         return collect(
             array_column(self::cases(), 'value')
         )->map(fn($value) => "{$key}.{$value}")->all();
     }
 
-    public static function wrapRequestBooleanEnum(Request $request, $key): string|false
+    public static function wrapRequestBooleanEnum(Request $request, string $key): string|false
     {
         $output = implode('+', array_filter(
             collect(self::defineRequestBooleanEnumKeys($key))->map(
