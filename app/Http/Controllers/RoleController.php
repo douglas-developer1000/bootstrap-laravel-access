@@ -8,22 +8,24 @@ use App\Http\Requests\Role\RoleRequest;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
-use App\Libraries\Utils\Paginator;
+use App\Services\PaginatorService;
 use App\Services\RoleService;
 
 final class RoleController extends Controller
 {
-    public function __construct(protected RoleService $svc)
-    {
+    public function __construct(
+        protected RoleService $svc,
+        protected PaginatorService $paginator
+    ) {
         // ...
     }
 
     public function index(Request $request)
     {
-        $group = Paginator::buildGroup($request->only('group'));
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $group = $this->paginator->buildGroup($request->only('group'));
+        $search = $this->paginator->buildSearch($request->only('q'));
+        $sort = $this->paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = $this->paginator->buildOrder($request->only('order'));
 
         $query = Role::query();
         if ($search) {
@@ -59,16 +61,16 @@ final class RoleController extends Controller
     public function attach(Request $request, Role $role)
     {
         $query = $this->svc->findUnlinkedPermissionsQuery($role);
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $search = $this->paginator->buildSearch($request->only('q'));
+        $sort = $this->paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = $this->paginator->buildOrder($request->only('order'));
 
         if ($search) {
             $search = addcslashes($search, '%_');
             $query = $query->whereLike('name', "%{$search}%");
         }
 
-        $group = Paginator::buildGroup($request->only('group'));
+        $group = $this->paginator->buildGroup($request->only('group'));
         $permissions = $query->orderBy($sort, $order)->paginate(
             perPage: $group,
             columns: ['id', 'name', 'created_at']

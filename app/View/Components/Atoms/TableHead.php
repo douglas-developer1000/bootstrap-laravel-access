@@ -7,7 +7,7 @@ namespace App\View\Components\Atoms;
 use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use App\Libraries\Utils\Paginator as PaginatorBuilder;
+use App\Services\PaginatorService;
 use Closure;
 
 final class TableHead extends Component
@@ -19,11 +19,14 @@ final class TableHead extends Component
 
     public bool $default;
 
+    protected PaginatorService $paginatorService;
+
     /**
      * Create a new component instance.
      */
     public function __construct(string $sort, bool $default = false)
     {
+        $this->paginatorService = app(PaginatorService::class);
         $this->qs = collect(request()->query());
         $this->sort = $sort;
         $this->default = $default;
@@ -38,7 +41,7 @@ final class TableHead extends Component
             'sort' => $this->sort
         ]);
 
-        return PaginatorBuilder::makeHref($url, $qs, $group);
+        return $this->paginatorService->makeHref($url, $qs, $group);
     }
 
     protected function defineOrder()

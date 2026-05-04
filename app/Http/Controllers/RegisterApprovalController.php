@@ -6,8 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterApproval\RegisterApprovalRequest;
 use Illuminate\Http\Request;
-use App\Libraries\Utils\Paginator;
 use App\Models\RegisterApproval;
+use App\Services\PaginatorService;
 use App\Services\Registration\RegisterApprovalService;
 
 final class RegisterApprovalController extends Controller
@@ -17,12 +17,12 @@ final class RegisterApprovalController extends Controller
         // ...
     }
 
-    public function index(Request $request)
+    public function index(Request $request, PaginatorService $paginator)
     {
-        $group = Paginator::buildGroup($request->only('group'));
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'email']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $group = $paginator->buildGroup($request->only('group'));
+        $search = $paginator->buildSearch($request->only('q'));
+        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'email']);
+        $order = $paginator->buildOrder($request->only('order'));
 
         $query = RegisterApproval::query();
         if ($search) {

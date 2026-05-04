@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Permission\PermissionRequest;
-use App\Libraries\Utils\Paginator;
+use App\Services\PaginatorService;
 use App\Services\PermissionService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
@@ -16,12 +16,12 @@ final class PermissionController extends Controller
     {
         // ...
     }
-    public function index(Request $request)
+    public function index(Request $request, PaginatorService $paginator)
     {
-        $group = Paginator::buildGroup($request->only('group'));
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $group = $paginator->buildGroup($request->only('group'));
+        $search = $paginator->buildSearch($request->only('q'));
+        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = $paginator->buildOrder($request->only('order'));
 
         $query = Permission::query();
         if ($search) {

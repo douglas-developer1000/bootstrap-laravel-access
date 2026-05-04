@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\UserRequest;
-use App\Libraries\Utils\Paginator;
 use App\Models\User;
+use App\Services\PaginatorService;
 use App\Services\RoleUserService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -24,19 +24,19 @@ class RoleUserController extends Controller
         return Role::whereNotIn('id', $ids);
     }
 
-    public function getRoles(Request $request, User $user)
+    public function getRoles(Request $request, PaginatorService $paginator, User $user)
     {
         $query = $this->findUnlinkedRoles($user);
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $search = $paginator->buildSearch($request->only('q'));
+        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = $paginator->buildOrder($request->only('order'));
 
         if ($search) {
             $search = addcslashes($search, '%_');
             $query = $query->whereLike('name', "%{$search}%");
         }
 
-        $group = Paginator::buildGroup($request->only('group'));
+        $group = $paginator->buildGroup($request->only('group'));
         $roles = $query->orderBy($sort, $order)->paginate(
             perPage: $group,
             columns: ['id', 'name', 'created_at']

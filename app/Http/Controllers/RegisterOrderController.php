@@ -8,10 +8,10 @@ use App\Libraries\Registration\RegisterApprovalHandler;
 use App\Services\Contracts\RegistrationInterface;
 use App\Http\Requests\RegisterOrder\RegisterOrderRequest;
 use App\Libraries\Registration\RegisterOrderHandler;
-use App\Libraries\Utils\Paginator;
 use App\Models\RegisterOrder;
 use App\Models\RegisterApproval;
 use App\Notifications\RegisterApprovalNotification;
+use App\Services\PaginatorService;
 use App\Services\Registration\RegisterApprovalService;
 use App\Services\Registration\RegisterOrderService;
 use Illuminate\Http\Request;
@@ -29,12 +29,12 @@ final class RegisterOrderController extends Controller
         );
     }
 
-    public function index(Request $request)
+    public function index(Request $request, PaginatorService $paginator)
     {
-        $group = Paginator::buildGroup($request->only('group'));
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'email']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $group = $paginator->buildGroup($request->only('group'));
+        $search = $paginator->buildSearch($request->only('q'));
+        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'email']);
+        $order = $paginator->buildOrder($request->only('order'));
 
         $query = RegisterOrder::query();
         if ($search) {

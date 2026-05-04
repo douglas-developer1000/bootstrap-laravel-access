@@ -2,20 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Libraries\Utils;
+namespace App\Services;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Uri;
 
-final class Paginator
+final class PaginatorService
 {
-    private function __construct()
-    {
-        // ...
-    }
-
-    public static function buildSearch(array $params, $keyTerm = 'q')
+    public function buildSearch(array $params, $keyTerm = 'q')
     {
         /** @var string|null $input **/
         $input = $params[$keyTerm] ?? NULL;
@@ -26,7 +21,7 @@ final class Paginator
         return trim($input);
     }
 
-    public static function buildSort(array $params, array $baseList)
+    public function buildSort(array $params, array $baseList)
     {
         /** @var string $input **/
         $input = $params['sort'] ?? $baseList[0];
@@ -41,7 +36,7 @@ final class Paginator
         return $baseList[0];
     }
 
-    public static function buildOrder(array $params)
+    public function buildOrder(array $params)
     {
         /** @var string $input **/
         $input = $params['order'] ?? 'desc';
@@ -55,7 +50,7 @@ final class Paginator
         return 'desc';
     }
 
-    public static function buildGroup(array $params): int|string
+    public function buildGroup(array $params): int|string
     {
         /** @var int $group **/
         $group = config('pagination.group');
@@ -71,10 +66,10 @@ final class Paginator
         return $group;
     }
 
-    public static function makeHref(string $url, Collection $currentQueryString, $group = NULL)
+    public function makeHref(string $url, Collection $currentQueryString, $group = NULL)
     {
         $uri = Uri::of($url);
-        $groupSelected = self::buildGroup(['group' => $currentQueryString->get('group')]);
+        $groupSelected = $this->buildGroup(['group' => $currentQueryString->get('group')]);
         $qs = $currentQueryString->merge($uri->query());
 
         if ($group !== NULL) {

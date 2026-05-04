@@ -6,8 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
-use App\Libraries\Utils\Paginator;
 use App\Models\User;
+use App\Services\PaginatorService;
 use App\Services\PermissionUserService;
 use Spatie\Permission\Models\Permission;
 
@@ -24,19 +24,19 @@ final class PermissionUserController extends Controller
         return Permission::whereNotIn('id', $ids);
     }
 
-    public function getDirectPermissions(Request $request, User $user)
+    public function getDirectPermissions(Request $request, PaginatorService $paginator, User $user)
     {
         $query = $this->findUnlinkedPermissions($user);
-        $search = Paginator::buildSearch($request->only('q'));
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $search = $paginator->buildSearch($request->only('q'));
+        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = $paginator->buildOrder($request->only('order'));
 
         if ($search) {
             $search = addcslashes($search, '%_');
             $query = $query->whereLike('name', "%{$search}%");
         }
 
-        $group = Paginator::buildGroup($request->only('group'));
+        $group = $paginator->buildGroup($request->only('group'));
         $permissions = $query->orderBy($sort, $order)->paginate(
             perPage: $group,
             columns: ['id', 'name', 'created_at']

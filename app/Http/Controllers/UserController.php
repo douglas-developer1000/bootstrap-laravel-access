@@ -6,8 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
-use App\Libraries\Utils\Paginator;
 use App\Models\User;
+use App\Services\PaginatorService;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -23,12 +23,12 @@ final class UserController extends Controller
     /**
      * Display a listing of the users (used by super-admin).
      */
-    public function index(Request $request)
+    public function index(Request $request, PaginatorService $paginator)
     {
-        $group = Paginator::buildGroup($request->only('group'));
-        $nameSearch = Paginator::buildSearch($request->only('name'), 'name');
-        $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = Paginator::buildOrder($request->only('order'));
+        $group = $paginator->buildGroup($request->only('group'));
+        $nameSearch = $paginator->buildSearch($request->only('name'), 'name');
+        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
+        $order = $paginator->buildOrder($request->only('order'));
         $trashed = $request->boolean('trashed');
 
         $query = $trashed ? User::onlyTrashed() : User::query();

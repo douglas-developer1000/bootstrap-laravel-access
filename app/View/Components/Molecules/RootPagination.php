@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\View\Component;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\UrlWindow;
-use App\Libraries\Utils\Paginator as PaginatorBuilder;
+use App\Services\PaginatorService;
 use Closure;
 
 final class RootPagination extends Component
@@ -38,6 +38,8 @@ final class RootPagination extends Component
      */
     public $groupSelected;
 
+    protected PaginatorService $paginatorService;
+
     /**
      * Create a new component instance.
      */
@@ -45,12 +47,14 @@ final class RootPagination extends Component
         LengthAwarePaginator $paginator,
         $spacing = 'top'
     ) {
+        $this->paginatorService = app(PaginatorService::class);
+
         $this->qs = collect(request()->query());
 
         $this->elements = $this->buildElements($paginator);
         $this->paginator = $paginator;
         $this->spacing = $spacing;
-        $this->groupSelected = PaginatorBuilder::buildGroup([
+        $this->groupSelected = $this->paginatorService->buildGroup([
             'group' => $this->qs->get('group')
         ]);
     }
@@ -77,7 +81,7 @@ final class RootPagination extends Component
 
     public function makeHref(string $url, $group = NULL)
     {
-        return PaginatorBuilder::makeHref($url, $this->qs, $group);
+        return $this->paginatorService->makeHref($url, $this->qs, $group);
     }
 
     /**
