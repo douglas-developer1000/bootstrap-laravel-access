@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string(
                 'number',
                 \intval(
-                    config('database.schema.sizes.client.phone')
+                    config('database.schema.sizes.generic.phone.max')
                 )
             );
 

@@ -6,8 +6,6 @@
     ])
 @endpush
 
-@use ('App\Libraries\Utils\PhoneFormatter')
-
 <x-layout title="Visualizar Cliente">
     <x-packs.header>
         <x-packs.page-heading-row>
@@ -41,9 +39,9 @@
                                 <div>{{ $phone->type->toString() }}:</div>
                                 <a
                                     class="text-decoration-none"
-                                    href="tel:{{ $phone->number }}"
+                                    href="tel:{{ $phone->number->getValue() }}"
                                     target="_blank"
-                                    >{{ PhoneFormatter::toView($phone->number) }}</a
+                                    >{{ $phone->number }}</a
                                 >
                             </div>
                         @empty

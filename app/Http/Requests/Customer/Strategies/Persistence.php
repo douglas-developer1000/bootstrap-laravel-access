@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Requests\Customer\Strategies;
 
 use App\Http\Requests\Checker;
-use App\Rules\PhoneValid;
 use Illuminate\Validation\Rule;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
+use App\Libraries\Values\PhoneValue;
 
 class Persistence implements Checker
 {
     protected int $nameMaxSize;
     protected int $emailMaxSize;
     protected int $hostessMaxSize;
-    protected int $phoneMaxSize;
-    protected int $phoneMinSize;
 
     public function __construct()
     {
@@ -28,10 +26,6 @@ class Persistence implements Checker
         $this->hostessMaxSize = \intval(
             config('database.schema.sizes.client.hostess')
         );
-        $this->phoneMinSize = 9;
-        $this->phoneMaxSize = \intval(
-            config('database.schema.sizes.client.phone')
-        );
     }
 
     protected function makePhoneRules(): array
@@ -39,8 +33,7 @@ class Persistence implements Checker
         $phoneRule = [
             'bail',
             'nullable',
-            "min:{$this->phoneMinSize}",
-            new PhoneValid($this->phoneMaxSize)
+            PhoneValue::rule(),
         ];
         return collect([
             CustomerPhoneTypeEnum::CELULAR->value,
@@ -48,19 +41,6 @@ class Persistence implements Checker
             CustomerPhoneTypeEnum::COMMERCIAL->value
         ])->reduce(function (array $acc, string $key) use (&$phoneRule) {
             $acc["phone.{$key}"] = $phoneRule;
-            return $acc;
-        }, []);
-    }
-
-    protected function makePhoneMessages(): array
-    {
-        $phoneMinSize = $this->phoneMinSize;
-        return collect([
-            CustomerPhoneTypeEnum::CELULAR->value,
-            CustomerPhoneTypeEnum::RESIDENTIAL->value,
-            CustomerPhoneTypeEnum::COMMERCIAL->value
-        ])->reduce(function (array $acc, string $key) use ($phoneMinSize) {
-            $acc["phone.{$key}.min"] = "Tamanho mínimo ({$phoneMinSize})";
             return $acc;
         }, []);
     }
@@ -100,8 +80,6 @@ class Persistence implements Checker
             'birthdate.date' => 'Insira uma data válida',
             'birthdate.date_format' => 'Formato de data inválida',
             'birthdate.before' => 'Data inválida',
-
-            ...$this->makePhoneMessages(),
         ];
     }
 }

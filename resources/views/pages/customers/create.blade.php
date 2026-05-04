@@ -6,7 +6,8 @@
 @endpush
 @push ('ecmascript-bottom')
     @vite ([
-        'resources/js/pages/customers/create-edit.ts'
+        'resources/js/pages/customers/create-edit.ts',
+        'resources/js/pages/generic/phonemask.ts',
     ])
 @endpush
 
@@ -72,6 +73,7 @@
                         id="phone-{{ $enum->value }}-field"
                         placeholder="(DDD) xxxxx xxxx"
                         value="{{ old('phone.' . $enum->value, '') }}"
+                        data-mask="phone"
                     />
                 @endforeach
                 <label class="fs-075">Contato por:</label>

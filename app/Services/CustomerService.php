@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Libraries\Enums\CustomerContactEnum;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use App\Libraries\Enums\DayPeriodsEnum;
+use App\Libraries\Values\PhoneValue;
 use App\Models\Customer;
 use App\Models\CustomerPhone;
 use Illuminate\Support\Collection;
@@ -51,7 +52,7 @@ final class CustomerService
             )['phone'] ?? []
         )->filter(fn($value) => $value !== NULL)->map(fn($number, $key) => [
             'type' => CustomerPhoneTypeEnum::tryFrom($key),
-            'number' => $number
+            'number' => new PhoneValue($number)
         ])->values();
 
         if ($phones->isEmpty()) {

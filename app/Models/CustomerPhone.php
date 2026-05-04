@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\PhoneCast;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +18,7 @@ final class CustomerPhone extends Model
     protected $table = 'customer_phone';
 
     protected $casts = [
-        'type' => CustomerPhoneTypeEnum::class
+        'type' => CustomerPhoneTypeEnum::class,
+        'number' => PhoneCast::class
     ];
 }

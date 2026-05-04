@@ -211,7 +211,6 @@ return [
                 'name' => env('CUSTOMER_NAME_COLUMN_SIZE', 250),
                 'email' => env('CUSTOMER_EMAIL_COLUMN_SIZE', 250),
                 'hostess' => env('CUSTOMER_HOSTESS_COLUMN_SIZE', 250),
-                'phone' => env('CUSTOMER_PHONE_COLUMN_SIZE', 11),
             ],
         ]
     ],
