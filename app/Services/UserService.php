@@ -8,15 +8,63 @@ use App\Libraries\Dtos\UserCreationDto;
 use App\Libraries\Values\PhoneValue;
 use App\Models\RegisterApproval;
 use App\Models\User;
+use App\Services\Abstracts\AbstractPaginatorIndex;
 use App\Services\Contracts\ImgStoragerInterface;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Override;
 
 final class UserService
 {
+    public function __construct()
+    {
+        // ...
+    }
+
+    public function prepareIndex(Request $request): LengthAwarePaginator
+    {
+        return (new class extends AbstractPaginatorIndex
+        {
+            #[Override]
+            public function getSortColumns(): array
+            {
+                return ['created_at', 'id', 'name'];
+            }
+
+            #[Override]
+            public function query(Request $request): Builder
+            {
+                $trashed = $request->boolean('trashed');
+                return $trashed ? User::onlyTrashed() : User::query();
+            }
+
+            #[Override]
+            public function attachQuery(Request $request, Builder $query): Builder
+            {
+                $nameSearch = $this->paginator->buildSearch($request->only('name'), 'name');
+                if ($nameSearch) {
+                    $nameSearch = addcslashes($nameSearch, '%_');
+                    return parent::attachQuery(
+                        $request,
+                        $query
+                    )->whereLike('name', "%{$nameSearch}%");
+                }
+                return parent::attachQuery($request, $query);
+            }
+        })->prepareIndex(
+            $request,
+            'id',
+            'name',
+            'email',
+            'created_at'
+        );
+    }
+
     protected function handleUserPhoto(Request $request, User $user): string|null
     {
         return (new ProfileService(

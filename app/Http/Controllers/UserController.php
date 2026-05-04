@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Services\PaginatorService;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -23,25 +22,11 @@ final class UserController extends Controller
     /**
      * Display a listing of the users (used by super-admin).
      */
-    public function index(Request $request, PaginatorService $paginator)
+    public function index(Request $request)
     {
-        $group = $paginator->buildGroup($request->only('group'));
-        $nameSearch = $paginator->buildSearch($request->only('name'), 'name');
-        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = $paginator->buildOrder($request->only('order'));
-        $trashed = $request->boolean('trashed');
-
-        $query = $trashed ? User::onlyTrashed() : User::query();
-        if ($nameSearch) {
-            $nameSearch = addcslashes($nameSearch, '%_');
-            $query = $query->whereLike('name', "%{$nameSearch}%");
-        }
-        $list = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: ['id', 'name', 'email', 'created_at']
-        );
-
-        return view('pages.users.index', ['list' => $list]);
+        return view('pages.users.index', [
+            'list' => $this->userSvc->prepareIndex($request)
+        ]);
     }
 
     /**
