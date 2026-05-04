@@ -36,7 +36,7 @@ final class CustomerService
         return Customer::create($this->preparePersistence($request));
     }
 
-    public function updateCustomer(Request $request, Customer $customer): bool
+    public function updateCustomer(Request $request, Customer $customer): int
     {
         return Customer::where(['id' => $customer->id])->update(
             $this->preparePersistence($request)
