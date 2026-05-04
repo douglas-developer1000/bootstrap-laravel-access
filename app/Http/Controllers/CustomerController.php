@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Customer\CustomerRequest;
-use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
 use App\Models\Customer;
 use App\Services\CustomerService;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
@@ -48,30 +46,17 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $phones = $this->svc->getPhones($customer);
-
         return view('pages.customers.show', [
             'customer' => $customer,
-            'phones' => $phones,
+            'phones' => $this->svc->getPhones($customer),
         ]);
     }
 
     public function edit(Customer $customer)
     {
-        /** @var Collection<string, string> $phonesStored */
-        $phonesStored = $this->svc->getPhones($customer)->mapWithKeys(
-            fn($phone) => [$phone->type->value => $phone->number]
-        );
-
-        $phones = collect(
-            CustomerPhoneTypeEnum::casesExcept(CustomerPhoneTypeEnum::OTHER)
-        )->mapWithKeys(
-            fn($enum) => [$enum->value => $phonesStored->get($enum->value, '')]
-        );
-
         return view('pages.customers.edit', [
             'customer' => $customer,
-            'phones' => $phones,
+            'phones' => $this->svc->getEditionPhones($customer),
         ]);
     }
 
@@ -97,9 +82,9 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function destroy(Customer $customer)
+    public function destroy(int $id)
     {
-        $customer->delete();
+        $this->svc->removeCustomer($id);
 
         return redirect()->route(
             'customers.index',
@@ -112,10 +97,7 @@ class CustomerController extends Controller
 
     public function removeGroup(CustomerRequest $request)
     {
-        $remotions = collect($request->validated('remotion'))->map(
-            fn($val) => \intval($val)
-        )->all();
-        $this->svc->removeList($remotions);
+        $this->svc->removeCustomerList($request->validated('remotion'));
 
         return redirect()->route(
             'customers.index',

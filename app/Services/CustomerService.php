@@ -80,7 +80,29 @@ final class CustomerService
         ])->get();
     }
 
-    public function removeList(array $ids): void
+    /**
+     * Return the phone collection with the stored phones from database
+     */
+    public function getEditionPhones(Customer $customer): Collection
+    {
+        /** @var Collection<string, string> $phonesStored */
+        $phonesStored = $this->getPhones($customer)->mapWithKeys(
+            fn($phone) => [$phone->type->value => $phone->number]
+        );
+
+        return collect(
+            CustomerPhoneTypeEnum::casesExcept(CustomerPhoneTypeEnum::OTHER)
+        )->mapWithKeys(
+            fn($enum) => [$enum->value => $phonesStored->get($enum->value, '')]
+        );
+    }
+
+    public function removeCustomer(int $id): void
+    {
+        Customer::where(['id' => $id])->delete();
+    }
+
+    public function removeCustomerList(array $ids): void
     {
         Customer::whereIn('id', $ids)->delete();
     }
