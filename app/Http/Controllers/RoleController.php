@@ -22,22 +22,9 @@ final class RoleController extends Controller
 
     public function index(Request $request)
     {
-        $group = $this->paginator->buildGroup($request->only('group'));
-        $search = $this->paginator->buildSearch($request->only('q'));
-        $sort = $this->paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = $this->paginator->buildOrder($request->only('order'));
-
-        $query = Role::query();
-        if ($search) {
-            $search = addcslashes($search, '%_');
-            $query = $query->whereLike('name', "%{$search}%");
-        }
-        $list = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: ['id', 'name', 'created_at']
-        );
-
-        return view('pages.roles.index', ['list' => $list]);
+        return view('pages.roles.index', [
+            'list' => $this->svc->prepareIndex($request)
+        ]);
     }
 
     public function show(Role $role)
@@ -60,23 +47,13 @@ final class RoleController extends Controller
 
     public function attach(Request $request, Role $role)
     {
-        $query = $this->svc->findUnlinkedPermissionsQuery($role);
-        $search = $this->paginator->buildSearch($request->only('q'));
-        $sort = $this->paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = $this->paginator->buildOrder($request->only('order'));
-
-        if ($search) {
-            $search = addcslashes($search, '%_');
-            $query = $query->whereLike('name', "%{$search}%");
-        }
-
-        $group = $this->paginator->buildGroup($request->only('group'));
-        $permissions = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: ['id', 'name', 'created_at']
-        );
-
-        return view('pages.roles.attach', ['role' => $role, 'list' => $permissions]);
+        return view('pages.roles.attach', [
+            'role' => $role,
+            'list' => $this->svc->prepareRemainPermissionsIndex(
+                $request,
+                $role
+            )
+        ]);
     }
 
     public function store(RoleRequest $request)
