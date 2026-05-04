@@ -17,11 +17,6 @@ use Illuminate\Support\Collection;
 
 final class UserService
 {
-    protected function convertIntegerList(array $list): array
-    {
-        return collect($list)->map(fn($val) => \intval($val))->all();
-    }
-
     protected function handleUserPhoto(Request $request, User $user): string|null
     {
         return (new ProfileService(
@@ -114,10 +109,7 @@ final class UserService
 
     public function removeUserList(Request $request, Collection $qs)
     {
-        $query = User::whereIn(
-            'id',
-            $this->convertIntegerList($request->validated('remotion'))
-        );
+        $query = User::whereIn('id', $request->validated('remotion'));
         $forceDelete = $qs->contains(
             fn($value, $key) => $key === 'trashed' && $value === '1'
         );
@@ -135,9 +127,6 @@ final class UserService
 
     public function restoreGroup(Request $request)
     {
-        User::onlyTrashed()->whereIn(
-            'id',
-            $this->convertIntegerList($request->validated('restoration'))
-        )->restore();
+        User::onlyTrashed()->whereIn('id', $request->validated('restoration'))->restore();
     }
 }
