@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services\Registration;
 
+use App\Libraries\Traits\BuildTokenTrait;
 use App\Models\RegisterOrder;
-use App\Libraries\Utils\TokenBuilder;
 
 final class RegisterOrderService
 {
+    use BuildTokenTrait;
     public function prepareRegisterApproval(RegisterOrder $order): array
     {
         RegisterOrder::where(['id' => $order->id])->delete();
         return [
             'email' => $order->email,
-            'token' => TokenBuilder::build(),
+            'token' => $this->buildToken(),
             'expiration_data' => now()->addHours(
                 \intval(
                     config('registration.timeout.token')

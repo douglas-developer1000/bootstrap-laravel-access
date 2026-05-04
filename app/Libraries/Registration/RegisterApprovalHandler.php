@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace App\Libraries\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
-use App\Libraries\Utils\TokenBuilder;
 use App\Libraries\Values\PhoneValue;
 use App\Notifications\RegisterApprovalNotification;
 use App\Services\Contracts\RegistrationInterface;
+use App\Libraries\Traits\BuildTokenTrait;
 use Carbon\Carbon;
 
 final class RegisterApprovalHandler implements HandlerInterface
 {
+    use BuildTokenTrait;
+
     public function __construct(protected RegistrationInterface $registrationService)
     {
         // ...
@@ -23,7 +25,7 @@ final class RegisterApprovalHandler implements HandlerInterface
         $approval = $this->registrationService->findRegisterApprovalByEmail($email);
         if ($approval) {
             if (Carbon::now()->greaterThan(Carbon::parse($approval->expiration_data))) {
-                $approval->token = TokenBuilder::build();
+                $approval->token = $this->buildToken();
                 $this->registrationService->updateRegisterApproval(
                     id: $approval->id,
                     token: $approval->token,
