@@ -8,9 +8,15 @@ use App\Http\Requests\RegisterApproval\RegisterApprovalRequest;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
 use App\Models\RegisterApproval;
+use App\Services\Registration\RegisterApprovalService;
 
 final class RegisterApprovalController extends Controller
 {
+    public function __construct(protected RegisterApprovalService $svc)
+    {
+        // ...
+    }
+
     public function index(Request $request)
     {
         $group = Paginator::buildGroup($request->only('group'));
@@ -31,9 +37,9 @@ final class RegisterApprovalController extends Controller
         return view('pages.register.approvals.index', ['list' => $list]);
     }
 
-    public function destroy(RegisterApproval $approval)
+    public function destroy(int $id)
     {
-        $approval->delete();
+        $this->svc->removeRegisterApproval($id);
 
         return redirect()->route(
             'register.approvals.index',
@@ -46,10 +52,7 @@ final class RegisterApprovalController extends Controller
 
     public function removeGroup(RegisterApprovalRequest $request)
     {
-        $remotions = collect($request->validated('remotion'))->map(
-            fn($val) => \intval($val)
-        )->all();
-        RegisterApproval::whereIn('id', $remotions)->delete();
+        $this->svc->removeRegisterApprovalGroup($request->validated('remotion'));
 
         return redirect()->route(
             'register.approvals.index',

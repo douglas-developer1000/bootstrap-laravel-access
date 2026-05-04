@@ -20,4 +20,14 @@ final class RegisterApprovalService
     {
         return RegisterApproval::create($attributes);
     }
+
+    public function removeRegisterApproval(int $id)
+    {
+        return RegisterApproval::where(['id' => $id])->delete();
+    }
+
+    public function removeRegisterApprovalGroup(array $ids)
+    {
+        return RegisterApproval::whereIn('id', $ids)->delete();
+    }
 }
