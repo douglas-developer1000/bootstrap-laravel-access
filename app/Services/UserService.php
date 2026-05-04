@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Libraries\Dtos\UserCreationDto;
-use App\Libraries\Utils\PhoneFormatter;
+use App\Libraries\Values\PhoneValue;
 use App\Models\RegisterApproval;
 use App\Models\User;
 use App\Services\Contracts\ImgStoragerInterface;
@@ -32,14 +32,18 @@ final class UserService
      * Remove the register approval from database and return the user's phone
      * 
      * @param string $email The request's email
-     * @param string $phone The request's phone used as default phone value
-     * @return ?string The phone from the stored register approval or request
+     * @param PhoneValue $phone The request's phone used as default phone value
+     * @return PhoneValue The phone from the stored register approval or request
      */
-    protected function deleteRegisterApproval(string $email, ?string $phone): string|null
+    protected function deleteRegisterApproval(string $email, PhoneValue $phone): PhoneValue
     {
+        /** @var RegisterApproval $registerApproval */
         $registerApproval = RegisterApproval::where(['email' => $email])->first(['id', 'phone']);
         $registerApproval->delete();
-        return PhoneFormatter::clear($registerApproval->phone ?? $phone);
+        if ($registerApproval->phone->getValue() !== NULL) {
+            return $registerApproval->phone;
+        }
+        return $phone;
     }
 
     public function createInternalUser(Request $request): User|null
@@ -71,7 +75,7 @@ final class UserService
             $request->email,
             $request->password
         ))->putPhone(
-            phone: $this->deleteRegisterApproval($request->email, $request->phone)
+            phone: $this->deleteRegisterApproval($request->email, new PhoneValue($request->phone))
         )->toArray());
         $user->assignRole('user');
 
@@ -90,11 +94,15 @@ final class UserService
         $inputs = collect([
             ...$request->only(['name', 'password']),
             ...($photoPath ? ['photo' => $photoPath] : []),
-            'phone' => PhoneFormatter::clear($request->validated('phone')),
         ])->filter(fn($val, $key) => $user->$key !== $val);
 
+        $newPhone = new PhoneValue($request->validated('phone'));
+        if (!$newPhone->equals($user->phone)) {
+            $inputs->put('phone', $newPhone);
+        }
+
         if ($inputs->isNotEmpty()) {
-            User::where(['id' => $user->id])->update($inputs->toArray());
+            $user->update($inputs->toArray());
         }
     }
 

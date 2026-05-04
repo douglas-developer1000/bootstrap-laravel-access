@@ -5,21 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Requests\RegisterOrder\Strategies;
 
 use App\Http\Requests\Checker;
-use App\Rules\PhoneValid;
+use App\Libraries\Values\PhoneValue;
 
 final class Persistence implements Checker
 {
     protected int $emailMaxSize;
 
-    protected int $phoneMaxSize;
-
     public function __construct()
     {
         $this->emailMaxSize = \intval(
             config('database.schema.sizes.register-order.email')
-        );
-        $this->phoneMaxSize = \intval(
-            config('database.schema.sizes.register-order.phone')
         );
     }
 
@@ -33,7 +28,7 @@ final class Persistence implements Checker
             ],
             'phone' => [
                 'nullable',
-                new PhoneValid($this->phoneMaxSize)
+                PhoneValue::rule()
             ],
         ];
     }

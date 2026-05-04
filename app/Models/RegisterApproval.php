@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\PhoneCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use App\Models\Traits\FormatDatetimeProperty;
@@ -19,6 +20,7 @@ final class RegisterApproval extends Model
     protected function casts(): array
     {
         return [
+            'phone' => PhoneCast::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'expiration_data' => 'datetime',

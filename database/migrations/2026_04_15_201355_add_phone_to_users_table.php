@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string(
                 'phone',
                 \intval(
-                    config('database.schema.sizes.user.phone')
+                    config('database.schema.sizes.generic.phone.max')
                 )
             )->nullable();
         });

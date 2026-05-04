@@ -9,7 +9,6 @@
         'resources/js/pages/generic/multiselection.ts'
     ])
 @endpush
-@use ('App\Libraries\Utils\PhoneFormatter')
 
 @php
     $qs = request()->query->all();
@@ -111,9 +110,7 @@
                                     {{ $approval->email }}
                                 </div>
                             </td>
-                            <td>
-                                {{ PhoneFormatter::toView($approval->phone) }}
-                            </td>
+                            <td>{{ $approval->phone }}</td>
                             <td>{{ $approval->created_at_formatted }}</td>
                             <td>
                                 <div

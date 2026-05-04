@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Libraries\Utils\PhoneFormatter;
+use App\Casts\PhoneCast;
 use App\Models\Traits\FormatDatetimeProperty;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,17 +19,10 @@ final class RegisterOrder extends Model
     protected function casts(): array
     {
         return [
+            'phone' => PhoneCast::class,
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Sanitize the phone number column value
-     */
-    public function setPhoneAttribute($value)
-    {
-        $this->attributes['phone'] = PhoneFormatter::clear($value);
     }
 
     /**

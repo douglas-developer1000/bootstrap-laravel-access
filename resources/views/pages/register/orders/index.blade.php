@@ -9,7 +9,6 @@
         'resources/js/pages/generic/multiselection.ts'
     ])
 @endpush
-@use ('App\Libraries\Utils\PhoneFormatter')
 
 @php
     $qs = request()->query->all();
@@ -144,7 +143,7 @@
                             <td>
                                 <div class="ellipsis">{{ $order->email }}</div>
                             </td>
-                            <td>{{ PhoneFormatter::toView($order->phone) }}</td>
+                            <td>{{ $order->phone }}</td>
                             <td>{{ $order->created_at_formatted }}</td>
                             <td>
                                 <div

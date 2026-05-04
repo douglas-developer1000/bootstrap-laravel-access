@@ -19,7 +19,7 @@ return new class extends Migration
                 config('database.schema.sizes.register-approval.email')
             ))->unique();
             $table->string('phone', \intval(
-                config('database.schema.sizes.register-approval.phone')
+                config('database.schema.sizes.generic.phone.max')
             ))->nullable();
             $table->string('token', \intval(
                 config('database.schema.sizes.register-approval.token')

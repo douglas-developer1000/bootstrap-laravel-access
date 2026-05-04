@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Libraries\Registration\RegisterApprovalHandler;
+use App\Libraries\Values\PhoneValue;
 use App\Services\Contracts\RegistrationInterface;
 use App\Http\Requests\RegisterOrder\RegisterOrderRequest;
 use App\Libraries\Registration\RegisterOrderHandler;
@@ -61,7 +62,7 @@ final class RegisterOrderController extends Controller
     {
         $email = $request->input('email');
         if (!$this->registrationService->existsUserByEmail($email)) {
-            $this->registrationService->handleRegister($email, $request->input('phone'));
+            $this->registrationService->handleRegister($email, new PhoneValue($request->input('phone')));
         }
         return redirect()->route('register.orders.create')->with([
             'toastShow' => true,

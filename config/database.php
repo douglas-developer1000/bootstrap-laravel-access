@@ -194,17 +194,14 @@ return [
             'user' => [
                 'name' => env('USER_NAME_COLUMN_SIZE', 250),
                 'email' => env('USER_EMAIL_COLUMN_SIZE', 250),
-                'phone' => env('USER_PHONE_COLUMN_SIZE', 11),
                 'password' => env('USER_PASSWORD_COLUMN_SIZE', 255),
                 'photo' => env('USER_PHOTO_COLUMN_SIZE', 200),
             ],
             'register-order' => [
                 'email' => env('REGISTER_ORDER_EMAIL_COLUMN_SIZE', 250),
-                'phone' => env('REGISTER_ORDER_PHONE_COLUMN_SIZE', 11)
             ],
             'register-approval' => [
                 'email' => env('REGISTER_APPROVAL_EMAIL_COLUMN_SIZE', 250),
-                'phone' => env('REGISTER_APPROVAL_PHONE_COLUMN_SIZE', 11),
                 'token' => env('REGISTER_APPROVAL_TOKEN_COLUMN_SIZE', 40)
             ],
             'client' => [

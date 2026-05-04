@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\PhoneCast;
 use App\Models\Traits\FormatDatetimeProperty;
 use App\Notifications\PreResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
@@ -17,7 +18,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name', 'email', 'password', 'email_verified_at'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 final class User extends Authenticatable implements MustVerifyEmail
 {
@@ -32,6 +33,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
+            'phone' => PhoneCast::class,
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];

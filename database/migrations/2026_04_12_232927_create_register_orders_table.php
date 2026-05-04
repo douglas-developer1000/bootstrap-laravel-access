@@ -19,7 +19,7 @@ return new class extends Migration
                 config('database.schema.sizes.register-order.email')
             ))->unique();
             $table->string('phone', \intval(
-                config('database.schema.sizes.register-order.phone')
+                config('database.schema.sizes.generic.phone.max')
             ))->nullable();
             $table->timestamps();
         });

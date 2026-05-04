@@ -59,7 +59,7 @@
                             name="phone"
                             type="tel"
                             placeholder="Insira o telefone do usuário"
-                            :value="old('phone', $user->phone)"
+                            :value="old('phone', $user->phone->getValue())"
                             autocomplete="no"
                             data-mask="phone"
                         />

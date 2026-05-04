@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
-use App\Libraries\Utils\PhoneFormatter;
+use App\Libraries\Values\PhoneValue;
 use App\Services\Contracts\RegistrationInterface;
 use App\Models\{
     RegisterOrder,
@@ -34,7 +34,7 @@ final class RegistrationService implements RegistrationInterface
         return RegisterApproval::firstWhere('email', $email);
     }
 
-    public function createRegisterOrder(string $email, ?string $phone): void
+    public function createRegisterOrder(string $email, PhoneValue $phone): void
     {
         RegisterOrder::create([
             'email' => $email,
@@ -42,20 +42,12 @@ final class RegistrationService implements RegistrationInterface
         ]);
     }
 
-    public function updateModelPhone(RegisterOrder|RegisterApproval $model, ?string $phone): void
+    public function updateModelPhone(RegisterOrder|RegisterApproval $model, PhoneValue $phone): void
     {
-        if ($model->phone === PhoneFormatter::clear($phone)) {
+        if ($phone->equals($model->phone)) {
             return;
         }
-        if ($model instanceof RegisterOrder) {
-            RegisterOrder::where(['id' => $model->id])->update([
-                'phone' => $phone
-            ]);
-        } else {
-            RegisterApproval::where(['id' => $model->id])->update([
-                'phone' => $phone
-            ]);
-        }
+        $model->update(['phone' => $phone]);
     }
 
     public function updateRegisterApproval(int $id, string $token, Carbon $expirationData): void
@@ -66,7 +58,7 @@ final class RegistrationService implements RegistrationInterface
         ]);
     }
 
-    public function handleRegister(string $email, ?string $phone): void
+    public function handleRegister(string $email, PhoneValue $phone): void
     {
         $finalize = collect($this->handlers)->reduce(function ($acc, $next) use ($email, $phone) {
             if ($acc) {

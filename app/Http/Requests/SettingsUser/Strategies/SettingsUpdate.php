@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\SettingsUser\Strategies;
 
 use App\Http\Requests\Checker;
-use App\Rules\PhoneValid;
+use App\Libraries\Values\PhoneValue;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 
@@ -13,8 +13,6 @@ final class SettingsUpdate implements Checker
 {
     protected int $nameMinSize;
     protected int $nameMaxSize;
-    protected int $phoneMinSize;
-    protected int $phoneMaxSize;
     protected array $mimes;
 
     protected int $photoFileSize;
@@ -24,10 +22,6 @@ final class SettingsUpdate implements Checker
         $this->nameMinSize = 2;
         $this->nameMaxSize = \intval(
             config('database.schema.sizes.user.name')
-        );
-        $this->phoneMinSize = 9;
-        $this->phoneMaxSize = \intval(
-            config('database.schema.sizes.register-order.phone')
         );
         $this->mimes = config('app.photo.mimes');
         $this->photoFileSize = config('app.photo.size');
@@ -44,8 +38,7 @@ final class SettingsUpdate implements Checker
             'phone' => [
                 'nullable',
                 'bail',
-                "min:{$this->phoneMinSize}",
-                new PhoneValid($this->phoneMaxSize)
+                PhoneValue::rule()
             ],
             'photo' => [
                 'nullable',
@@ -66,8 +59,6 @@ final class SettingsUpdate implements Checker
             'name.required' => 'Campo obrigatório',
             'name.min' => "Tamanho mínimo {$this->nameMinSize}",
             'name.max' => "Tamanho máximo excedido ($this->nameMaxSize)",
-
-            'phone.min' => "Tamanho mínimo ({$this->phoneMinSize})",
 
             'photo.mimes' => "Extensões permitidas ($mimes)",
             'photo.max' => "Tamanho máximo de arquivo excedido {$fileSize}",

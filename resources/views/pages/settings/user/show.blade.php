@@ -4,7 +4,6 @@
         'resources/css/pages/generic/table.css',
     ])
 @endpush
-@use ('App\Libraries\Utils\PhoneFormatter')
 
 <x-layout title="Configurações">
     <x-packs.header>
@@ -75,7 +74,7 @@
                             >
                                 Telefone
                             </th>
-                            <td>{{ PhoneFormatter::toView($user->phone) }}</td>
+                            <td>{{ $user->phone }}</td>
                         </tr>
                     </tbody>
             </fieldset>

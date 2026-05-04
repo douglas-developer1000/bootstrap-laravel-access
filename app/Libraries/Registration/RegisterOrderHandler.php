@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Libraries\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
+use App\Libraries\Values\PhoneValue;
 use App\Services\Contracts\RegistrationInterface;
 
 final class RegisterOrderHandler implements HandlerInterface
@@ -14,7 +15,7 @@ final class RegisterOrderHandler implements HandlerInterface
         // ...
     }
 
-    public function handle(string $email, ?string $phone): bool
+    public function handle(string $email, PhoneValue $phone): bool
     {
         $registerOrder = $this->registrationService->findRegisterOrderByEmail($email);
         if ($registerOrder) {

@@ -6,6 +6,7 @@ namespace App\Libraries\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\TokenBuilder;
+use App\Libraries\Values\PhoneValue;
 use App\Notifications\RegisterApprovalNotification;
 use App\Services\Contracts\RegistrationInterface;
 use Carbon\Carbon;
@@ -17,7 +18,7 @@ final class RegisterApprovalHandler implements HandlerInterface
         // ...
     }
 
-    public function handle(string $email, ?string $phone): bool
+    public function handle(string $email, PhoneValue $phone): bool
     {
         $approval = $this->registrationService->findRegisterApprovalByEmail($email);
         if ($approval) {
