@@ -6,7 +6,7 @@ use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Values\PhoneValue;
 use App\Models\RegisterOrder;
 use App\Models\RegisterApproval;
-use \Illuminate\Support\Carbon;
+use Carbon\Carbon;
 
 interface RegistrationInterface
 {
