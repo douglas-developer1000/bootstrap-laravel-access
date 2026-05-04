@@ -9,9 +9,15 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use App\Libraries\Utils\Paginator;
+use App\Services\RoleService;
 
 final class RoleController extends Controller
 {
+    public function __construct(protected RoleService $svc)
+    {
+        // ...
+    }
+
     public function index(Request $request)
     {
         $group = Paginator::buildGroup($request->only('group'));
@@ -45,54 +51,14 @@ final class RoleController extends Controller
         return view('pages.roles.create');
     }
 
-    public function store(RoleRequest $request)
-    {
-        Role::create(['name' => $request->validated('name')]);
-        return redirect()->route('roles.index')->with([
-            'toastShow' => true,
-            'toastMsg' => 'Papel criado com sucesso!'
-        ]);
-    }
-
     public function edit(Role $role)
     {
         return view('pages.roles.edit', ['role' => $role]);
     }
-    public function update(RoleRequest $request)
-    {
-        $id = $request->route('role');
-        $role = Role::findOrFail($id);
-        $role->update([
-            'name' => $request->validated('name')
-        ]);
-        return redirect()->route('roles.index')->with([
-            'toastShow' => true,
-            'toastMsg' => 'Papel editado com sucesso!'
-        ]);
-    }
-    public function destroy(Role $role)
-    {
-        $role->delete();
-
-        return redirect()->route(
-            'roles.index',
-            request()->query() ?? []
-        )->with([
-            'toastShow' => true,
-            'toastMsg' => 'Papel removido com sucesso!'
-        ]);
-    }
-
-    protected function findUnlinkedPermissions(Role $role)
-    {
-        return Permission::whereDoesntHave('roles', function ($query) use ($role) {
-            $query->where('id', $role->id);
-        });
-    }
 
     public function attach(Request $request, Role $role)
     {
-        $query = $this->findUnlinkedPermissions($role);
+        $query = $this->svc->findUnlinkedPermissionsQuery($role);
         $search = Paginator::buildSearch($request->only('q'));
         $sort = Paginator::buildSort($request->only('sort'), ['created_at', 'id', 'name']);
         $order = Paginator::buildOrder($request->only('order'));
@@ -111,9 +77,54 @@ final class RoleController extends Controller
         return view('pages.roles.attach', ['role' => $role, 'list' => $permissions]);
     }
 
+    public function store(RoleRequest $request)
+    {
+        $this->svc->createRole($request->validated('name'));
+
+        return redirect()->route('roles.index')->with([
+            'toastShow' => true,
+            'toastMsg' => 'Papel criado com sucesso!'
+        ]);
+    }
+
+    public function update(RoleRequest $request)
+    {
+        $this->svc->updateRole($request->route('role'), $request->validated('name'));
+
+        return redirect()->route('roles.index')->with([
+            'toastShow' => true,
+            'toastMsg' => 'Papel editado com sucesso!'
+        ]);
+    }
+    public function destroy(Role $role)
+    {
+        $this->svc->removeRole($role);
+
+        return redirect()->route(
+            'roles.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Papel removido com sucesso!'
+        ]);
+    }
+
+    public function removeGroup(RoleRequest $request)
+    {
+        $this->svc->removeRoleList($request->validated('remotion'));
+
+        return redirect()->route(
+            'roles.index',
+            request()->query() ?? []
+        )->with([
+            'toastShow' => true,
+            'toastMsg' => 'Papéis removidos com sucesso!'
+        ]);
+    }
+
     public function bind(Role $role, Permission $permission)
     {
-        $role->givePermissionTo($permission->name);
+        $this->svc->bindPermissionToRole($role, $permission);
 
         return redirect()->route('roles.attach', [
             'role' => $role->id,
@@ -126,7 +137,8 @@ final class RoleController extends Controller
 
     public function unbind(Role $role, Permission $permission)
     {
-        $role->revokePermissionTo($permission->name);
+        $this->svc->unbindPermissionFromRole($role, $permission);
+
         return redirect()->route('roles.show', [
             'role' => $role->id
         ])->with([
@@ -135,29 +147,12 @@ final class RoleController extends Controller
         ]);
     }
 
-    public function removeGroup(RoleRequest $request)
-    {
-        $remotions = collect($request->validated('remotion'))->map(
-            fn($val) => \intval($val)
-        )->all();
-        Role::whereIn('id', $remotions)->delete();
-
-        return redirect()->route(
-            'roles.index',
-            request()->query() ?? []
-        )->with([
-            'toastShow' => true,
-            'toastMsg' => 'Papéis removidos com sucesso!'
-        ]);
-    }
-
     public function bindGroup(RoleRequest $request, Role $role)
     {
-        $permissions = Permission::whereIn(
-            'id',
-            $request->validated('attachment')
-        )->get('name')->pluck('name')->all();
-        $role->givePermissionTo(...$permissions);
+        $this->svc->bindPermissionGroupToRole(
+            $request->validated('attachment'),
+            $role
+        );
 
         return redirect()->route('roles.attach', [
             'role' => $role->id
@@ -169,11 +164,10 @@ final class RoleController extends Controller
 
     public function unbindGroup(RoleRequest $request, Role $role)
     {
-        $permissions = Permission::whereIn(
-            'id',
-            $request->validated('detachment')
-        )->get('name')->pluck('name')->all();
-        $role->revokePermissionTo($permissions);
+        $this->svc->unbindPermissionGroupFromRole(
+            $request->validated('detachment'),
+            $role
+        );
 
         return redirect()->route('roles.show', [
             'role' => $role->id
