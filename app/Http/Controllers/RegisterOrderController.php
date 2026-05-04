@@ -9,7 +9,6 @@ use App\Services\Contracts\RegistrationInterface;
 use App\Http\Requests\RegisterOrder\RegisterOrderRequest;
 use App\Libraries\Registration\RegisterOrderHandler;
 use App\Libraries\Utils\Paginator;
-use App\Libraries\Utils\TokenBuilder;
 use App\Models\RegisterOrder;
 use App\Models\RegisterApproval;
 use App\Notifications\RegisterApprovalNotification;
@@ -72,22 +71,10 @@ final class RegisterOrderController extends Controller
 
     protected function approveOrder(RegisterOrder $order)
     {
-        $this->registerOrderService->delete($order->id);
-        $token = TokenBuilder::build();
-        $fields = [
-            'email' => $order->email,
-            'token' => $token,
-            'expiration_data' => now()->addHours(
-                \intval(
-                    config('registration.timeout.token')
-                )
-            )
-        ];
-        if ($order->phone) {
-            $fields['phone'] = $order->phone;
-        }
         /** @var RegisterApproval $registerApproval */
-        $registerApproval = $this->registerApprovalService->create($fields);
+        $registerApproval = $this->registerApprovalService->create(
+            $this->registerOrderService->prepareRegisterApproval($order)
+        );
         $registerApproval->notify(new RegisterApprovalNotification);
     }
 
@@ -104,9 +91,9 @@ final class RegisterOrderController extends Controller
         ]);
     }
 
-    public function destroy(RegisterOrder $order)
+    public function destroy(int $id)
     {
-        $order->delete();
+        $this->registerOrderService->removeRegisterOrder($id);
 
         return redirect()->route(
             'register.orders.index',
@@ -119,10 +106,9 @@ final class RegisterOrderController extends Controller
 
     public function removeGroup(RegisterOrderRequest $request)
     {
-        $remotions = collect($request->validated('remotion'))->map(
-            fn($val) => \intval($val)
-        )->all();
-        $this->registerOrderService->removeList($remotions);
+        $this->registerOrderService->removeRegisterOrderGroup(
+            $request->validated('remotion')
+        );
 
         return redirect()->route(
             'register.orders.index',
@@ -135,11 +121,9 @@ final class RegisterOrderController extends Controller
 
     public function approveGroup(RegisterOrderRequest $request)
     {
-        collect($request->validated('approvement'))->map(
-            fn($val) => RegisterOrder::find($val)
-        )->each(
-            fn(RegisterOrder $order) => $this->approveOrder($order)
-        );
+        $this->registerOrderService->findOrdersToApprove(
+            $request->validated('approvement')
+        )->each(fn(RegisterOrder $order) => $this->approveOrder($order));
 
         return redirect()->route(
             'register.orders.index',

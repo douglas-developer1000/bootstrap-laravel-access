@@ -5,16 +5,37 @@ declare(strict_types=1);
 namespace App\Services\Registration;
 
 use App\Models\RegisterOrder;
+use App\Libraries\Utils\TokenBuilder;
 
 final class RegisterOrderService
 {
-    public function delete(int $id): int
+    public function prepareRegisterApproval(RegisterOrder $order): array
     {
-        return RegisterOrder::where(['id' => $id])->delete();
+        RegisterOrder::where(['id' => $order->id])->delete();
+        return [
+            'email' => $order->email,
+            'token' => TokenBuilder::build(),
+            'expiration_data' => now()->addHours(
+                \intval(
+                    config('registration.timeout.token')
+                )
+            ),
+            ...($order->phone ? ['phone' => $order->phone] : [])
+        ];
     }
 
-    public function removeList(array $ids)
+    public function removeRegisterOrder(int $id)
+    {
+        RegisterOrder::where(['id' => $id])->delete();
+    }
+
+    public function removeRegisterOrderGroup(array $ids)
     {
         return RegisterOrder::whereIn('id', $ids)->delete();
+    }
+
+    public function findOrdersToApprove(array $ids)
+    {
+        return RegisterOrder::whereIn('id', $ids)->get(['id', 'email', 'phone']);
     }
 }
