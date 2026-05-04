@@ -185,6 +185,12 @@ return [
 
     'schema' => [
         'sizes' => [
+            'generic' => [
+                'phone' => [
+                    'min' => env('PHONE_MIN_COLUMN_SIZE', 9),
+                    'max' => env('PHONE_MAX_COLUMN_SIZE', 11)
+                ],
+            ],
             'user' => [
                 'name' => env('USER_NAME_COLUMN_SIZE', 250),
                 'email' => env('USER_EMAIL_COLUMN_SIZE', 250),
