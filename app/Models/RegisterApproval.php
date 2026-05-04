@@ -8,13 +8,14 @@ use App\Casts\PhoneCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use App\Models\Traits\FormatDatetimeProperty;
+use Database\Factories\RegisterApprovalFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['email', 'phone', 'token', 'expiration_data'])]
 final class RegisterApproval extends Model
 {
-    /** @use Factory<RegisterApproval> */
+    /** @use HasFactory<RegisterApprovalFactory> */
     use HasFactory, FormatDatetimeProperty, Notifiable;
 
     protected function casts(): array
