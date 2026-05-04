@@ -46,17 +46,6 @@ class CustomerController extends Controller
         return view('pages.customers.create');
     }
 
-    public function store(CustomerRequest $request)
-    {
-        $customer = $this->svc->createCustomer($request);
-        $this->svc->createPhones($request, $customer);
-
-        return redirect()->route('customers.index')->with([
-            'toastShow' => true,
-            'toastMsg' => 'Cliente criado com sucesso!'
-        ]);
-    }
-
     public function show(Customer $customer)
     {
         $phones = $this->svc->getPhones($customer);
@@ -83,6 +72,17 @@ class CustomerController extends Controller
         return view('pages.customers.edit', [
             'customer' => $customer,
             'phones' => $phones,
+        ]);
+    }
+
+    public function store(CustomerRequest $request)
+    {
+        $customer = $this->svc->createCustomer($request);
+        $this->svc->createPhones($request, $customer);
+
+        return redirect()->route('customers.index')->with([
+            'toastShow' => true,
+            'toastMsg' => 'Cliente criado com sucesso!'
         ]);
     }
 

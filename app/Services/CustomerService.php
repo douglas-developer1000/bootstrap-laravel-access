@@ -9,20 +9,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Libraries\Enums\CustomerContactEnum;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use App\Libraries\Enums\DayPeriodsEnum;
-use App\Repositories\CustomerPhoneRepository;
-use App\Repositories\CustomerRepository;
 use App\Models\Customer;
+use App\Models\CustomerPhone;
+use Illuminate\Support\Collection;
 
 final class CustomerService
 {
-    public function __construct(
-        protected CustomerRepository $customerRepo,
-        protected CustomerPhoneRepository $customerPhoneRepo,
-    ) {
-        // ...
-    }
-
-    public function preparePersistence(Request $request)
+    protected function preparePersistence(Request $request)
     {
         return collect([
             ...$request->only(['name', 'email', 'hostess', 'birthdate']),
@@ -38,17 +31,14 @@ final class CustomerService
         ])->filter(fn($value) => $value !== NULL)->all();
     }
 
-    public function createCustomer(Request $request)
+    public function createCustomer(Request $request): ?Customer
     {
-        return $this->customerRepo->create(
-            $this->preparePersistence($request)
-        );
+        return Customer::create($this->preparePersistence($request));
     }
 
-    public function updateCustomer(Request $request, Customer $customer)
+    public function updateCustomer(Request $request, Customer $customer): bool
     {
-        return $this->customerRepo->update(
-            $customer->id,
+        return Customer::where(['id' => $customer->id])->update(
             $this->preparePersistence($request)
         );
     }
@@ -63,28 +53,35 @@ final class CustomerService
             'type' => CustomerPhoneTypeEnum::tryFrom($key),
             'number' => $number
         ])->values();
+
         if ($phones->isEmpty()) {
-            return;
+            return [];
         }
-        $this->customerPhoneRepo->attachPhones(
-            $customer,
-            $phones->all()
+        return $customer->phones()->saveMany(
+            $phones->map(
+                fn(array $row) => new CustomerPhone([
+                    'type' => $row['type'],
+                    'number' => $row['number'],
+                ])
+            )->all()
         );
     }
 
     public function updatePhones(Request $request, Customer $customer)
     {
-        $this->customerPhoneRepo->deleteByCustomer($customer);
-        $this->createPhones($request, $customer);
+        $customer->phones()->delete();
+        return $this->createPhones($request, $customer);
     }
 
-    public function getPhones(Customer $customer)
+    public function getPhones(Customer $customer): Collection
     {
-        return $this->customerPhoneRepo->findByCustomer($customer);
+        return CustomerPhone::where([
+            'customer_id' => $customer->id
+        ])->get();
     }
 
-    public function removeList(array $ids)
+    public function removeList(array $ids): void
     {
-        return $this->customerRepo->destroy($ids);
+        Customer::whereIn('id', $ids)->delete();
     }
 }

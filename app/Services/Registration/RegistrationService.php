@@ -6,8 +6,6 @@ namespace App\Services\Registration;
 
 use App\Libraries\Registration\Contracts\HandlerInterface;
 use App\Libraries\Utils\PhoneFormatter;
-use App\Repositories\RegisterOrderRepository;
-use App\Repositories\RegisterApprovalRepository;
 use App\Services\Contracts\RegistrationInterface;
 use App\Models\{
     RegisterOrder,
@@ -21,13 +19,6 @@ final class RegistrationService implements RegistrationInterface
     /** @var array<int, HandlerInterface> */
     protected $handlers;
 
-    public function __construct(
-        protected readonly RegisterOrderRepository $registerOrderRepository,
-        protected readonly RegisterApprovalRepository $approvalRepository,
-    ) {
-        // ...
-    }
-
     public function existsUserByEmail(string $email): bool
     {
         return User::where(['email' => $email])->exists();
@@ -35,22 +26,20 @@ final class RegistrationService implements RegistrationInterface
 
     public function findRegisterOrderByEmail(string $email): ?RegisterOrder
     {
-        return $this->registerOrderRepository->findByEmail($email);
+        return RegisterOrder::firstWhere('email', $email);
     }
 
     public function findRegisterApprovalByEmail(string $email): ?RegisterApproval
     {
-        return $this->approvalRepository->findByEmail($email);
+        return RegisterApproval::firstWhere('email', $email);
     }
 
     public function createRegisterOrder(string $email, ?string $phone): void
     {
-        $this->registerOrderRepository->create(
-            attributes: [
-                'email' => $email,
-                'phone' => $phone
-            ]
-        );
+        RegisterOrder::create([
+            'email' => $email,
+            'phone' => $phone
+        ]);
     }
 
     public function updateModelPhone(RegisterOrder|RegisterApproval $model, ?string $phone): void
@@ -58,18 +47,20 @@ final class RegistrationService implements RegistrationInterface
         if ($model->phone === PhoneFormatter::clear($phone)) {
             return;
         }
-        $repository = $model instanceof RegisterOrder ? $this->registerOrderRepository : $this->approvalRepository;
-        $repository->update(
-            id: $model->id,
-            attributes: [
+        if ($model instanceof RegisterOrder) {
+            RegisterOrder::where(['id' => $model->id])->update([
                 'phone' => $phone
-            ]
-        );
+            ]);
+        } else {
+            RegisterApproval::where(['id' => $model->id])->update([
+                'phone' => $phone
+            ]);
+        }
     }
 
     public function updateRegisterApproval(int $id, string $token, Carbon $expirationData): void
     {
-        $this->approvalRepository->update(id: $id, attributes: [
+        RegisterApproval::where(['id' => $id])->update([
             'token' => $token,
             'expiration_data' => $expirationData
         ]);

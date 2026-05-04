@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace App\Services\Registration;
 
-use App\Repositories\RegisterOrderRepository;
+use App\Models\RegisterOrder;
 
 final class RegisterOrderService
 {
-    public function __construct(
-        protected readonly RegisterOrderRepository $repository
-    ) {
-        // ...
-    }
-
-    public function delete($id): int
+    public function delete(int $id): int
     {
-        return $this->repository->delete($id);
+        return RegisterOrder::where(['id' => $id])->delete();
     }
 
     public function removeList(array $ids)
     {
-        return $this->repository->destroy($ids);
+        return RegisterOrder::whereIn('id', $ids)->delete();
     }
 }
