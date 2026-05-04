@@ -5,9 +5,56 @@ declare(strict_types=1);
 namespace App\Services\Registration;
 
 use App\Models\RegisterApproval;
+use App\Services\Abstracts\AbstractPaginatorIndex;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Override;
 
 final class RegisterApprovalService
 {
+    public function prepareIndex(Request $request): LengthAwarePaginator
+    {
+        return (new class extends AbstractPaginatorIndex
+        {
+            #[Override]
+            public function getSortColumns(): array
+            {
+                return collect(parent::getSortColumns())->merge([
+                    'created_at',
+                    'id',
+                    'email'
+                ])->all();
+            }
+
+            #[Override]
+            public function query(Request $request): Builder
+            {
+                return RegisterApproval::query();
+            }
+
+            #[Override]
+            public function attachQuery(Request $request, Builder $query): Builder
+            {
+                $search = $this->paginator->buildSearch($request->only('q'));
+                if ($search) {
+                    $search = addcslashes($search, '%_');
+                    return parent::attachQuery($request, $query)->whereLike(
+                        'email',
+                        "%{$search}%"
+                    );
+                }
+                return parent::attachQuery($request, $query);
+            }
+        })->prepareIndex(
+            $request,
+            'id',
+            'email',
+            'phone',
+            'created_at'
+        );
+    }
+
     public function findByEmail(?string $email): ?RegisterApproval
     {
         if ($email === NULL) {
