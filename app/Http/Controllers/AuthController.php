@@ -7,12 +7,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\AuthRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Libraries\Utils\DatetimeFormatter;
+use App\Services\AuthService;
 
 final class AuthController extends Controller
 {
+    public function __construct(protected AuthService $svc)
+    {
+        // ...
+    }
     /**
      * Summary of login
      * 
@@ -20,9 +24,8 @@ final class AuthController extends Controller
      */
     public function login(AuthRequest $request): RedirectResponse
     {
-        $remember = $request->filled('remember');
-        $credentials = $request->only(['email', 'password']);
-        if (!Auth::attempt($credentials, $remember)) {
+        ['status' => $status, 'credentials' => $credentials] = $this->svc->login($request);
+        if (!$status) {
             return back()->withErrors([
                 'generic' => 'Email ou senha inválidos'
             ])->onlyInput('email');
@@ -30,7 +33,6 @@ final class AuthController extends Controller
         if (config('app.env') === 'production') {
             $this->logSpecialGuest($credentials['email']);
         }
-        $request->session()->regenerate();
         return redirect()->route('dashboard');
     }
 
@@ -41,10 +43,7 @@ final class AuthController extends Controller
      */
     public function logout(Request $request): RedirectResponse
     {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $this->svc->logout($request, true);
 
         return redirect()->route('login');
     }

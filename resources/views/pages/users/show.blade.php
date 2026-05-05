@@ -22,6 +22,7 @@
                 Visualizar Usuário:
                 <span class="text-primary ms-2">{{ $user->name }}</span>
             </x-slot:heading>
+            <x-molecules.impersonate-login-btn :id="$user->id" />
         </x-packs.page-heading-row>
     </x-packs.header>
     <main class="bg-secondary-subtle create-main main-default">

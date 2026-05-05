@@ -1,3 +1,4 @@
+@use ('App\Libraries\Enums\PermissionNameEnum')
 @push ('styling')
     @vite ('resources/css/components/packs/header.css')
     <link
@@ -54,7 +55,7 @@
     </nav>
 
     <div class="btns">
-        @use ('App\Libraries\Enums\PermissionNameEnum')
+        <x-molecules.impersonate-logout-btn />
         @can (PermissionNameEnum::HEADER_SETTINGS->value)
             <x-atoms.button
                 format="anchor"
