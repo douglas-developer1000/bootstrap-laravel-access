@@ -8,8 +8,6 @@ use App\Http\Requests\Customer\CustomerRequest;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Services\CustomerService;
-use App\Services\PaginatorService;
-use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
@@ -18,25 +16,11 @@ class CustomerController extends Controller
         // ...
     }
 
-    public function index(Request $request, PaginatorService $paginator)
+    public function index(Request $request)
     {
-        $fields = ['id', 'name', 'email', 'created_at'];
-        $group = $paginator->buildGroup($request->only('group'));
-        $searchName = $paginator->buildSearch($request->only('name'), 'name');
-        $sort = $paginator->buildSort($request->only('sort'), $fields);
-        $order = $paginator->buildOrder($request->only('order'));
-
-        $query = Customer::where('user_id', Auth::id());
-        if ($searchName) {
-            $searchName = addcslashes($searchName, '%_');
-            $query = $query->whereLike('name', "%{$searchName}%");
-        }
-        $list = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: $fields
-        );
-
-        return view('pages.customers.index', ['list' => $list]);
+        return view('pages.customers.index', [
+            'list' => $this->svc->prepareIndex($request)
+        ]);
     }
 
     public function create()

@@ -12,10 +12,48 @@ use App\Libraries\Enums\DayPeriodsEnum;
 use App\Libraries\Values\PhoneValue;
 use App\Models\Customer;
 use App\Models\CustomerPhone;
+use App\Services\Abstracts\AbstractPaginatorIndex;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Override;
 
 final class CustomerService
 {
+    public function prepareIndex(Request $request): LengthAwarePaginator
+    {
+        return (new class extends AbstractPaginatorIndex
+        {
+            #[Override]
+            public function query(Request $request): Builder
+            {
+                /** @var Builder $query */
+                $query = Customer::where('user_id', Auth::id());
+                return $query;
+            }
+
+            #[Override]
+            public function attachQuery(Request $request, Builder $query): Builder
+            {
+                $searchName = $this->paginator->buildSearch($request->only('name'), 'name');
+                if ($searchName) {
+                    $searchName = addcslashes($searchName, '%_');
+                    return parent::attachQuery($request, $query)->whereLike(
+                        'name',
+                        "%{$searchName}%"
+                    );
+                }
+                return parent::attachQuery($request, $query);
+            }
+        })->prepareIndex(
+            $request,
+            'id',
+            'name',
+            'email',
+            'created_at'
+        );
+    }
+
     protected function preparePersistence(Request $request)
     {
         return collect([
