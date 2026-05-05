@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Services\PaginatorService;
 use App\Services\PermissionUserService;
 use Spatie\Permission\Models\Permission;
 
@@ -18,31 +17,15 @@ final class PermissionUserController extends Controller
         // ...
     }
 
-    protected function findUnlinkedPermissions(User $user)
+    public function getDirectPermissions(Request $request, User $user)
     {
-        $ids = $user->getAllPermissions()->map(fn(Permission $perm) => $perm->id)->all();
-        return Permission::whereNotIn('id', $ids);
-    }
-
-    public function getDirectPermissions(Request $request, PaginatorService $paginator, User $user)
-    {
-        $query = $this->findUnlinkedPermissions($user);
-        $search = $paginator->buildSearch($request->only('q'));
-        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = $paginator->buildOrder($request->only('order'));
-
-        if ($search) {
-            $search = addcslashes($search, '%_');
-            $query = $query->whereLike('name', "%{$search}%");
-        }
-
-        $group = $paginator->buildGroup($request->only('group'));
-        $permissions = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: ['id', 'name', 'created_at']
-        );
-
-        return view('pages.users.attach-permissions', ['user' => $user, 'permissions' => $permissions]);
+        return view('pages.users.attach-permissions', [
+            'user' => $user,
+            'permissions' => $this->svc->prepareRemainPermissionIndex(
+                $request,
+                $user
+            )
+        ]);
     }
 
     public function bindDirectPermission(User $user, Permission $permission)
