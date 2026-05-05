@@ -57,6 +57,6 @@ final class AuthController extends Controller
             datetime: now(),
             timed: true
         );
-        Log::channel('slack')->warning("Convidado autenticado em {$dt}!");
+        Log::channel('slack')->info("Convidado autenticado em {$dt}!");
     }
 }
