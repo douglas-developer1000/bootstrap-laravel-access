@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\UserRequest;
 use App\Models\User;
-use App\Services\PaginatorService;
 use App\Services\RoleUserService;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -18,31 +17,15 @@ class RoleUserController extends Controller
         // ...
     }
 
-    protected function findUnlinkedRoles(User $user)
+    public function getRoles(Request $request, User $user)
     {
-        $ids = $user->roles->map(fn(Role $role) => $role->id)->all();
-        return Role::whereNotIn('id', $ids);
-    }
-
-    public function getRoles(Request $request, PaginatorService $paginator, User $user)
-    {
-        $query = $this->findUnlinkedRoles($user);
-        $search = $paginator->buildSearch($request->only('q'));
-        $sort = $paginator->buildSort($request->only('sort'), ['created_at', 'id', 'name']);
-        $order = $paginator->buildOrder($request->only('order'));
-
-        if ($search) {
-            $search = addcslashes($search, '%_');
-            $query = $query->whereLike('name', "%{$search}%");
-        }
-
-        $group = $paginator->buildGroup($request->only('group'));
-        $roles = $query->orderBy($sort, $order)->paginate(
-            perPage: $group,
-            columns: ['id', 'name', 'created_at']
-        );
-
-        return view('pages.users.attach-roles', ['user' => $user, 'roles' => $roles]);
+        return view('pages.users.attach-roles', [
+            'user' => $user,
+            'roles' => $this->roleUserSvc->prepareRemainRoleIndex(
+                $request,
+                $user
+            )
+        ]);
     }
 
     public function bindRole(User $user, Role $role)
