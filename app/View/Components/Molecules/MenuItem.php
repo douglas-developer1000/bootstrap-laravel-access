@@ -17,7 +17,7 @@ abstract class MenuItem extends Component
 
     public function render()
     {
-        return view('components.organisms.header-menu-item', [
+        return view('components.molecules.header-menu-item', [
             'menuItems' => $this->menuData,
             'url' => $this->url
         ]);
