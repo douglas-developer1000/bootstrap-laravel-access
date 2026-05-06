@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string(
                 'photo',
                 \intval(
-                    config('database.schema.sizes.user.photo')
+                    config('database.schema.sizes.generic.img')
                 )
             )->nullable();
         });

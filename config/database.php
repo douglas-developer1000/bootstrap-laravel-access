@@ -190,12 +190,12 @@ return [
                     'min' => env('PHONE_MIN_COLUMN_SIZE', 9),
                     'max' => env('PHONE_MAX_COLUMN_SIZE', 11)
                 ],
+                'img' => env('IMG_COLUMN_SIZE', 200)
             ],
             'user' => [
                 'name' => env('USER_NAME_COLUMN_SIZE', 250),
                 'email' => env('USER_EMAIL_COLUMN_SIZE', 250),
                 'password' => env('USER_PASSWORD_COLUMN_SIZE', 255),
-                'photo' => env('USER_PHOTO_COLUMN_SIZE', 200),
             ],
             'register-order' => [
                 'email' => env('REGISTER_ORDER_EMAIL_COLUMN_SIZE', 250),
