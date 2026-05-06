@@ -7,7 +7,7 @@
 @endpush
 
 <header class="w-100 bg-light p-2 header-app">
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar bg-body-tertiary">
         <div class="container-fluid justify-content-start">
             <x-molecules.header-logo />
             <x-organisms.navbar />
