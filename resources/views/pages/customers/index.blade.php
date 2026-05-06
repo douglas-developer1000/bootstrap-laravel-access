@@ -1,3 +1,4 @@
+@use ('App\Libraries\Enums\PermissionNameEnum')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -14,8 +15,6 @@
     $qs = request()->query->all();
     $formRemotionGroupId = uniqid('form_');
 @endphp
-
-@use ('App\Libraries\Enums\PermissionNameEnum')
 
 <x-layout title="Lista de Clientes">
     <x-packs.header>
