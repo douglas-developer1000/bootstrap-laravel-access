@@ -70,7 +70,6 @@
                     Isso removerá os papéis selecionados permanentemente.
                 </x-molecules.confirm-modal>
             </div>
-            </div>
             <x-molecules.table-index>
                 <x-slot:cols>
                     <col class="col-remain-created_at" />
