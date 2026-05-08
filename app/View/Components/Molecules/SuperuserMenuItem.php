@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\View\Components\Molecules;
 
 use App\Libraries\Enums\RoleNameEnum;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use Closure;
+use Override;
 
 final class SuperuserMenuItem extends MenuItem
 {
@@ -23,16 +22,15 @@ final class SuperuserMenuItem extends MenuItem
         ]);
     }
 
-    public function render(): View|Closure|string
+    #[Override]
+    public function shouldRender()
     {
         /** @var User $user */
         $user = Auth::user();
-        if (
+
+        return (
             $user->email === config('app.superadmin.email') ||
             $user->hasRole(RoleNameEnum::SUPER_ADMIN->value)
-        ) {
-            return parent::render();
-        }
-        return '';
+        );
     }
 }
