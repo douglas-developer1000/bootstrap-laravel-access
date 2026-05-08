@@ -13,7 +13,7 @@ final class SettingsUpdate implements Checker
 {
     protected int $nameMinSize;
     protected int $nameMaxSize;
-    protected array $mimes;
+    protected string $mimes;
 
     protected int $photoFileSize;
 
@@ -23,8 +23,10 @@ final class SettingsUpdate implements Checker
         $this->nameMaxSize = \intval(
             config('database.schema.sizes.user.name')
         );
-        $this->mimes = config('app.photo.mimes');
-        $this->photoFileSize = config('app.photo.size');
+        $this->mimes = implode(',', config('app.photo.mimes'));
+        $this->photoFileSize = \intval(
+            config('app.photo.size')
+        );
     }
 
     public function rules(): array
@@ -42,7 +44,7 @@ final class SettingsUpdate implements Checker
             ],
             'photo' => [
                 'nullable',
-                'mimes:jpeg,png',
+                "mimes:{$this->mimes}",
                 "max:{$this->photoFileSize}"
             ],
         ];
@@ -50,7 +52,6 @@ final class SettingsUpdate implements Checker
 
     public function messages(): array
     {
-        $mimes = implode(',', $this->mimes);
         $fileSize = Str::of(
             Number::fileSize(bytes: $this->photoFileSize * 1024)
         )->replaceFirst(' ', '')->wrap(' (', ')')->toString();
@@ -60,7 +61,7 @@ final class SettingsUpdate implements Checker
             'name.min' => "Tamanho mínimo {$this->nameMinSize}",
             'name.max' => "Tamanho máximo excedido ($this->nameMaxSize)",
 
-            'photo.mimes' => "Extensões permitidas ($mimes)",
+            'photo.mimes' => "Extensões permitidas ($this->mimes)",
             'photo.max' => "Tamanho máximo de arquivo excedido {$fileSize}",
         ];
     }
