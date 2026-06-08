@@ -99,7 +99,10 @@
                         <x-atoms.table-head sort="person">
                             Pessoa</x-atoms.table-head
                         >
-                        <x-atoms.table-head sort="product">
+                        <x-atoms.table-head
+                            colRemain
+                            sort="product"
+                        >
                             Product</x-atoms.table-head
                         >
                         <x-atoms.table-head

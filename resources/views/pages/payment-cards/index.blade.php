@@ -150,7 +150,10 @@
                             />
                         </th>
                         <th scope="col">Foto</th>
-                        <x-atoms.table-head sort="flag">
+                        <x-atoms.table-head
+                            colRemain
+                            sort="flag"
+                        >
                             Bandeira
                         </x-atoms.table-head>
                         <x-atoms.table-head
