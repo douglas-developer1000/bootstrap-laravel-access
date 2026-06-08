@@ -1,21 +1,33 @@
-@props (['cols' => NULL, 'newFirstCol' => NULL])
+@props (['cols' => NULL, 'styleRows' => [], 'qtyBtns' => 2])
+
+@php
+    $styles = collect($styleRows);
+@endphp
 
 <table class="table table-hover table-striped list-table tabular-data">
-    @if ($cols)
-        <colgroup class="table-colgroup">
-            {{ $newFirstCol ?? '' }}
-            <col
-                class="col-first @if($newFirstCol) visibility-collapsed @endif"
-                span="1"
-            />
-            <col
-                class="col-second"
-                span="1"
-            />
+    <colgroup class="table-colgroup">
+        <col
+            class="col-first"
+            span="1"
+            @if ($styles->has('first'))
+                style="{{ $styles->get('first') }}"
+            @endif
+        />
+        <col
+            class="col-second"
+            span="1"
+            @if ($styles->has('second'))
+                style="{{ $styles->get('second') }}"
+            @endif
+        />
+        @if ($cols)
             {{ $cols }}
-            <col class="col-last" />
-        </colgroup>
-    @endif
+        @endif
+        <col
+            class="col-last"
+            style="--qty-btn: {{ $qtyBtns }};"
+        />
+    </colgroup>
 
     {{ $slot }}
 </table>

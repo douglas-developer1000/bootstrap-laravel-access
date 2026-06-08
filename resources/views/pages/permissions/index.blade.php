@@ -1,3 +1,4 @@
+@use ('App\Libraries\Utils\DatetimeFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -10,65 +11,53 @@
     ])
 @endpush
 
-@php
-    $qs = request()->query->all();
-    $formRemotionGroupId = uniqid('form_');
-@endphp
-@use ('App\Libraries\Utils\DatetimeFormatter')
-
 <x-layout title="Lista de Permissões">
     <x-packs.header>
         <x-packs.page-heading-row
             heading="Lista de Permissões"
             class="page-heading-row-custom"
         >
-            <x-atoms.button
-                class="btn-secondary"
-                format="anchor"
-                href="{{ route('permissions.create') }}"
-            >
-                <i class="bi bi-plus h-1"></i>
-            </x-atoms.button>
+            <div class="top-right-item d-flex gap-2">
+                <form
+                    action="{{ route('permissions.flush') }}"
+                    method="post"
+                >
+                    @csrf
+                    <x-atoms.button
+                        class="btn-secondary"
+                        type="submit"
+                        href="{{ route('permissions.create') }}"
+                    >
+                        <i class="bi bi-database-fill-up"></i>
+                    </x-atoms.button>
+                </form>
+                <x-atoms.button
+                    class="btn-secondary"
+                    format="anchor"
+                    href="{{ route('permissions.create') }}"
+                >
+                    <i class="bi bi-plus h-1"></i>
+                </x-atoms.button>
+            </div>
         </x-packs.page-heading-row>
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            @if ($errors->has('remotion') || $errors->has('remotion.*'))
-                <div
-                    class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
-                >
-                    {{ $message }}
-                </div>
-            @endif
+            <x-molecules.block-error :keys="['remotion', 'remotion.*']" />
+
             <div class="d-flex flex-wrap justify-content-between row-gap-2">
                 <x-packs.term-search
                     label-text="Nome:"
                     placeholder="Insira o nome da permissão"
                 />
-                <x-atoms.button
-                    class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmModalGroupRemove"
-                    title="Remover várias permissões"
-                    data-form="{{ $formRemotionGroupId }}"
-                    data-name="remotion[]"
-                    disabled
-                >
-                    Remover selecionados
-                </x-atoms.button>
-                <x-molecules.confirm-modal
-                    id="GroupRemove"
-                    href="{!!
-                        route('permissions.group.destroy', $qs)
-                    !!}"
-                    :formId="$formRemotionGroupId"
+                <x-organisms.confirm-rm-group-btn
+                    route="permissions.group.destroy"
                     heading="Remover estas permissões?"
-                    :method="method_field('DELETE')"
-                    negative-text="Manter"
                     positive-text="Remover permissões"
+                    title="Remover várias permissões"
                 >
                     Isso removerá as permissões selecionadas permanentemente.
-                </x-molecules.confirm-modal>
+                </x-organisms.confirm-rm-group-btn>
             </div>
             <x-molecules.table-index>
                 <x-slot:cols>
@@ -82,12 +71,15 @@
                                 class="form-check-input cursor-pointer multiselection-all"
                             />
                         </th>
-                        <x-app-table-head sort="name">Nome</x-app-table-head>
-                        <x-app-table-head
+                        <x-atoms.table-head sort="name">
+                            Nome</x-atoms.table-head
+                        >
+                        <x-atoms.table-head
                             default
                             colRemain
                             sort="created_at"
-                            >Criação</x-app-table-head
+                        >
+                            Criação</x-atoms.table-head
                         >
                         <th
                             scope="col"
@@ -124,31 +116,16 @@
                                     >
                                         <i class="bi bi-wrench"></i>
                                     </x-atoms.button>
-                                    <x-atoms.button
-                                        class="btn-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal{{ $perm->id }}"
-                                    >
-                                        <i class="bi bi-trash"></i>
-                                    </x-atoms.button>
-                                    <x-molecules.confirm-modal
-                                        id="{{ $perm->id }}"
-                                        href="{!! 
-                                            route(
-                                                'permissions.destroy',
-                                                collect([
-                                                    'permission' => $perm->id,
-                                                ])->merge($qs)->all()
-                                            )
-                                        !!}"
+                                    <x-organisms.confirm-rm-btn
+                                        :routeParams="['permission' => $perm->id]"
+                                        route="permissions.destroy"
                                         heading="Remover esta permissão?"
-                                        :method="method_field('DELETE')"
-                                        negative-text="Manter"
-                                        positive-text="Remover permissão"
+                                        positiveText="Remover permissão"
+                                        title="Remover permissão"
                                     >
                                         Isso removerá permanentemente esta
                                         permissão.
-                                    </x-molecules.confirm-modal>
+                                    </x-organisms.confirm-rm-btn>
                                 </div>
                             </td>
                         </tr>
@@ -164,7 +141,7 @@
                     @endforelse
                 </tbody>
             </x-molecules.table-index>
-            <x-app-pagination :paginator="$list" />
+            <x-molecules.root-pagination :paginator="$list" />
         </section>
         <x-packs.toast />
     </main>

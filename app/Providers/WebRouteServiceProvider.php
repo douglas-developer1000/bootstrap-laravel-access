@@ -48,6 +48,15 @@ final class WebRouteServiceProvider extends ServiceProvider
                 ['users', 'users.php'],
                 ['roles', 'roles.php'],
                 ['permissions', 'permissions.php'],
+                ['stocks', 'stocks.php'],
+                ['product-category', 'product-categories.php'],
+                ['products', 'products.php'],
+                ['suppliers', 'suppliers.php'],
+                ['discounts', 'discounts.php'],
+                ['payment-cards', 'payment-cards.php'],
+                ['sales', 'sales.php'],
+                ['exchanges', 'exchanges.php'],
+                ['losses', 'losses.php'],
             ])->each(function (array $item) {
                 [$prefix, $filename] = $item;
 

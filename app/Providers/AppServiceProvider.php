@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\ProductCategory;
+use App\Policies\ProductCategoryPolicy;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -38,5 +40,6 @@ final class AppServiceProvider extends ServiceProvider
             }
             return null;
         });
+        Gate::policy(ProductCategory::class, ProductCategoryPolicy::class);
     }
 }

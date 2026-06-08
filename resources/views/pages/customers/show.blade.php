@@ -1,8 +1,9 @@
+@use ('App\Libraries\Utils\DatetimeFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
         'resources/css/pages/generic/table.css',
-        'resources/css/pages/customers/show.css',
+        'resources/css/pages/generic/show.css',
     ])
 @endpush
 
@@ -29,7 +30,9 @@
                     <div class="label">Anfitriã:</div>
                     <div>{{ $customer->hostess ?? '--' }}</div>
                     <div class="label">Criação:</div>
-                    <div>{{ $customer->created_at_formatted }}</div>
+                    <div>
+                        {{ DatetimeFormatter::formatToDate($customer->created_at) }}
+                    </div>
                     <div class="label">Aniversário:</div>
                     <div>{{ $birthday ?? '--' }}</div>
                     <div class="label">Telefones:</div>

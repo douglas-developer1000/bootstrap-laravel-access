@@ -27,9 +27,9 @@ abstract class MenuItem extends Component
 
         return collect($menuData)->map(function (string|array $data) use (&$user) {
             if (\is_array($data)) {
-                [$href, $permission] = $data;
+                [$href, $canData] = $data;
                 if (
-                    !$user->hasPermissionTo($permission) &&
+                    !$user->can(...$canData) &&
                     !$user->hasRole('super-admin')
                 ) {
                     return NULL;

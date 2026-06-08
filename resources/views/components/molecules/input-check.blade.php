@@ -1,48 +1,43 @@
 @props ([
     'classCheck' => NULL,
     'classLabel' => NULL,
-    'name' => '',
-    'errorName' => $name,
+    'name' => NULL,
+    'errorName' => $name ?? NULL,
     'id' => uniqid('el_'),
     'checked' => false,
-    'ariaDescribedby' => NULL
+    'errorMsgId' => NULL,
+    'onchange' => NULL
 ])
 
 <input
     id="{{ $id }}"
-    class="{{
-        implode(
-            ' ',
-            array_filter([
-                'form-check-input',
-                'cursor-pointer',
-                $classCheck ?? NULL,
-                $errors->has($errorName) ? 'is-invalid' : NULL
-            ])
-        )
-    }}"
+    @class ([
+        'form-check-input',
+        'cursor-pointer',
+        $classCheck => !empty($classCheck),
+        'is-invalid' => $errors->has($errorName) || !empty($errorMsgId),
+    ])
+    @checked ($checked ?? false)
     type="checkbox"
-    @if (trim($name))
+    value="1"
+    @if (!empty($name))
         name="{{ $name }}"
     @endif
-    @if ($ariaDescribedby !== NULL)
-        aria-describedby="{{ $ariaDescribedby }}"
+    @if (!empty($errorMsgId))
+        aria-describedby="{{ $errorMsgId }}"
     @endif
-    @checked ($checked ?? false)
-    value="1"
+    @if (!empty($onchange))
+        onchange="{{ $onchange }}"
+    @endif
 />
 <label
     for="{{ $id }}"
-    class="{{
-        implode(
-            ' ',
-            array_filter([
-                'form-check-label',
-                'cursor-pointer',
-                'user-select-none',
-                $classLabel ?? NULL
-            ])
-        )
-    }}"
+    @class ([
+        'form-check-label',
+        'cursor-pointer',
+        'user-select-none',
+        'text-truncate',
+        $classLabel => !empty($classLabel),
+    ])
     >{{ $slot }}</label
 >

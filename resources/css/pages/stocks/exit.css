@@ -1,0 +1,56 @@
+@scope (.main-default) {
+    form[data-show] {
+        position: absolute;
+        opacity: 0;
+        z-index: -2;
+        transition: opacity 1s;
+        display: none;
+
+        &.show {
+            position: relative;
+            z-index: 1;
+            opacity: 1;
+            display: grid;
+        }
+    }
+    .table-container {
+        position: relative;
+        margin-top: 2em;
+
+        .product-name {
+            position: absolute;
+            bottom: calc(100% + 0.5em);
+            max-width: calc(100% - 9.9em);
+            padding: 0.25em 0.75em;
+        }
+
+        .total {
+            position: absolute;
+            right: 0;
+            bottom: 100%;
+            display: flex;
+            column-gap: 0.5em;
+            padding: 0.5em 1em;
+            background-color: var(--bs-body-bg);
+
+            .value {
+                min-width: 2em;
+                text-align: right;
+            }
+        }
+        .uses {
+            display: flex;
+            column-gap: 0.25em;
+            width: max-content;
+        }
+        .column-uses {
+            width: 9.25em;
+        }
+    }
+    .create-form {
+        row-gap: 1.5em;
+    }
+    .row-data {
+        line-height: 2.25em;
+    }
+}

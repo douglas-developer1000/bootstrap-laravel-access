@@ -8,13 +8,10 @@ use App\Http\Requests\SettingsUser\SettingsUserRequest;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 final class SettingsUserController extends Controller
 {
-    use AuthorizesRequests;
-
     public function show(Request $request)
     {
         /** @var Authenticatable $user */
@@ -32,7 +29,6 @@ final class SettingsUserController extends Controller
      */
     public function update(SettingsUserRequest $request, UserService $userSvc, User $user)
     {
-        $this->authorize('update', $user);
         $userSvc->updateUserByOwner($request, $user);
 
         return redirect()->route('settings.user.show')->with([

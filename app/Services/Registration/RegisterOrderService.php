@@ -7,9 +7,10 @@ namespace App\Services\Registration;
 use App\Libraries\Traits\BuildTokenTrait;
 use App\Models\RegisterOrder;
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 final class RegisterOrderService
@@ -31,7 +32,7 @@ final class RegisterOrderService
             #[Override]
             public function query(Request $request): Builder
             {
-                return RegisterOrder::query();
+                return DB::table('register_orders');
             }
 
             #[Override]

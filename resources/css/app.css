@@ -42,6 +42,18 @@ body {
 .visibility-collapsed {
     visibility: collapse;
 }
+ul.dropdown-menu.show:not(:has(li)) {
+    display: none;
+}
+.w-max {
+    width: max-content;
+}
+.absolute-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
 
 @view-transition {
     navigation: auto;

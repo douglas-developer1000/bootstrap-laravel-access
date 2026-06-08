@@ -135,5 +135,9 @@ return [
         'size' => env('APP_PHOTO_FILE_SIZE', 1024),
         // Mime types
         'mimes' => env('APP_PHOTO_MIMES', ['jpeg', 'jpg', 'png'])
+    ],
+
+    'build' => [
+        'running' => env('APP_BUILD_RUNNING', FALSE)
     ]
 ];

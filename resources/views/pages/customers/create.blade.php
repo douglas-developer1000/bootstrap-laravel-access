@@ -6,8 +6,9 @@
 @endpush
 @push ('ecmascript-bottom')
     @vite ([
-        'resources/js/pages/customers/create-edit.ts',
-        'resources/js/pages/generic/phonemask.ts',
+        'resources/js/pages/generic/masks.ts',
+        'resources/js/pages/generic/datepicker.ts',
+
     ])
 @endpush
 
@@ -20,7 +21,10 @@
         <x-packs.page-heading-row heading="Criar Cliente" />
     </x-packs.header>
     <main class="bg-secondary-subtle create-main main-default">
-        <section class="content bg-light">
+        <section
+            class="content bg-light"
+            style="--max-width: 30em"
+        >
             <form
                 method="post"
                 class="create-form"
@@ -36,6 +40,7 @@
                     required
                     value="{{ old('name', '') }}"
                     autocomplete="no"
+                    size="auto"
                 />
                 <x-molecules.form-field
                     name="email"
@@ -43,9 +48,9 @@
                     label-text="E-mail:"
                     id="email-field"
                     placeholder="Insira o e-mail do cliente"
-                    required
                     value="{{ old('email', '') }}"
                     autocomplete="no"
+                    size="auto"
                 />
                 <x-molecules.form-field
                     name="hostess"
@@ -55,6 +60,7 @@
                     placeholder="Insira o nome da anfitriã"
                     value="{{ old('hostess', '') }}"
                     autocomplete="no"
+                    size="auto"
                 />
                 <x-molecules.form-field
                     name="birthdate"
@@ -63,6 +69,8 @@
                     placeholder="Insira o aniversário"
                     value="{{ old('birthdate', '') }}"
                     autocomplete="no"
+                    :dtAttr="['dtpicker' => '']"
+                    size="auto"
                 />
                 @foreach (CustomerPhoneTypeEnum::casesExcept(CustomerPhoneTypeEnum::OTHER) as $enum)
                     <x-molecules.form-field
@@ -73,40 +81,20 @@
                         id="phone-{{ $enum->value }}-field"
                         placeholder="(DDD) xxxxx xxxx"
                         value="{{ old('phone.' . $enum->value, '') }}"
-                        data-mask="phone"
+                        :dtAttr="['mask' => 'phone']"
+                        size="auto"
                     />
                 @endforeach
-                <label class="fs-075">Contato por:</label>
-                <div class="d-flex align-items-center gap-3 position-relative">
-                    @foreach (CustomerContactEnum::cases() as $enum)
-                        <div class="cursor-pointer">
-                            <x-molecules.input-check
-                                class-label="fs-075"
-                                name="contact[{{ $enum->value }}]"
-                                error-name="contact.{{ $enum->value }}"
-                                checked='{{ old("contact.{$enum->value}", false) }}'
-                            >
-                                {{ CustomerContactEnum::tryFrom($enum->value)->toString() }}
-                            </x-molecules.input-check>
-                        </div>
-                    @endforeach
-                </div>
-                <label class="fs-075">Horário:</label>
-                <div class="d-flex align-items-center gap-3 position-relative">
-                    @foreach (DayPeriodsEnum::cases() as $enum)
-                        <div class="cursor-pointer">
-                            <x-molecules.input-check
-                                class-label="fs-075"
-                                name="period[{{ $enum->value }}]"
-                                error-name="period.{{ $enum->value }}"
-                                checked='{{ old("period.{$enum->value}", false) }}'
-                            >
-                                {{ DayPeriodsEnum::tryFrom($enum->value)->toString() }}
-                            </x-molecules.input-check>
-                        </div>
-                    @endforeach
-                </div>
-
+                <x-organisms.checks-enum-field
+                    :enum="CustomerContactEnum::class"
+                    key="contact"
+                    label="Contato por"
+                />
+                <x-organisms.checks-enum-field
+                    :enum="DayPeriodsEnum::class"
+                    key="period"
+                    label="Horário"
+                />
                 <x-atoms.submit-btn class="btn-primary create-btn">
                     Salvar
                 </x-atoms.submit-btn>

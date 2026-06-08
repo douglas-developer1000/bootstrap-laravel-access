@@ -5,10 +5,10 @@
         justify-content: center;
         flex: 1;
         position: relative;
-        overflow-y: auto;
+        overflow-x: hidden;
     }
     .content {
-        width: min(100vw, 35rem);
+        width: min(100vw, var(--max-width, 35em));
         border-radius: 0.75em;
         padding: 1.5rem;
         height: max-content;
@@ -24,10 +24,10 @@
         float: none;
     }
     .fieldset-top-btn {
-        position: absolute;
-        right: 0.5em;
-        top: -2.25em;
-        z-index: 1;
+        display: flex;
+        justify-content: flex-end;
+        column-gap: 0.5em;
+        margin-top: -2.65em;
     }
     .icon-s2::before {
         transform: scale(1.5);

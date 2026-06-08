@@ -6,7 +6,7 @@ namespace App\Services\Contracts;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 
 interface PaginatorIndexInterface
 {

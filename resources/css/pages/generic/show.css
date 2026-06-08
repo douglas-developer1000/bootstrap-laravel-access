@@ -1,5 +1,4 @@
 @scope (.fieldset-top-btn) {
-    :scope:disabled,
     .detachment:disabled {
         --bs-btn-disabled-bg: #9ca2a8;
         --bs-btn-disabled-border-color: #9ca2a8;
@@ -9,5 +8,25 @@
 @scope (.tabular-data) {
     thead th:first-child {
         width: 2em;
+    }
+}
+@scope (.main-default) {
+    .data-box {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        grid-template-rows: repeat(auto-fit, max-content);
+        column-gap: 1rem;
+        row-gap: 0.5rem;
+
+        .label {
+            text-align: right;
+        }
+    }
+    .label {
+        font-weight: 600;
+    }
+    .img-displayed {
+        width: var(--img-displayed-size, 4em);
+        height: var(--img-displayed-size, 4em);
     }
 }

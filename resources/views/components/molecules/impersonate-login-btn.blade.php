@@ -8,7 +8,7 @@
     $user = Auth::user();
 @endphp
 
-@if ($user->hasRole('super-admin') && $id !== $user->id)
+@if ($user->can('beSuperAdmin', User::class) && $id !== $user->id)
     <form
         action="{{ route('impersonate.login', ['user' => $id]) }}"
         method="post"

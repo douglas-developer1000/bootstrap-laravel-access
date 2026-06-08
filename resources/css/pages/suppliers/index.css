@@ -1,0 +1,11 @@
+@scope (.tabular-data) {
+    .table-colgroup {
+        col.col-first + col.col-second {
+            width: 4rem;
+        }
+        col.col-first + col.col-second + col.col-remain-name {
+            width: auto;
+            visibility: visible;
+        }
+    }
+}

@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
+/**
+ * @property-read string $created_at_formatted
+ * @property-read string $updated_at_formatted
+ */
 #[Fillable(['email', 'phone'])]
 final class RegisterOrder extends Model
 {

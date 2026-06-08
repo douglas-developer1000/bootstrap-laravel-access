@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PermissionController;
-use App\Libraries\Enums\RoleNameEnum;
+use App\Models\User;
+use Illuminate\Support\Str;
 
-Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function () {
+Route::middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()])->group(function () {
     Route::get('/', [PermissionController::class, 'index'])->name('permissions.index');
     Route::get('/create', [PermissionController::class, 'create'])->name('permissions.create');
     Route::get('/{permission}/edit/', [PermissionController::class, 'edit'])->name('permissions.edit');
@@ -14,4 +15,6 @@ Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function 
     Route::put('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
     Route::delete('/group', [PermissionController::class, 'removeGroup'])->name('permissions.group.destroy');
     Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
+
+    Route::post('/flush', [PermissionController::class, 'flushPersistence'])->name('permissions.flush');
 });

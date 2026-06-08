@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Permission\PermissionRequest;
+use App\Libraries\Enums\PermissionNameEnum;
 use App\Services\PermissionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Spatie\Permission\Models\Permission;
 
 final class PermissionController extends Controller
@@ -75,6 +77,20 @@ final class PermissionController extends Controller
         )->with([
             'toastShow' => true,
             'toastMsg' => 'Permissões removidas com sucesso!'
+        ]);
+    }
+
+    public function flushPersistence()
+    {
+        $permissionNames = array_column(PermissionNameEnum::cases(), 'value');
+        $deprecatedPermissions = Permission::whereNotIn('name', $permissionNames);
+
+        $deprecatedPermissions->delete();
+        Artisan::call('permissions:update');
+
+        return redirect()->back()->with([
+            'toastShow' => true,
+            'toastMsg' => 'Permissões atualizadas com sucesso!'
         ]);
     }
 }

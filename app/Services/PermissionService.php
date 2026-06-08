@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 final class PermissionService
@@ -20,7 +21,7 @@ final class PermissionService
             #[Override]
             public function query(Request $request): Builder
             {
-                return Permission::query();
+                return DB::table('permissions');
             }
 
             #[Override]

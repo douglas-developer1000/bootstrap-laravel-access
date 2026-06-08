@@ -12,6 +12,11 @@ use Database\Factories\RegisterApprovalFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property-read string $created_at_formatted
+ * @property-read string $updated_at_formatted
+ * @property-read string $expiration_data_formatted
+ */
 #[Fillable(['email', 'phone', 'token', 'expiration_data'])]
 final class RegisterApproval extends Model
 {

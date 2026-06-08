@@ -22,4 +22,9 @@ final class ProfileService
         }
         return $path;
     }
+
+    public function remove(): bool
+    {
+        return $this->imgStorager->remove();
+    }
 }

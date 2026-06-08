@@ -8,7 +8,8 @@ use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
 use App\Http\Requests\Customer\Strategies\Persistence;
 use App\Http\Requests\Customer\Strategies\Update;
-use App\Http\Requests\Customer\Strategies\Destroy;
+use App\Http\Requests\Customer\Strategies\DestroyGroup;
+use App\Http\Requests\Customer\Strategies\RestoreGroup;
 
 final class CustomerRequest extends CustomFormRequest
 {
@@ -20,10 +21,17 @@ final class CustomerRequest extends CustomFormRequest
             case route('customers.store'):
                 return new Persistence();
             case route('customers.update', $this->route('customer', 0)):
-                $customer = $this->route('customer');
-                return new Update(id: $customer->id);
-            case route('customers.group.destroy'):
-                return new Destroy();
+                return new Update($this->route('customer'));
+            case route('customers.group.destroy', [
+                'key' => $this->route('key', 'key'),
+                'customerList' => 'list'
+            ]):
+                return new DestroyGroup();
+            case route('customers.group.restore', [
+                'key' => $this->route('key', 'key'),
+                'customerList' => 'trashed'
+            ]):
+                return new RestoreGroup();
             default:
                 throw new \Exception("Method Not Implemented", 1);
         }

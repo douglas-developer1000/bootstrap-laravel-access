@@ -1,0 +1,80 @@
+@scope (.main-default) {
+    .product-icon {
+        --size: 30vw;
+        width: min(var(--size-icon, var(--size)), 20rem);
+        height: var(--size-icon, var(--size));
+    }
+    .details {
+        text-align: center;
+        max-width: 43vw;
+        .key {
+            font-weight: 500;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            background-color: var(--bs-secondary-bg-subtle);
+        }
+        .value {
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+            background-color: var(--bs-info-bg-subtle);
+
+            ~ .key {
+                margin-top: 0.5rem;
+            }
+        }
+    }
+    .stocks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 1rem;
+        align-items: center;
+        position: relative;
+
+        > .label {
+            text-align: right;
+        }
+        > :not(.label) {
+            text-align: left;
+        }
+    }
+    .supplier-box {
+        display: flex;
+        align-items: center;
+        flex-flow: column;
+
+        ~ .stocks {
+            margin-top: 2.5rem;
+
+            &::before {
+                position: absolute;
+                height: 0.0625rem;
+                width: 100%;
+                top: -0.75rem;
+                content: "";
+                background-color: gray;
+            }
+        }
+    }
+    .supplier-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: "label label" "supplierName supplierImg";
+        column-gap: 1rem;
+        row-gap: 0.25rem;
+    }
+    .supplier-label {
+        grid-area: label;
+    }
+    .supplier-name {
+        grid-area: supplierName;
+        text-align: right;
+    }
+    .img-displayed {
+        grid-area: supplierImg;
+        --img-displayed-size: 8.75em;
+    }
+    .supplier-color {
+        width: 2rem;
+        height: 2rem;
+    }
+}

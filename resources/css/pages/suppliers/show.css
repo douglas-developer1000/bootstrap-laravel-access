@@ -1,0 +1,11 @@
+@scope (.main-default) {
+    .products-data-box {
+        display: flex;
+        flex-flow: column;
+        width: 100%;
+    }
+    .product-item {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+    }
+}

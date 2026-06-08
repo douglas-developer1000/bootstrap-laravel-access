@@ -9,7 +9,9 @@
     'required' => false,
     'autocomplete' => 'yes',
     'position' => 'relative',
-    'dataMask' => NULL,
+    'size' => 'stretch',
+    'lang' => 'pt',
+    'dtAttr' => [],
 ])
 
 <div
@@ -17,19 +19,32 @@
         'row',
         'm-0',
         'w-100',
-        "position-{$position}"
+        "position-{$position}",
     ]) }}
 >
     @if (isset($labelText))
         <label
             for="{{ $id }}"
-            class="form-label px-0 fs-075"
+            @class ([
+                'form-label',
+                'px-0',
+                'fs-075',
+                'text-danger' => $errors->has($errorName)
+            ])
             >{{ $labelText }}</label
         >
     @endif
     @php ($errorMsgId = $errors->has($errorName) ? uniqid('err_') : '')
     <input
-        class="form-control fs-085 rounded-0 pe-0 @error($errorName) is-invalid @enderror"
+        @class ([
+            'form-control',
+            'fs-085',
+            'rounded-0',
+            'pe-2',
+            'text-start',
+            'w-auto' => $size === 'auto',
+            'is-invalid' => $errors->has($errorName),
+        ])
         @if ($placeholder !== null)
             placeholder="{{ $placeholder }}"
         @endif
@@ -37,24 +52,21 @@
         id="{{ $id }}"
         type="{{ $type }}"
         value="{{ $value }}"
-        @error ($errorName)
+        lang="{{ $lang }}"
+        @if ($errors->has($errorName))
             aria-describedby="{{ $errorMsgId }}"
-        @enderror
+        @endif
         @if ($required !== false)
             required
         @endif
         autocomplete="{{ $autocomplete }}"
-        @if ($dataMask !== NULL)
-            data-mask={{ $dataMask }}
-        @endif
+        @foreach ($dtAttr as $attrKey => $attrVal)
+            data-{{ $attrKey }}="{{ $attrVal }}"
+        @endforeach
     />
     @error ($errorName)
-        <div
-            id="{{ $errorMsgId }}"
-            class="invalid-feedback position-absolute end-0 w-auto px-0 fs-075"
-            style="top: -0.25rem; line-height: 1.0625rem"
-        >
+        <x-atoms.form-field-error id="{{ $errorMsgId }}">
             {{ $message  }}
-        </div>
+        </x-atoms.form-field-error>
     @enderror
 </div>

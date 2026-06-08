@@ -11,14 +11,14 @@ use Illuminate\Support\Str;
 
 class LocalImgStoragerService extends AbstractImgConverter
 {
-    protected Model $model;
+    protected ?Model $model;
     protected string $lastFolderName;
-    public function __construct(Model $model, string $key, string $lastFolderName)
+    public function __construct(string $key, string $lastFolderName, ?Model $model = NULL)
     {
         parent::__construct($key);
 
-        $this->model = $model;
         $this->lastFolderName = $lastFolderName;
+        $this->model = $model;
     }
 
     public function persist(Request $request): ?string
@@ -82,7 +82,7 @@ class LocalImgStoragerService extends AbstractImgConverter
     {
         $key = $this->key;
         // $filepath: '/storage/app/{$this->key}/newFilename.ext'
-        $filepath = $this->model->$key;
+        $filepath = $this->model?->$key;
         if ($filepath) {
             $pathPhotoRecent = $this->makeStoragePath(
                 true,

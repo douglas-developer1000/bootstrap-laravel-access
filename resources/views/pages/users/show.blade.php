@@ -10,10 +10,6 @@
         'resources/js/pages/generic/poli-multiselection.ts'
     ])
 @endpush
-@php
-    $formRoleDetachGroupId = uniqid('form_');
-    $formPermissionDetachGroupId = uniqid('form_');
-@endphp
 
 <x-layout title="Visualizar Usuário">
     <x-packs.header>
@@ -32,18 +28,16 @@
             >
                 <legend class="field-legend bg-light">Papéis</legend>
                 <div class="fieldset-top-btn">
-                    <x-atoms.button
-                        class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer detachment"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmModalGroupRoleDetach"
-                        title="Desvincular vários papéis"
-                        data-form="{{ $formRoleDetachGroupId }}"
-                        data-name="detachment[]"
-                        data-key="roles"
-                        disabled
+                    <x-organisms.confirm-detach-group-btn
+                        :routeParams="['user' => $user->id]"
+                        route="users.unbind.roles.group"
+                        heading="Desvincular estes papéis?"
+                        positive-text="Desvincular papéis"
+                        title="Desvincular papéis selecionados"
+                        :dataset="[['key' => 'key', 'value' => 'roles']]"
                     >
-                        <i class="bi bi-scissors"></i>
-                    </x-atoms.button>
+                        Isso desvinculará os papéis selecionados do usuário {{ $user->name }}.
+                    </x-organisms.confirm-detach-group-btn>
                     <x-atoms.button
                         class="btn-secondary"
                         format="anchor"
@@ -53,19 +47,6 @@
                         <i class="bi bi-plus h-1 icon-s2"></i>
                     </x-atoms.button>
                 </div>
-                <x-molecules.confirm-modal
-                    id="GroupRoleDetach"
-                    href="{!!
-                        route('users.unbind.roles.group', [ 'user' => $user->id ])
-                    !!}"
-                    :formId="$formRoleDetachGroupId"
-                    heading="Desvincular estes papéis?"
-                    :method="method_field('DELETE')"
-                    negative-text="Manter"
-                    positive-text="Desvincular papéis"
-                >
-                    Isso desvinculará os papéis selecionados do usuário {{ $user->name }}.
-                </x-molecules.confirm-modal>
                 <table class="table tabular-data">
                     <thead>
                         <tr>
@@ -102,29 +83,13 @@
                                     <div
                                         class="w-100 d-flex justify-content-between gap-1"
                                     >
-                                        <x-atoms.button
-                                            class="btn-primary"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmModal{{ $role->id }}"
-                                            title="Desvincular"
-                                        >
-                                            <i class="bi bi-x-circle"></i>
-                                        </x-atoms.button>
-                                        <x-molecules.confirm-modal
-                                            id="{{ $role->id }}"
-                                            href="{{
-                                                route(
-                                                    'users.unbind.roles',
-                                                    [
-                                                        'user' => $user->id,
-                                                        'role' => $role->id,
-                                                    ]
-                                                )
-                                            }}"
-                                            :method="method_field('DELETE')"
+                                        <x-organisms.confirm-detach-btn
+                                            :routeParams="['user' => $user->id, 'role' => $role->id]"
+                                            route="users.unbind.roles"
                                             heading="Desvincular este papel?"
                                             negative-text="Agora não"
                                             positive-text="Desvincular papel"
+                                            title="Desvincular"
                                         >
                                             Isso desvinculará o papel
                                             <span
@@ -136,7 +101,7 @@
                                                 class="fw-medium"
                                                 >{{ $user->name }}</span
                                             >.
-                                        </x-molecules.confirm-modal>
+                                        </x-organisms.confirm-detach-btn>
                                     </div>
                                 </td>
                             </tr>
@@ -188,18 +153,17 @@
                     Permissões diretas
                 </legend>
                 <div class="fieldset-top-btn">
-                    <x-atoms.button
-                        class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer detachment"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmModalGroupPermissionDetach"
-                        title="Desvincular vários papéis"
-                        data-form="{{ $formPermissionDetachGroupId }}"
-                        data-name="detachment[]"
-                        data-key="direct-permissions"
-                        disabled
+                    <x-organisms.confirm-detach-group-btn
+                        :routeParams="['user' => $user->id]"
+                        route="users.unbind.permissions.group"
+                        heading="Desvincular estas permissões?"
+                        positive-text="Desvincular permissões"
+                        title="Desvincular papéis selecionados"
+                        :dataset="[['key' => 'key', 'value' => 'direct-permissions']]"
                     >
-                        <i class="bi bi-scissors"></i>
-                    </x-atoms.button>
+                        Isso disvinculará as permissões diretas selecionadas do
+                        usuário {{ $user->name }}.
+                    </x-organisms.confirm-detach-group-btn>
                     <x-atoms.button
                         class="btn-secondary"
                         format="anchor"
@@ -209,20 +173,6 @@
                         <i class="bi bi-plus h-1 icon-s2"></i>
                     </x-atoms.button>
                 </div>
-                <x-molecules.confirm-modal
-                    id="GroupPermissionDetach"
-                    href="{!!
-                        route('users.unbind.permissions.group', ['user' => $user->id])
-                    !!}"
-                    :formId="$formPermissionDetachGroupId"
-                    heading="Desvincular estas permissões?"
-                    :method="method_field('DELETE')"
-                    negative-text="Manter"
-                    positive-text="Desvincular permissões"
-                >
-                    Isso disvinculará as permissões diretas selecionadas do
-                    usuário {{ $user->name }}.
-                </x-molecules.confirm-modal>
                 <table class="table tabular-data">
                     <thead>
                         <tr>
@@ -259,29 +209,13 @@
                                     <div
                                         class="w-100 d-flex justify-content-between gap-1"
                                     >
-                                        <x-atoms.button
-                                            class="btn-primary"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmModal{{ $perm->id }}"
-                                            title="Desvincular"
-                                        >
-                                            <i class="bi bi-x-circle"></i>
-                                        </x-atoms.button>
-                                        <x-molecules.confirm-modal
-                                            id="{{ $perm->id }}"
-                                            href="{{
-                                                route(
-                                                    'users.unbind.permissions',
-                                                    [
-                                                        'user' => $user->id,
-                                                        'permission' => $perm->id,
-                                                    ]
-                                                )
-                                            }}"
-                                            :method="method_field('DELETE')"
+                                        <x-organisms.confirm-detach-btn
+                                            :routeParams="['user' => $user->id, 'permission' => $perm->id]"
+                                            route="users.unbind.permissions"
                                             heading="Desvincular esta permissão?"
                                             negative-text="Agora não"
                                             positive-text="Desvincular permissão"
+                                            title="Desvincular"
                                         >
                                             Isso desvinculará a permissão
                                             <span
@@ -293,7 +227,7 @@
                                                 class="fw-medium"
                                                 >{{ $user->name }}</span
                                             >.
-                                        </x-molecules.confirm-modal>
+                                        </x-organisms.confirm-detach-btn>
                                     </div>
                                 </td>
                             </tr>

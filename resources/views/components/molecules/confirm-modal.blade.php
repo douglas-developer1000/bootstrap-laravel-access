@@ -3,9 +3,9 @@
     'heading',
     'negativeText',
     'positiveText',
-    'href' => '',
-    'formId' => uniqid('form_'),
-    'method' => ''
+    'href',
+    'formId',
+    'method',
 ])
 
 <div
@@ -45,7 +45,7 @@
                     method="post"
                     id="{{ $formId }}"
                 >
-                    {{ $method }}
+                    @method ($method)
                     @csrf
                     <button
                         type="submit"

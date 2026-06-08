@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
-use App\Libraries\Enums\RoleNameEnum;
 use App\Http\Controllers\RoleUserController;
 use App\Http\Controllers\PermissionUserController;
+use App\Models\User;
+use Illuminate\Support\Str;
 
-Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function () {
+Route::middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()])->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('users.index');
     Route::get('/create', [UserController::class, 'create'])->name('users.create');
     Route::get('/{user}', [UserController::class, 'show'])->name('users.show');

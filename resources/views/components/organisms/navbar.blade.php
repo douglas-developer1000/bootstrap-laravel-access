@@ -19,9 +19,39 @@
             id="offcanvasNavbar"
         >
             <div class="offcanvas-body">
-                <ul class="navbar-nav w-auto flex-grow-1 pe-3">
-                    <x-superuser-menu-items />
-                    <x-user-menu-items />
+                <ul class="navbar-nav w-auto flex-grow-1">
+                    {{-- <li
+                        id="accordion-menu"
+                        class="nav-item text-center w-auto accordion accordion-flush"
+                    >
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button
+                                    class="accordion-button collapsed"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#flush-collapse-menu"
+                                    aria-expanded="false"
+                                    aria-controls="flush-collapse-menu"
+                                >
+                                    <div
+                                        class="label position-relative w-100 h-100"
+                                    >
+                                        Administração
+                                    </div>
+                                </button>
+                            </h2>
+                        </div>
+                        <ul
+                            id="flush-collapse-menu"
+                            class="accordion-collapse collapse"
+                            data-bs-parent="#accordion-menu"
+                        >
+                            <x-molecules.superuser-menu-items />
+                        </ul>
+                    </li> --}}
+                    <x-molecules.superuser-menu-items />
+                    <x-molecules.user-menu-items />
                 </ul>
             </div>
         </div>

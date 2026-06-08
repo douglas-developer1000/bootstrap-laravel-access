@@ -18,11 +18,11 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name', \intval(
-                config('database.schema.sizes.client.name')
+                config('database.schema.sizes.customer.name')
             ))->nullable(FALSE);
             $table->string('email')->nullable()->unique();
             $table->string('hostess', \intval(
-                config('database.schema.sizes.client.hostess')
+                config('database.schema.sizes.customer.hostess')
             ))->nullable();
             $table->timestamp('birthdate')->nullable();
             $table->enum(

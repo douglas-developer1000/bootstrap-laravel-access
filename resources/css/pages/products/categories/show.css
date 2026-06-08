@@ -1,0 +1,25 @@
+@scope (.main-default) {
+    .sup-cat-box {
+        display: flex;
+        flex-flow: column;
+    }
+    .products-data-box {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+    }
+    .sub-categories {
+        ul {
+            list-style-type: none;
+            counter-reset: section;
+        }
+        li:before {
+            counter-increment: section;
+            content: counters(section, ".") ". ";
+        }
+    }
+    .product-item {
+        text-align: center;
+        border: 0.0625rem solid var(--bs-secondary-border-subtle);
+    }
+}

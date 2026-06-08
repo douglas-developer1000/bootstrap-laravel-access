@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Abstracts;
 
 use App\Services\Contracts\PaginatorIndexInterface;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use App\Services\PaginatorService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;

@@ -1,0 +1,5 @@
+.form-field-error-box {
+    top: var(--pos-top, -0.25rem);
+    bottom: var(--pos-bottom, auto);
+    line-height: 1.0625rem;
+}

@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -27,9 +27,8 @@ final class RoleUserService
             public function query(Request $request): Builder
             {
                 $ids = $this->user->roles->map(fn(Role $role) => $role->id)->all();
-                /** @var Builder $query */
-                $query = Role::whereNotIn('id', $ids);
-                return $query;
+                $eloquentQuery = Role::whereNotIn('id', $ids);
+                return $eloquentQuery->getQuery();
             }
 
             #[Override]

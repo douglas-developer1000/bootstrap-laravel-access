@@ -1,0 +1,40 @@
+@scope (fieldset.details) {
+    :scope {
+        border: 1px solid var(--bs-border-color);
+        padding: 1rem;
+        width: 100%;
+        border-radius: 0.5rem;
+        overflow-x: hidden;
+    }
+    .table {
+        margin: 0;
+        border: 1px solid var(--bs-border-color);
+
+        thead th {
+            font-weight: normal;
+            font-size: 0.75rem;
+
+            &:last-child {
+                width: 4rem;
+                text-align: center;
+            }
+        }
+        tr.no-values td {
+            text-align: center;
+            font-size: 0.75rem;
+        }
+    }
+    .input-section {
+        margin-bottom: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr max-content;
+        gap: 0.5rem;
+
+        .form-control {
+            font-size: 0.75rem;
+        }
+    }
+    i.bi::before {
+        transform: scale(1.25);
+    }
+}

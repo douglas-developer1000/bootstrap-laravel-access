@@ -1,0 +1,19 @@
+@scope (.main-default) {
+    .card-comboboxes {
+        opacity: 0;
+        z-index: -2;
+        transition: opacity 1s;
+
+        &.show {
+            z-index: 1;
+            opacity: 1;
+        }
+    }
+    .pay-ways:not(:empty) {
+        padding-block: 1em;
+
+        label ~ input {
+            margin-left: 1em;
+        }
+    }
+}

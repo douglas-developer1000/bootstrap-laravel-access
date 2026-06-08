@@ -17,6 +17,12 @@
         flex-flow: column;
         row-gap: 1.5rem;
     }
+    .img-from-row {
+        width: var(--img-size, 2em);
+        height: var(--img-size, 2em);
+        border-radius: 50%;
+        object-fit: contain;
+    }
 }
 @scope (.page-heading-row-custom) {
     .bi-plus {

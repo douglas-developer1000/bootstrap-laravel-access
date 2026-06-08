@@ -1,0 +1,38 @@
+@scope (.main-default) {
+    .color-group {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+        margin-inline: auto;
+        max-width: 75%;
+    }
+    .color-item {
+        position: relative;
+        padding-inline: 0;
+        margin-bottom: 0;
+
+        .form-check-input {
+            float: none;
+            margin-top: 0;
+            margin-left: 0;
+            position: absolute;
+            left: 0.25rem;
+            top: 50%;
+            transform: translateY(calc(-50% - 0.2rem));
+        }
+
+        .form-check-label {
+            --size: 1rem;
+            width: 1rem;
+            height: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            border: 0.125rem solid transparent;
+
+            .form-check-input:checked + & {
+                border-color: var(--bs-primary);
+            }
+        }
+    }
+}

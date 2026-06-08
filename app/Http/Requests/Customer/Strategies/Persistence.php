@@ -8,6 +8,8 @@ use App\Http\Requests\Checker;
 use Illuminate\Validation\Rule;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use App\Libraries\Values\PhoneValue;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class Persistence implements Checker
 {
@@ -18,13 +20,13 @@ class Persistence implements Checker
     public function __construct()
     {
         $this->nameMaxSize = \intval(
-            config('database.schema.sizes.client.name')
+            config('database.schema.sizes.customer.name')
         );
         $this->emailMaxSize = \intval(
-            config('database.schema.sizes.client.email')
+            config('database.schema.sizes.customer.email')
         );
         $this->hostessMaxSize = \intval(
-            config('database.schema.sizes.client.hostess')
+            config('database.schema.sizes.customer.hostess')
         );
     }
 
@@ -47,9 +49,20 @@ class Persistence implements Checker
 
     public function rules(): array
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         return [
             'name' => "bail|required|min:2|max:{$this->nameMaxSize}",
-            'email' => "bail|required|email|max:{$this->emailMaxSize}|unique:App\Models\Customer,email",
+            'email' => [
+                'bail',
+                'nullable',
+                'email',
+                "max:{$this->emailMaxSize}",
+                Rule::unique('customers', 'email')->where(fn(Builder $query) => (
+                    $query->where('user_id', $user->id)
+                ))
+            ],
             'hostess' => "bail|nullable|min:2|max:{$this->hostessMaxSize}",
             'birthdate' => [
                 'bail',
@@ -69,7 +82,6 @@ class Persistence implements Checker
             'name.min' => 'Tamanho mínimo (2)',
             'name.max' => "Tamanho máximo excedido ({$this->nameMaxSize})",
 
-            'email.required' => 'Campo obrigatório',
             'email.email' => 'Campo inválido',
             'email.max' => "Tamanho máximo excedido ({$this->emailMaxSize})",
             'email.unique' => 'E-mail já utilizado',

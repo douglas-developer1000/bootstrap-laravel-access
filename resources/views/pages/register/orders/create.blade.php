@@ -6,7 +6,7 @@
     />
 @endpush
 @push ('ecmascript-bottom')
-    @vite ('resources/js/pages/generic/phonemask.ts')
+    @vite ('resources/js/pages/generic/masks.ts')
 @endpush
 
 <x-layout title="Solicitação de registro">
@@ -47,7 +47,7 @@
                         placeholder="(xx) xxxx-xxxx"
                         label-text="Telefone:"
                         :value="old('phone', '')"
-                        data-mask="phone"
+                        :dtAttr="['mask' => 'phone']"
                     />
                     <x-atoms.gate.btns-row>
                         <x-atoms.submit-btn class="btn-primary">

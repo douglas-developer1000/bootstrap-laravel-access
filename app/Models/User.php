@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Casts\PhoneCast;
-use App\Models\Traits\FormatDatetimeProperty;
 use App\Notifications\PreResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -17,13 +16,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 
 #[Fillable(['name', 'email', 'password', 'phone', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 final class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles, SoftDeletes, FormatDatetimeProperty;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.
@@ -49,13 +49,13 @@ final class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new PreResetPasswordNotification($token));
     }
 
-    /**
-     * Format the created_at to view
-     *
-     * @return string
-     */
-    public function getCreatedAtFormattedAttribute()
+    public function productCategories()
     {
-        return $this->getPropertyFormatted('created_at');
+        return $this->hasMany(ProductCategory::class);
+    }
+
+    public function isModelMine(Model $model): bool
+    {
+        return $this->id === $model->user_id;
     }
 }

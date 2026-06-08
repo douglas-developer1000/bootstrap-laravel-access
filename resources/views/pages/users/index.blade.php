@@ -1,3 +1,4 @@
+@use ('App\Libraries\Utils\DatetimeFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -13,22 +14,18 @@
 
 @php
     $trashed = request()->boolean('trashed');
-    $subject = 'Usuários' . ($trashed ? ' Removidos' : '');
-    $qs = request()->query->all();
-
-    $formRemotionGroupId = uniqid('formRemove_');
-    $formRestarionGroupId = uniqid('formRestore_');
+    $subject = 'Contas' . ($trashed ? ' Removidas' : '');
 @endphp
 
-<x-layout title="Lista de {{ $subject  }}">
+<x-layout title="{{ $subject  }}">
     <x-packs.header>
         <x-packs.page-heading-row
-            heading="Lista de {{ $subject }}"
+            :heading="$subject"
             class="page-heading-row-custom"
         >
             <div class="top-right-item">
                 <x-atoms.button
-                    title="Usuários {{ $trashed ? 'ativos' : 'removidos' }}"
+                    title="Contas {{ $trashed ? 'ativas' : 'removidas' }}"
                     class="btn-secondary"
                     format="anchor"
                     href="{{
@@ -59,13 +56,11 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            @if ($errors->has('remotion') || $errors->has('remotion.*'))
-                <div
-                    class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
-                >
-                    {{ $message }}
-                </div>
-            @endif
+            <x-molecules.block-error
+                :keys="[
+                    'remotion', 'remotion.*', 'restoration', 'restoration.*'
+                ]"
+            />
             <div class="d-flex flex-wrap justify-content-between row-gap-2">
                 <x-packs.term-search
                     label-text="Nome:"
@@ -76,54 +71,23 @@
                     class="d-flex justify-content-end flex-grow-1 column-gap-2"
                 >
                     @if ($trashed)
-                        <x-atoms.button
-                            class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmModalGroupRestore"
-                            title="Restaurar vários usuários"
-                            disabled
-                            data-form="{{ $formRestarionGroupId }}"
-                            data-name="restoration[]"
-                        >
-                            Restaurar selecionados
-                        </x-atoms.button>
-                        <x-molecules.confirm-modal
-                            id="GroupRestore"
-                            href="{!!
-                                route('users.trashed.group.restore')
-                            !!}"
-                            :formId="$formRestarionGroupId"
+                        <x-organisms.confirm-restore-group-btn
+                            route="users.trashed.group.restore"
                             heading="Restaurar estes usuários?"
-                            negative-text="Manter"
                             positive-text="Restaurar usuários"
+                            title="Restaurar usuários selecionados"
                         >
                             Isso restaurará os usuários selecionados.
-                        </x-molecules.confirm-modal>
+                        </x-organisms.confirm-restore-group-btn>
                     @endif
-                    <x-atoms.button
-                        class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmModalGroupRemove"
-                        title="Remover vários usuários"
-                        data-form="{{ $formRemotionGroupId }}"
-                        data-name="remotion[]"
-                        disabled
-                    >
-                        Remover selecionados
-                    </x-atoms.button>
-                    <x-molecules.confirm-modal
-                        id="GroupRemove"
-                        href="{!!
-                        route('users.group.destroy', $qs)
-                    !!}"
-                        :formId="$formRemotionGroupId"
+                    <x-organisms.confirm-rm-group-btn
+                        route="users.group.destroy"
                         heading="Remover estes usuários?"
-                        :method="method_field('DELETE')"
-                        negative-text="Manter"
                         positive-text="Remover usuários"
+                        title="Remover vários usuários"
                     >
                         Isso removerá os usuários selecionados {{ $trashed ? 'permanentemente' : 'temporariamente' }}.
-                    </x-molecules.confirm-modal>
+                    </x-organisms.confirm-rm-group-btn>
                 </div>
             </div>
             <x-molecules.table-index>
@@ -139,17 +103,21 @@
                                 class="form-check-input cursor-pointer multiselection-all"
                             />
                         </th>
-                        <x-app-table-head sort="name">Nome</x-app-table-head>
-                        <x-app-table-head
+                        <x-atoms.table-head sort="name">
+                            Nome</x-atoms.table-head
+                        >
+                        <x-atoms.table-head
                             colRemain
                             sort="email"
-                            >Email</x-app-table-head
                         >
-                        <x-app-table-head
+                            Email</x-atoms.table-head
+                        >
+                        <x-atoms.table-head
                             default
                             colRemain
                             sort="created_at"
-                            >Criação</x-app-table-head
+                        >
+                            Criação</x-atoms.table-head
                         >
                         <th
                             scope="col"
@@ -181,66 +149,37 @@
                                 >
                             </td>
                             <td>
-                                <div class="ellipsis">{{$user->email}}</div>
+                                <div class="text-truncate">
+                                    {{$user->email}}
+                                </div>
                             </td>
-                            <td>{{ $user->created_at_formatted }}</td>
+                            <td>
+                                {{ DatetimeFormatter::formatToDate($user->created_at) }}
+                            </td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-end gap-1"
                                 >
                                     @if ($trashed)
-                                        <x-atoms.button
-                                            class="btn-success"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmModalRestore{{ $user->id }}"
+                                        <x-organisms.confirm-restore-btn
+                                            route="users.trashed.restore"
+                                            :routeParams="['user' => $user->id]"
+                                            heading="Restaurar este usuário?"
+                                            positiveText="Restaurar usuário"
                                             title="Restaurar usuário"
                                         >
-                                            <i
-                                                class="bi bi-arrow-return-left"
-                                            ></i>
-                                        </x-atoms.button>
-                                        <x-molecules.confirm-modal
-                                            id="Restore{{ $user->id }}"
-                                            href="{!! 
-                                                route(
-                                                    'users.trashed.restore',
-                                                    collect([
-                                                        'user' => $user->id,
-                                                    ])->merge($qs)->all()
-                                                )
-                                            !!}"
-                                            heading="Restaurar este usuário?"
-                                            negative-text="Manter"
-                                            positive-text="Restaurar usuário"
-                                        >
                                             Isso restaurará este usuário.
-                                        </x-molecules.confirm-modal>
-                                        <x-atoms.button
-                                            class="btn-danger"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#confirmModalRemove{{ $user->id }}"
-                                            title="Remover usuário"
-                                        >
-                                            <i class="bi bi-trash"></i>
-                                        </x-atoms.button>
-                                        <x-molecules.confirm-modal
-                                            id="Remove{{ $user->id }}"
-                                            href="{!! 
-                                                route(
-                                                    'users.trashed.destroy',
-                                                    collect([
-                                                        'user' => $user->id,
-                                                    ])->merge($qs)->all()
-                                                )
-                                            !!}"
+                                        </x-organisms.confirm-restore-btn>
+                                        <x-organisms.confirm-rm-btn
+                                            :routeParams="['user' => $user->id]"
+                                            route="users.trashed.destroy"
                                             heading="Remover este usuário?"
-                                            :method="method_field('DELETE')"
-                                            negative-text="Manter"
-                                            positive-text="Remover usuário"
+                                            positiveText="Remover usuário"
+                                            title="Remover usuário"
                                         >
                                             Isso removerá este usuário
                                             permanentemente.
-                                        </x-molecules.confirm-modal>
+                                        </x-organisms.confirm-rm-btn>
                                     @else
                                         <x-atoms.button
                                             format="anchor"
@@ -251,32 +190,16 @@
                                         </x-atoms.button>
                                         {{-- Gate defined on provider --}}
                                         @can ('remove-user', $user)
-                                            <x-atoms.button
-                                                class="btn-danger"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#confirmModal{{ $user->id }}"
-                                                title="Remover usuário"
-                                            >
-                                                <i class="bi bi-trash"></i>
-                                            </x-atoms.button>
-                                            <x-molecules.confirm-modal
-                                                id="{{ $user->id }}"
-                                                href="{!! 
-                                                    route(
-                                                        'users.destroy',
-                                                        collect([
-                                                            'user' => $user->id,
-                                                        ])->merge($qs)->all()
-                                                    )
-                                                !!}"
+                                            <x-organisms.confirm-rm-btn
+                                                :routeParams="['user' => $user->id]"
+                                                route="users.destroy"
                                                 heading="Remover este usuário?"
-                                                :method="method_field('DELETE')"
-                                                negative-text="Manter"
-                                                positive-text="Remover usuário"
+                                                positiveText="Remover usuário"
+                                                title="Remover usuário"
                                             >
                                                 Isso removerá este usuário
                                                 temporariamente.
-                                            </x-molecules.confirm-modal>
+                                            </x-organisms.confirm-rm-btn>
                                         @endcan
                                     @endif
                                 </div>
@@ -294,7 +217,7 @@
                     @endforelse
                 </tbody>
             </x-molecules.table-index>
-            <x-app-pagination :paginator="$list" />
+            <x-molecules.root-pagination :paginator="$list" />
         </section>
         <x-packs.toast />
     </main>

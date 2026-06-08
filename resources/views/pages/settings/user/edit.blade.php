@@ -5,7 +5,7 @@
     ])
 @endpush
 @push ('ecmascript-bottom')
-    @vite ('resources/js/pages/generic/phonemask.ts')
+    @vite ('resources/js/pages/generic/masks.ts')
 @endpush
 
 <x-layout title="Configurações">
@@ -61,7 +61,7 @@
                             placeholder="Insira o telefone do usuário"
                             :value="old('phone', $user->phone->getValue())"
                             autocomplete="no"
-                            data-mask="phone"
+                            :dtAttr="['mask' => 'phone']"
                         />
                         <div class="d-flex w-100 justify-content-end mt-2">
                             <x-atoms.button

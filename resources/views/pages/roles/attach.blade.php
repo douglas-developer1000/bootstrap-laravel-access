@@ -1,3 +1,4 @@
+@use ('App\Libraries\Utils\DatetimeFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -9,12 +10,6 @@
         'resources/js/pages/generic/multiselection.ts'
     ])
 @endpush
-
-@php
-    $qs = request()->query->all();
-    $formAttachGroupId = uniqid('form_');
-@endphp
-@use ('App\Libraries\Utils\DatetimeFormatter')
 
 <x-layout title="Vinculação de Permissões">
     <x-packs.header>
@@ -31,44 +26,22 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            @if ($errors->has('attachment') || $errors->has('attachment.*'))
-                <div
-                    class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
-                >
-                    {{ $message }}
-                </div>
-            @endif
+            <x-molecules.block-error :keys="['attachment', 'attachment.*']" />
             <div class="d-flex flex-wrap justify-content-between row-gap-2">
                 <x-packs.term-search
                     label-text="Nome:"
                     placeholder="Insira o nome da permissão"
                 />
-                <x-atoms.button
-                    class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmModalGroupAttach"
-                    title="Vincular várias permissões"
-                    data-form="{{ $formAttachGroupId }}"
-                    data-name="attachment[]"
-                    disabled
-                >
-                    Vincular selecionados
-                </x-atoms.button>
-                <x-molecules.confirm-modal
-                    id="GroupAttach"
-                    href="{!!
-                        route('roles.group.bind', collect([
-                            'role' => $role->id
-                        ])->merge($qs)->all())
-                    !!}"
-                    :formId="$formAttachGroupId"
+                <x-organisms.confirm-attach-group-btn
+                    :routeParams="['role' => $role->id]"
+                    route="roles.group.bind"
                     heading="Vincular estas permissões?"
-                    negative-text="Manter"
                     positive-text="Vincular permissões"
+                    title="Vincular várias permissões"
                 >
                     Isso vinculará as permissões selecionadas ao papel
                     <span class="fw-medium">{{ $role->name }}</span>.
-                </x-molecules.confirm-modal>
+                </x-organisms.confirm-attach-group-btn>
             </div>
             <x-molecules.table-index>
                 <x-slot:cols>
@@ -82,12 +55,15 @@
                                 class="form-check-input cursor-pointer multiselection-all"
                             />
                         </th>
-                        <x-app-table-head sort="name">Nome</x-app-table-head>
-                        <x-app-table-head
+                        <x-atoms.table-head sort="name">
+                            Nome</x-atoms.table-head
+                        >
+                        <x-atoms.table-head
                             default
                             colRemain
                             sort="created_at"
-                            >Criação</x-app-table-head
+                        >
+                            Criação</x-atoms.table-head
                         >
                         <th
                             scope="col"
@@ -115,28 +91,13 @@
                                 <div
                                     class="w-100 d-flex justify-content-center gap-1"
                                 >
-                                    <x-atoms.button
-                                        class="btn-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal{{ $perm->id }}"
-                                        title="Vincular"
-                                    >
-                                        <i class="bi bi-paperclip"></i>
-                                    </x-atoms.button>
-                                    <x-molecules.confirm-modal
-                                        id="{{ $perm->id }}"
-                                        href="{!!
-                                            route(
-                                                'roles.bind',
-                                                collect([
-                                                    'role' => $role->id,
-                                                    'permission' => $perm->id,
-                                                ])->merge($qs)->all()
-                                            )
-                                        !!}"
+                                    <x-organisms.confirm-attach-btn
+                                        :routeParams="['role' => $role->id, 'permission' => $perm->id]"
+                                        route="roles.bind"
                                         heading="Vincular esta permissão?"
                                         negative-text="Agora não"
                                         positive-text="Vincular permissão"
+                                        title="Vincular"
                                     >
                                         Isso vinculará a permissão
                                         <span
@@ -148,7 +109,7 @@
                                             class="fw-medium"
                                             >{{ $role->name }}</span
                                         >.
-                                    </x-molecules.confirm-modal>
+                                    </x-organisms.confirm-attach-btn>
                                 </div>
                             </td>
                         </tr>
@@ -164,7 +125,7 @@
                     @endforelse
                 </tbody>
             </x-molecules.table-index>
-            <x-app-pagination :paginator="$list" />
+            <x-molecules.root-pagination :paginator="$list" />
         </section>
         <x-packs.toast />
     </main>

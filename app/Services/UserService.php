@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Libraries\Dtos\UserCreationDto;
+use App\Libraries\Traits\PicRequestHandleTrait;
 use App\Libraries\Values\PhoneValue;
 use App\Models\RegisterApproval;
 use App\Models\User;
@@ -14,13 +15,16 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 final class UserService
 {
+    use PicRequestHandleTrait;
+
     public function __construct()
     {
         // ...
@@ -33,16 +37,17 @@ final class UserService
             #[Override]
             public function getSortColumns(): array
             {
-                return collect(parent::getSortColumns())->merge(
-                    ['created_at', 'id', 'name']
-                )->all();
+                return ['created_at', 'id', 'name'];
             }
 
             #[Override]
             public function query(Request $request): Builder
             {
                 $trashed = $request->boolean('trashed');
-                return $trashed ? User::onlyTrashed() : User::query();
+                if ($trashed) {
+                    return DB::table('users')->whereNotNull('deleted_at');
+                }
+                return DB::table('users')->whereNull('deleted_at');
             }
 
             #[Override]
@@ -139,7 +144,7 @@ final class UserService
 
     public function updateUserByOwner(Request $request, User $user)
     {
-        $photoPath = $this->handleUserPhoto($request, $user);
+        $photoPath = $this->handleImg($request, 'photo', \strval($user->id), $user);
 
         $inputs = collect([
             ...$request->only(['name', 'password']),

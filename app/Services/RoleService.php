@@ -9,7 +9,8 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 final class RoleService
@@ -21,7 +22,7 @@ final class RoleService
             #[Override]
             public function query(Request $request): Builder
             {
-                return Role::query();
+                return DB::table('roles');
             }
 
             #[Override]
@@ -58,11 +59,11 @@ final class RoleService
             public function query(Request $request): Builder
             {
                 $role = $this->role;
-                /** @var Builder $query */
-                $query = Permission::whereDoesntHave('roles', function ($query) use ($role) {
+                $eloquentQuery = Permission::whereDoesntHave('roles', function ($query) use ($role) {
                     $query->where('id', $role->id);
                 });
-                return $query;
+
+                return $eloquentQuery->getQuery();
             }
 
             #[Override]

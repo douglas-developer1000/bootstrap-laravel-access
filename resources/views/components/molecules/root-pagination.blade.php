@@ -56,7 +56,10 @@
                     >{{ $paginator->firstItem() ?? 0 }}</span
                 >
                 <span>a</span>
-                <span class="fw-semibold">{{ $paginator->lastItem() }}</span>
+                <span
+                    class="fw-semibold"
+                    >{{ $paginator->lastItem() ?? 0 }}</span
+                >
                 <span>de</span>
                 <span class="fw-semibold">{{ $paginator->total() }}</span>
                 <span>resultados</span>

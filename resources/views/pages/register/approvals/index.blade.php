@@ -1,3 +1,4 @@
+@use ('App\Libraries\Utils\DatetimeFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -10,11 +11,6 @@
     ])
 @endpush
 
-@php
-    $qs = request()->query->all();
-    $formRemotionGroupId = uniqid('form_');
-@endphp
-
 <x-layout title="Aprovações de Registro">
     <x-packs.header>
         <x-packs.page-heading-row
@@ -24,42 +20,20 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            @if ($errors->has('remotion') || $errors->has('remotion.*'))
-                <div
-                    class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
-                >
-                    {{ $message }}
-                </div>
-            @endif
+            <x-molecules.block-error :keys="['remotion', 'remotion.*']" />
             <div class="d-flex flex-wrap justify-content-between row-gap-2">
                 <x-packs.term-search
                     label-text="Nome:"
                     placeholder="Insira um email"
                 />
-                <x-atoms.button
-                    class="btn-secondary align-self-end justify-content-end multiselection-submit cursor-pointer"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmModalGroupRemove"
-                    title="Remover vários papéis"
-                    data-form="{{ $formRemotionGroupId }}"
-                    data-name="remotion[]"
-                    disabled
-                >
-                    Remover selecionados
-                </x-atoms.button>
-                <x-molecules.confirm-modal
-                    id="GroupRemove"
-                    href="{!!
-                        route('register.approvals.group.destroy', $qs)
-                    !!}"
-                    :formId="$formRemotionGroupId"
+                <x-organisms.confirm-rm-group-btn
+                    route="register.approvals.group.destroy"
                     heading="Remover estas aprovações?"
-                    :method="method_field('DELETE')"
-                    negative-text="Manter"
                     positive-text="Remover aprovações"
+                    title="Remover vários papéis"
                 >
                     Isso removerá as aprovações selecionadas permanentemente.
-                </x-molecules.confirm-modal>
+                </x-organisms.confirm-rm-group-btn>
             </div>
             <x-molecules.table-index>
                 <x-slot:cols>
@@ -74,18 +48,21 @@
                                 class="form-check-input cursor-pointer multiselection-all"
                             />
                         </th>
-                        <x-app-table-head sort="name">E-mail</x-app-table-head>
+                        <x-atoms.table-head sort="name">
+                            E-mail</x-atoms.table-head
+                        >
                         <th
                             scope="col"
                             class="col-remain"
                         >
                             Telefone
                         </th>
-                        <x-app-table-head
+                        <x-atoms.table-head
                             default
                             colRemain
                             sort="created_at"
-                            >Criação</x-app-table-head
+                        >
+                            Criação</x-atoms.table-head
                         >
                         <th
                             scope="col"
@@ -111,36 +88,23 @@
                                 </div>
                             </td>
                             <td>{{ $approval->phone }}</td>
-                            <td>{{ $approval->created_at_formatted }}</td>
+                            <td>
+                                {{ DatetimeFormatter::formatToDate($approval->created_at) }}
+                            </td>
                             <td>
                                 <div
                                     class="w-100 d-flex justify-content-center gap-1"
                                 >
-                                    <x-atoms.button
-                                        class="btn-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirmModal{{ $approval->id }}"
-                                    >
-                                        <i class="bi bi-trash"></i>
-                                    </x-atoms.button>
-                                    <x-molecules.confirm-modal
-                                        id="{{ $approval->id }}"
-                                        href="{!! 
-                                            route(
-                                                'register.approvals.destroy',
-                                                collect([
-                                                    'approval' => $approval->id,
-                                                ])->merge($qs)->all()
-                                            )
-                                        !!}"
+                                    <x-organisms.confirm-rm-btn
+                                        :routeParams="['approval' => $approval->id]"
+                                        route="register.approvals.destroy"
                                         heading="Remover esta aprovação de registro?"
-                                        :method="method_field('DELETE')"
-                                        negative-text="Manter"
-                                        positive-text="Remover aprovação"
+                                        positiveText="Remover aprovação"
+                                        title="Remover aprovação"
                                     >
                                         Isso removerá permanentemente esta
                                         aprovação.
-                                    </x-molecules.confirm-modal>
+                                    </x-organisms.confirm-rm-btn>
                                 </div>
                             </td>
                         </tr>
@@ -156,7 +120,7 @@
                     @endforelse
                 </tbody>
             </x-molecules.table-index>
-            <x-app-pagination :paginator="$list" />
+            <x-molecules.root-pagination :paginator="$list" />
         </section>
         <x-packs.toast />
     </main>

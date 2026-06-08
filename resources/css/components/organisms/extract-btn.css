@@ -1,0 +1,15 @@
+@scope (.extract-btn) {
+    :scope {
+        position: absolute;
+        top: var(--extract-btn-top, 1.5em);
+        right: 0;
+    }
+
+    i {
+        color: rgb(201, 47, 62);
+
+        &:hover {
+            color: rgb(171, 36, 49);
+        }
+    }
+}

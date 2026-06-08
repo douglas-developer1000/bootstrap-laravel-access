@@ -6,7 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImpersonateController;
-use App\Libraries\Enums\RoleNameEnum;
+use App\Models\User;
+use Illuminate\Support\Str;
 
 Route::post('/signout', [AuthController::class, 'logout'])
     ->name('logout')
@@ -21,6 +22,7 @@ Route::get('/storage/app/{folder}/{filename}', [ImageController::class, 'find'])
 Route::post('/impersonate/logout', [ImpersonateController::class, 'logout'])
     ->name('impersonate.logout')
     ->middleware('auth');
+
 Route::post('/impersonate/{user}', [ImpersonateController::class, 'login'])
     ->name('impersonate.login')
-    ->middleware(['auth', 'role:' . RoleNameEnum::SUPER_ADMIN->value]);
+    ->middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()]);

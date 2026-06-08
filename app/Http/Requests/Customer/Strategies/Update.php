@@ -4,27 +4,37 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Customer\Strategies;
 
-use Illuminate\Support\Str;
+use App\Models\Customer;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 final class Update extends Persistence
 {
-    protected $id;
 
-    public function __construct($id = NULL)
+    public function __construct(protected Customer $customer)
     {
         parent::__construct();
-        $this->id = $id;
     }
 
     public function rules(): array
     {
-        $rules = parent::rules();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         return [
-            ...$rules,
+            ...parent::rules(),
             'email' => [
-                ...Str::of($rules['email'])->before('|unique')->explode('|'),
-                Rule::unique('customers', 'email')->ignore($this->id ?? 0, 'id'),
+                'bail',
+                'nullable',
+                'email',
+                "max:{$this->emailMaxSize}",
+                Rule::unique('customers', 'email')->ignore(
+                    $this->customer->id,
+                    'id'
+                )->where(fn(Builder $query) => (
+                    $query->where('user_id', $user->id)
+                )),
             ]
         ];
     }

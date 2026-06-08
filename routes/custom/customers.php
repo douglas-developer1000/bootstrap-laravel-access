@@ -4,36 +4,57 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CustomerController;
-use App\Libraries\Enums\PermissionNameEnum;
+use App\Models\Customer;
 
 Route::get('/', [CustomerController::class, 'index'])
+    /**
+     * @see \App\View\Components\Molecules\UserMenuItems::__construct()
+     * @see view('pages.customers.index')
+     */
     ->name('customers.index')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_INDEX->value);
+    ->can('viewAny', Customer::class);
 
 Route::get('/create', [CustomerController::class, 'create'])
     ->name('customers.create')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_CREATE->value);
+    ->can('create', Customer::class);
 
 Route::get('/{customer}', [CustomerController::class, 'show'])
     ->name('customers.show')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_SHOW->value);
+    ->can('view,customer');
 
 Route::get('/{customer}/edit', [CustomerController::class, 'edit'])
     ->name('customers.edit')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_EDIT->value);
+    ->can('edit,customer');
 
 Route::post('/', [CustomerController::class, 'store'])
     ->name('customers.store')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_STORE->value);
+    ->can('store', Customer::class);
 
 Route::put('/{customer}', [CustomerController::class, 'update'])
     ->name('customers.update')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_UPDATE->value);
+    ->can('update,customer');
 
-Route::delete('/group', [CustomerController::class, 'removeGroup'])
+Route::delete('/group/{key}/{customerList}', [CustomerController::class, 'removeGroup'])
+    /**
+     * @see view('pages.customers.index')
+     */
     ->name('customers.group.destroy')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_DESTROY->value);
+    ->can('deleteList', [Customer::class, 'customerList']);
 
 Route::delete('/{customer}', [CustomerController::class, 'destroy'])
     ->name('customers.destroy')
-    ->middleware('can:' . PermissionNameEnum::CUSTOMER_DESTROY->value);
+    ->can('delete,customer');
+
+Route::post('/group/{key}/{customerList}', [CustomerController::class, 'restoreGroup'])
+    /**
+     * @see view('pages.customers.index')
+     */
+    ->name('customers.group.restore')
+    ->can('restoreList', [Customer::class, 'customerList']);
+
+Route::post('/{customerDeleted}/restore', [CustomerController::class, 'restore'])
+    /**
+     * @see view('pages.customers.index')
+     */
+    ->name('customers.restore')
+    ->can('restore,customerDeleted');

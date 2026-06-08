@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterOrderController;
-use App\Libraries\Enums\RoleNameEnum;
+use App\Models\User;
+use Illuminate\Support\Str;
 
-Route::middleware(['role:' . RoleNameEnum::SUPER_ADMIN->value])->group(function () {
+Route::middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()])->group(function () {
     Route::get('/', [RegisterOrderController::class, 'index'])->name('register.orders.index');
     Route::delete('/group', [RegisterOrderController::class, 'removeGroup'])->name('register.orders.group.destroy');
     Route::delete('/group/approval', [RegisterOrderController::class, 'approveGroup'])->name('register.orders.group.approve');

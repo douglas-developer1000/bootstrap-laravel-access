@@ -6,20 +6,24 @@ namespace App\Models;
 
 use App\Libraries\Enums\CustomerContactEnum;
 use App\Libraries\Enums\DayPeriodsEnum;
-use App\Models\Traits\FormatDatetimeProperty;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property-read Collection<DayPeriodsEnum> $schedule_list
+ */
 #[Fillable(['name', 'email', 'hostess', 'birthdate', 'contact', 'schedule', 'user_id'])]
 final class Customer extends Model
 {
-    use FormatDatetimeProperty;
+    use SoftDeletes;
 
     /**
      * Parse the contact stored by database to a CustomerContactEnum list
      *
-     * @return Collection<CustomerContactEnum>
+     * @property-read Collection<CustomerContactEnum> $contact_list
      */
     public function getContactListAttribute(): Collection
     {
@@ -40,18 +44,13 @@ final class Customer extends Model
         );
     }
 
-    /**
-     * Format the created_at to view
-     *
-     * @return string
-     */
-    public function getCreatedAtFormattedAttribute()
-    {
-        return $this->getPropertyFormatted('created_at');
-    }
-
-    public function phones()
+    public function phones(): HasMany
     {
         return $this->hasMany(CustomerPhone::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 }

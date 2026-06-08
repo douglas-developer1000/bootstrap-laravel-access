@@ -13,10 +13,11 @@ use App\Libraries\Values\PhoneValue;
 use App\Models\Customer;
 use App\Models\CustomerPhone;
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Override;
+use Closure;
 
 final class CustomerService
 {
@@ -27,9 +28,18 @@ final class CustomerService
             #[Override]
             public function query(Request $request): Builder
             {
-                /** @var Builder $query */
-                $query = Customer::where('user_id', Auth::id());
-                return $query;
+                /** @var int|string $id */
+                $id = Auth::id();
+
+                $trashed = $request->boolean('trashed');
+                if ($trashed) {
+                    return Customer::where(
+                        ['user_id' => $id]
+                    )->whereNotNull('deleted_at')->getQuery();
+                }
+                return Customer::where(
+                    ['user_id' => $id]
+                )->whereNull('deleted_at')->getQuery();
             }
 
             #[Override]
@@ -45,20 +55,26 @@ final class CustomerService
                 }
                 return parent::attachQuery($request, $query);
             }
+
+            #[Override]
+            public function getSortColumns(): array
+            {
+                return ['created_at', 'name', 'email'];
+            }
         })->prepareIndex(
             $request,
-            'id',
-            'name',
-            'email',
-            'created_at'
+            '*'
         );
     }
 
-    protected function preparePersistence(Request $request)
+    public function extractCustomerParams(Request $request): array
     {
+        /** @var int|string $id */
+        $id = Auth::id();
+
         return collect([
             ...$request->only(['name', 'email', 'hostess', 'birthdate']),
-            'user_id' => Auth::id(),
+            'user_id' => $id,
             'contact' => CustomerContactEnum::wrapRequestBooleanEnum(
                 $request,
                 'contact'
@@ -70,16 +86,14 @@ final class CustomerService
         ])->filter(fn($value) => $value !== NULL)->all();
     }
 
-    public function createCustomer(Request $request): ?Customer
+    public function createCustomer(array $params): ?Customer
     {
-        return Customer::create($this->preparePersistence($request));
+        return Customer::create($params);
     }
 
-    public function updateCustomer(Request $request, Customer $customer): int
+    public function updateCustomer(array $params, Customer $customer)
     {
-        return Customer::where(['id' => $customer->id])->update(
-            $this->preparePersistence($request)
-        );
+        return $customer->update($params);
     }
 
     public function createPhones(Request $request, Customer $customer)
@@ -136,13 +150,53 @@ final class CustomerService
         );
     }
 
-    public function removeCustomer(int $id): void
+    public function removeCustomer(Customer $customer): void
     {
-        Customer::where(['id' => $id])->delete();
+        if ($customer->payments()->count() > 0) {
+            $customer->delete();
+        } else {
+            $customer->forceDelete();
+        }
     }
 
-    public function removeCustomerList(array $ids): void
+    /**
+     * @param Customer[] $customers
+     */
+    public function removeCustomerList(array $customers): void
     {
-        Customer::whereIn('id', $ids)->delete();
+        collect($customers)->each($this->removeCustomer(...));
+    }
+
+    /**
+     * @param Closure(Builder): Builder $callback
+     * @return \Illuminate\Database\Eloquent\Collection<int, Customer>
+     */
+    public function getAllCustomer(?Closure $callback = NULL)
+    {
+        /** @var int|string $id */
+        $id = Auth::id();
+
+        $query = Customer::where([
+            'user_id' => $id
+        ]);
+        if ($callback) {
+            $query = $callback($query->getQuery());
+        }
+        return $query->get();
+    }
+
+    public function restoreCustomer(Customer $customer)
+    {
+        $customer->restore();
+    }
+
+    public function restoreCustomerGroup(array $customers): void
+    {
+        collect($customers)->each($this->restoreCustomer(...));
+    }
+
+    public function hydrateCustomer(array $customers): Collection
+    {
+        return Customer::hydrate($customers);
     }
 }

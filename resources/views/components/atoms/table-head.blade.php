@@ -8,7 +8,7 @@
         href="{{ $makeHref(request()->url()) }}"
     >
         {{ $slot }}
-        @if (request()->query('sort', 'created_at') === $sort)
+        @if (request()->query('sort', $default ? $sort : NULL) === $sort)
             <span class="badge text-dark p-0 position-absolute">
                 @if (request()->query('order', 'desc') === 'desc')
                     <i class="bi bi-caret-down-fill"></i>

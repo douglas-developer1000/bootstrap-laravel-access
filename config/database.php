@@ -190,7 +190,50 @@ return [
                     'min' => env('PHONE_MIN_COLUMN_SIZE', 9),
                     'max' => env('PHONE_MAX_COLUMN_SIZE', 11)
                 ],
-                'img' => env('IMG_COLUMN_SIZE', 200)
+                'img' => env('IMG_COLUMN_SIZE', 200),
+                'cnpj' => env('CNPJ_COLUMN_SIZE', 14),
+                'color' => env('COLOR_COLUMN_SIZE', 100),
+                'obs' => [
+                    'max' => env('OBS_MAX_COLUMN_SIZE', 500)
+                ],
+                'decimal' => [
+                    'min' => env('DECIMAL_MIN_COLUMN_SIZE', 0),
+                    'max' => env('DECIMAL_MAX_COLUMN_SIZE', 999999.99)
+                ],
+                'integer' => [
+                    'min' => env('DECIMAL_MIN_COLUMN_SIZE', 1),
+                    'max' => env('DECIMAL_MAX_COLUMN_SIZE', 999999)
+                ],
+            ],
+            'payment-card' => [
+                'flag' => [
+                    'min' => env('FLAG_CARD_MIN_COLUMN_SIZE', 3),
+                    'max' => env('FLAG_CARD_MAX_COLUMN_SIZE', 255)
+                ]
+            ],
+            'product-category' => [
+                'name' => [
+                    'min' => env('PRODUCT_CATEGORY_NAME_MIN_COLUMN_SIZE', 3),
+                    'max' => env('PRODUCT_CATEGORY_NAME_MAX_COLUMN_SIZE', 250)
+                ]
+            ],
+            'product' => [
+                'name' => [
+                    'min' => env('PRODUCT_NAME_MIN_COLUMN_SIZE', 3),
+                    'max' => env('PRODUCT_NAME_MAX_COLUMN_SIZE', 250),
+                ],
+                'obs' => [
+                    'max' => env('PRODUCT_OBS_MAX_COLUMN_SIZE', 500),
+                ],
+                'details' => [
+                    'max' => env('PRODUCT_DETAILS_MAX_COLUMN_SIZE', 750),
+                ],
+            ],
+            'supplier' => [
+                'name' => [
+                    'min' => env('SUPPLIER_NAME_MIN_COLUMN_SIZE', 3),
+                    'max' => env('SUPPLIER_NAME_MAX_COLUMN_SIZE', 250),
+                ],
             ],
             'user' => [
                 'name' => env('USER_NAME_COLUMN_SIZE', 250),
@@ -204,7 +247,13 @@ return [
                 'email' => env('REGISTER_APPROVAL_EMAIL_COLUMN_SIZE', 250),
                 'token' => env('REGISTER_APPROVAL_TOKEN_COLUMN_SIZE', 40)
             ],
-            'client' => [
+            'exchange-exit' => [
+                'person' => [
+                    'min' => env('EXCHANGE_EXIT_PERSON_MIN_COLUMN_SIZE', 3),
+                    'max' => env('EXCHANGE_EXIT_PERSON_MAX_COLUMN_SIZE', 250),
+                ]
+            ],
+            'customer' => [
                 'name' => env('CUSTOMER_NAME_COLUMN_SIZE', 250),
                 'email' => env('CUSTOMER_EMAIL_COLUMN_SIZE', 250),
                 'hostess' => env('CUSTOMER_HOSTESS_COLUMN_SIZE', 250),

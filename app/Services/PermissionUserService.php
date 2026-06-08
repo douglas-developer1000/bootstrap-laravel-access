@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -29,9 +29,9 @@ final class PermissionUserService
                 $ids = $this->user->getAllPermissions()->map(
                     fn(Permission $perm) => $perm->id
                 )->all();
-                /** @var Builder $query */
-                $query = Permission::whereNotIn('id', $ids);
-                return $query;
+                $eloquentQuery = Permission::whereNotIn('id', $ids);
+
+                return $eloquentQuery->getQuery();
             }
 
             #[Override]

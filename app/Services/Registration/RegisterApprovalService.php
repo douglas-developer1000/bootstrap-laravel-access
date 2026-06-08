@@ -6,9 +6,10 @@ namespace App\Services\Registration;
 
 use App\Models\RegisterApproval;
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Override;
 
 final class RegisterApprovalService
@@ -30,7 +31,7 @@ final class RegisterApprovalService
             #[Override]
             public function query(Request $request): Builder
             {
-                return RegisterApproval::query();
+                return DB::table('register_approvals');
             }
 
             #[Override]

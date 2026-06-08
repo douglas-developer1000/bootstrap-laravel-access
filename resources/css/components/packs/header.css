@@ -19,7 +19,45 @@
         width: var(--photo-user-size);
         height: var(--photo-user-size);
     }
+    .offcanvas-body {
+        overflow-x: hidden;
+
+        &::-webkit-scrollbar {
+            width: 0px;
+        }
+        scrollbar-width: none;
+    }
     .offcanvas.offcanvas-start {
         width: min(80%, var(--bs-offcanvas-width));
+    }
+    .nav-item {
+        --bs-nav-link-padding-y: 0.75em;
+    }
+}
+@scope (#accordion-menu) {
+    :scope {
+        margin-bottom: 0.5em;
+    }
+    .accordion-button {
+        --bs-accordion-btn-color: var(--bs-nav-link-color);
+        --bs-accordion-active-color: var(--bs-nav-link-color);
+        --bs-accordion-active-bg: var(--bs-accordion-btn-bg);
+
+        &::after {
+            position: absolute;
+            right: 0;
+        }
+        .label {
+            text-align: center;
+        }
+    }
+    .accordion-collapse {
+        padding-left: 0;
+        list-style-type: none;
+        background-color: rgba(var(--bs-secondary-bg-rgb), 0.5);
+
+        .nav-item {
+            --bs-nav-link-padding-y: 0.75em;
+        }
     }
 }

@@ -17,7 +17,7 @@ use Exception;
 
 class DropboxImgStoragerService extends AbstractImgConverter
 {
-    protected Model $model;
+    protected ?Model $model;
     protected string $key;
     protected string $lastFolderName;
 
@@ -25,12 +25,12 @@ class DropboxImgStoragerService extends AbstractImgConverter
 
     protected ImgConverterInterface $imgConverter;
 
-    public function __construct(Model $model, string $key, string $lastFolderName)
+    public function __construct(string $key, string $lastFolderName, ?Model $model = NULL)
     {
         parent::__construct($key);
 
-        $this->model = $model;
         $this->lastFolderName = $lastFolderName;
+        $this->model = $model;
 
         $this->client = new Client(
             app(TokenProvider::class)
@@ -78,7 +78,7 @@ class DropboxImgStoragerService extends AbstractImgConverter
     public function remove(): bool
     {
         $key = $this->key;
-        $path = $this->model->$key;
+        $path = $this->model?->$key;
         if ($path === NULL) {
             return false;
         }

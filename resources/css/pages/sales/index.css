@@ -1,0 +1,6 @@
+@scope (.list-main) {
+    col.col-remain-value {
+        --col-visibility: visible;
+        --col-width: auto;
+    }
+}

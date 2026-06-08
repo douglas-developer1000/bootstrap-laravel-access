@@ -8,17 +8,27 @@
         col.col-first {
             width: 2.5em;
         }
-        col.col-first ~ col[class^="col-remain"]:not(.col-last) {
-            visibility: collapse;
-            width: 0px;
-            opacity: 0;
-        }
         col.col-first ~ col:not(.col-last) {
             width: auto;
         }
-        col.col-last {
-            width: 6.5em;
+        col.col-first ~ col[class^="col-remain"]:not(.col-last) {
+            visibility: var(--col-visibility, collapse);
+            width: var(--col-width, 0);
         }
+        col.col-last {
+            --padding-inline: 0.5em;
+            --gap-btn: 0.25em;
+            --btn-width: 2.625em;
+            width: calc(
+                (var(--qty-btn, 1) * var(--btn-width)) +
+                    ((var(--qty-btn, 1) - 1) * var(--gap-btn)) +
+                    (var(--padding-inline) * 2)
+            );
+        }
+    }
+    th.next-overflow ~ th,
+    th ~ th.col-remain {
+        overflow: hidden;
     }
     @media screen and (min-width: 768px) {
         .table-colgroup {
@@ -56,13 +66,18 @@
     thead th,
     tbody td {
         vertical-align: middle;
-        overflow: hidden;
     }
-    th.col-remain {
-        opacity: 0;
-        pointer-events: none;
+    tbody td:not(:last-child) {
+        overflow: hidden;
     }
     .no-values {
         text-align: center;
+    }
+    .action-btns.dropdown-menu.show {
+        display: grid;
+        grid-template-columns: max-content max-content;
+        min-width: auto;
+        padding: 0.5em;
+        gap: 0.5em;
     }
 }
