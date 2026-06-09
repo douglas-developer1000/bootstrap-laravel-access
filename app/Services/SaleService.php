@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Libraries\Enums\PaymentTypeEnum;
 use App\Models\Sale;
-use App\Models\StockExit;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;

@@ -142,13 +142,15 @@
                         </x-organisms.confirm-rm-group-btn>
                     @endif
                 </div>
-                <x-organisms.filter-form-check
-                    key="exits"
-                    :checked="request()->boolean('exits')"
-                    class="py-2 w-100"
-                >
-                    Reservados para saída</x-organisms.filter-form-check
-                >
+                @if (!$trashed)
+                    <x-organisms.filter-form-check
+                        key="exits"
+                        :checked="request()->boolean('exits')"
+                        class="py-2 w-100"
+                    >
+                        Reservados para saída</x-organisms.filter-form-check
+                    >
+                @endif
             </div>
             <x-molecules.table-index
                 :styleRows="['first' => 'width: 1.75em', 'second' => 'max-width: 10em']"
@@ -201,6 +203,7 @@
                                     type="checkbox"
                                     value="{{ $prod->id }}"
                                     class="form-check-input cursor-pointer multiselection-item"
+                                    @disabled ($trashed ? !$hasAccess('restore', $prod) : !$hasAccess('delete', $prod))
                                 />
                             </td>
                             <td>

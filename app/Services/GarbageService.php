@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Libraries\Enums\PermissionNameEnum;
 use App\Libraries\Enums\StockExitTypeEnum;
 use App\Models\StockExit;
 use App\Models\User;
@@ -17,17 +18,28 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Number;
 use Override;
 
-final class LossService
+final class GarbageService
 {
+    protected User $user;
+
+    /**
+     * @var Collection<StockExitTypeEnum> $stockExitTypes;
+     */
+    protected Collection $stockExitTypes;
+
+    public function __construct()
+    {
+        $this->user = Auth::user();
+        $this->stockExitTypes = $this->defineStockExitTypes();
+    }
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class extends AbstractPaginatorIndex
+        return (new class($this->user, $this->stockExitTypes) extends AbstractPaginatorIndex
         {
-            protected User $user;
-
-            public function __construct()
-            {
-                $this->user = Auth::user();
+            public function __construct(
+                protected User $user,
+                protected Collection $stockExitTypes
+            ) {
                 parent::__construct();
             }
 
@@ -48,11 +60,13 @@ final class LossService
                         'stock_entries.product_id'
                     )
                     ->select([
+                        'products.name as product',
+                        DB::raw('(stock_exits.qty * stock_entries.cost) as cost'),
+
                         'stock_exits.id',
                         'stock_exits.type',
-                        'products.name as product',
                         'stock_exits.created_at',
-                        DB::raw('(stock_exits.qty * stock_entries.cost) as cost')
+                        'stock_exits.user_id',
                     ])
                     ->getQuery();
             }
@@ -60,11 +74,9 @@ final class LossService
             protected function pickLossFilters(Request $request): Collection
             {
                 $qs = collect($request->query());
-                return collect([
-                    StockExitTypeEnum::DEMONSTRATION->value,
-                    StockExitTypeEnum::PERSONAL_USE->value,
-                    StockExitTypeEnum::LOSS->value,
-                ])->mapWithKeys(fn(string $enumKey) => [
+                return $this->stockExitTypes->map(
+                    fn(StockExitTypeEnum $exitType) => $exitType->value
+                )->mapWithKeys(fn(string $enumKey) => [
                     $enumKey => !$qs->has($enumKey) || $request->boolean($enumKey)
                 ]);
             }
@@ -94,6 +106,31 @@ final class LossService
             $request,
             '*'
         );
+    }
+
+    protected function defineStockExitTypes(): Collection
+    {
+        $stockExitTypes = collect();
+        if ($this->user->can(PermissionNameEnum::DEMONSTRATION_SHOW)) {
+            $stockExitTypes->push(StockExitTypeEnum::DEMONSTRATION);
+        }
+        if ($this->user->can(PermissionNameEnum::PERSONAL_USE_SHOW)) {
+            $stockExitTypes->push(StockExitTypeEnum::PERSONAL_USE);
+        }
+        if ($this->user->can(PermissionNameEnum::LOSS_SHOW)) {
+            $stockExitTypes->push(StockExitTypeEnum::LOSS);
+        }
+        return $stockExitTypes;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function defineGarbageFilter(): array
+    {
+        return $this->stockExitTypes->mapWithKeys(fn(StockExitTypeEnum $exitType) => [
+            $exitType->value => $exitType->toString()
+        ])->all();
     }
 
     public function hydrateStockExit(array $exits): Collection

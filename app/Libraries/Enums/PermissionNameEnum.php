@@ -16,14 +16,7 @@ enum PermissionNameEnum: string
     case CUSTOMER_EDIT = 'customer-edit';
     case CUSTOMER_UPDATE = 'customer-update';
     case CUSTOMER_DESTROY = 'customer-destroy';
-    case CUSTOMER_DESTROY_GROUP = 'customer-destroy-group';
     case CUSTOMER_RESTORE = 'customer-restore';
-    case CUSTOMER_RESTORE_GROUP = 'customer-restore-group';
-
-
-    case STOCK_EXIT_STORE = 'stock-exit-store';
-    case STOCK_EXIT_DESTROY = 'stock-exit-destroy';
-    case STOCK_EXIT_DESTROY_GROUP = 'stock-exit-destroy-group';
 
 
     case STOCK_ENTRY_CREATE = 'stock-entry-create';
@@ -38,9 +31,7 @@ enum PermissionNameEnum: string
     case PRODUCT_STORE = 'product-store';
     case PRODUCT_UPDATE = 'product-update';
     case PRODUCT_DESTROY = 'product-destroy';
-    case PRODUCT_DESTROY_GROUP = 'product-destroy-group';
     case PRODUCT_RESTORE = 'product-restore';
-    case PRODUCT_RESTORE_GROUP = 'product-restore-group';
 
 
     case PRODUCT_CATEGORY_INDEX = 'product-category-index';
@@ -50,21 +41,17 @@ enum PermissionNameEnum: string
     case PRODUCT_CATEGORY_CREATE = 'product-category-create';
     case PRODUCT_CATEGORY_STORE = 'product-category-store';
     case PRODUCT_CATEGORY_DESTROY = 'product-category-destroy';
-    case PRODUCT_CATEGORY_DESTROY_GROUP = 'product-category-destroy-group';
     case PRODUCT_CATEGORY_RESTORE = 'product-category-restore';
-    case PRODUCT_CATEGORY_RESTORE_GROUP = 'product-category-restore-group';
 
 
     case SUPPLIER_INDEX = 'supplier-index';
     case SUPPLIER_CREATE = 'supplier-create';
     case SUPPLIER_STORE = 'supplier-store';
     case SUPPLIER_DESTROY = 'supplier-destroy';
-    case SUPPLIER_DESTROY_GROUP = 'supplier-destroy-group';
     case SUPPLIER_EDIT = 'supplier-edit';
     case SUPPLIER_SHOW = 'supplier-show';
     case SUPPLIER_UPDATE = 'supplier-update';
     case SUPPLIER_RESTORE = 'supplier-restore';
-    case SUPPLIER_RESTORE_GROUP = 'supplier-restore-group';
 
 
     case DISCOUNT_INDEX = 'discount-index';
@@ -74,9 +61,7 @@ enum PermissionNameEnum: string
     case DISCOUNT_STORE = 'discount-store';
     case DISCOUNT_UPDATE = 'discount-update';
     case DISCOUNT_DESTROY = 'discount-destroy';
-    case DISCOUNT_DESTROY_GROUP = 'discount-destroy-group';
     case DISCOUNT_RESTORE = 'discount-restore';
-    case DISCOUNT_RESTORE_GROUP = 'discount-restore-group';
 
 
     case PAYMENT_CARD_INDEX = 'payment-card-index';
@@ -86,30 +71,75 @@ enum PermissionNameEnum: string
     case PAYMENT_CARD_UPDATE = 'payment-card-update';
     case PAYMENT_CARD_STORE = 'payment-card-store';
     case PAYMENT_CARD_DESTROY = 'payment-card-destroy';
-    case PAYMENT_CARD_DESTROY_GROUP = 'payment-card-destroy-group';
     case PAYMENT_CARD_RESTORE = 'payment-card-restore';
-    case PAYMENT_CARD_RESTORE_GROUP = 'payment-card-restore-group';
 
-
+    /** ================================================================
+     *        Permissions for stock-exit as SALE
+     * 
+     *    Model prevalent:
+     *    @see App\Models\Sale::class
+     *  ================================================================
+     */
     case SALE_INDEX = 'sale-index';
     case SALE_SHOW = 'sale-show';
     case SALE_CREATE = 'sale-create';
+    case SALE_STORE = 'sale-store';
     case SALE_DESTROY = 'sale-destroy';
-    case SALE_DESTROY_GROUP = 'sale-destroy-group';
 
+    /** ================================================================
+     *        Permissions for stock-exit as EXCHANGE
+     * 
+     *    Model prevalent:
+     *    @see App\Models\Exchange::class
+     * 
+     *  OBS: SHOW permission is not required because the exchanges are
+     *  shown at a unique screen:
+     *  @see view('pages.exchanges.index')
+     *  ================================================================
+     */
 
     case EXCHANGE_INDEX = 'exchange-index';
     case EXCHANGE_CREATE = 'exchange-create';
     case EXCHANGE_DESTROY = 'exchange-destroy';
-    case EXCHANGE_DESTROY_GROUP = 'exchange-destroy-group';
+    case EXCHANGE_STORE = 'exchange-store';
 
-
+    /** ================================================================
+     *        Permissions for stock-exit as PERSONAL_USE
+     * 
+     *  ================================================================
+     */
+    case PERSONAL_USE_SHOW = 'personal-use-show';
     case PERSONAL_USE_CREATE = 'personal-use-create';
+    case PERSONAL_USE_STORE = 'personal-use-store';
+    case PERSONAL_USE_DESTROY = 'personal-use-destroy';
 
-
+    /** ================================================================
+     *        Permissions for stock-exit as DEMONSTRATION
+     * 
+     *  ================================================================
+     */
+    case DEMONSTRATION_SHOW = 'demonstration-show';
     case DEMONSTRATION_CREATE = 'demonstration-create';
+    case DEMONSTRATION_STORE = 'demonstration-store';
+    case DEMONSTRATION_DESTROY = 'demonstration-destroy';
 
-
-    case LOSS_INDEX = 'loss-index';
+    /** ================================================================
+     *        Permissions for stock-exit as LOSS
+     * 
+     *  ================================================================
+     */
+    case LOSS_SHOW = 'loss-show';
     case LOSS_CREATE = 'loss-create';
+    case LOSS_STORE = 'loss-store';
+    case LOSS_DESTROY = 'loss-destroy';
+
+    /** ================================================================
+     *        Permissions for stock-exit as:
+     *  - PERSONAL_USE
+     *  - DEMONSTRATION
+     *  - LOSS
+     * 
+     *  ================================================================
+     */
+    case GARBAGE_INDEX = 'garbage-index';
 }

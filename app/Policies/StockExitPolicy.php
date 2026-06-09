@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\ProductToExitHandlerService;
 use App\Services\StockService;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Database\Eloquent\Collection;
 
 final class StockExitPolicy
 {
@@ -21,6 +22,37 @@ final class StockExitPolicy
         protected ProductToExitHandlerService $productToExitSvc
     ) {
         // ...
+    }
+
+    /**
+     * @return Collection<Product>
+     */
+    protected function productsToExitModels(): Collection
+    {
+        return Product::findMany(
+            $this->productToExitSvc->getProductsToExit()
+        );
+    }
+
+    public function showPersonalUse(User $user): bool
+    {
+        return (
+            $user->can(PermissionNameEnum::PERSONAL_USE_SHOW)
+        );
+    }
+
+    public function showDemonstration(User $user): bool
+    {
+        return (
+            $user->can(PermissionNameEnum::DEMONSTRATION_SHOW)
+        );
+    }
+
+    public function showLoss(User $user): bool
+    {
+        return (
+            $user->can(PermissionNameEnum::LOSS_SHOW)
+        );
     }
 
     /**
@@ -107,56 +139,86 @@ final class StockExitPolicy
      * Determine whether the user can create models.
      * @see ../../routes/custom/stocks.php
      */
-    public function store(User $user): bool
+    public function store(User $user, StockExitTypeEnum $exitType): bool
     {
-        $products = Product::findMany(
-            $this->productToExitSvc->getProductsToExit()
-        );
-
+        if ($exitType === StockExitTypeEnum::SALE) {
+            return (
+                $user->can(PermissionNameEnum::SALE_STORE) &&
+                $this->productsToExitModels()->every(
+                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
+                )
+            );
+        }
+        if ($exitType === StockExitTypeEnum::EXCHANGE) {
+            return (
+                $user->can(PermissionNameEnum::EXCHANGE_STORE) &&
+                $this->productsToExitModels()->every(
+                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
+                )
+            );
+        }
+        if ($exitType === StockExitTypeEnum::PERSONAL_USE) {
+            return (
+                $user->can(PermissionNameEnum::PERSONAL_USE_STORE) &&
+                $this->productsToExitModels()->every(
+                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
+                )
+            );
+        }
+        if ($exitType === StockExitTypeEnum::DEMONSTRATION) {
+            return (
+                $user->can(PermissionNameEnum::DEMONSTRATION_STORE) &&
+                $this->productsToExitModels()->every(
+                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
+                )
+            );
+        }
         return (
-            $products->every(
+            $user->can(PermissionNameEnum::LOSS_STORE) &&
+            $this->productsToExitModels()->every(
                 fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
-            ) &&
-            $user->can(PermissionNameEnum::STOCK_EXIT_STORE)
+            )
         );
     }
 
     /**
      * Determine whether the user can view any Exchange models.
      */
-    public function viewLossAny(User $user): bool
+    public function viewGarbageAny(User $user): bool
     {
-        return $user->can(PermissionNameEnum::LOSS_INDEX);
+        return $user->can(PermissionNameEnum::GARBAGE_INDEX);
     }
 
     /**
      * Determine whether the user can destroy models.
      * @see ../../routes/custom/stocks.php
      */
-    public function deleteLoss(User $user, StockExit $exit): bool
+    public function deleteGarbage(User $user, StockExit $exit): bool
     {
+        if ($exit->type === StockExitTypeEnum::PERSONAL_USE) {
+            return (
+                $user->isModelMine($exit) &&
+                $user->can(PermissionNameEnum::PERSONAL_USE_DESTROY)
+            );
+        }
+        if ($exit->type === StockExitTypeEnum::DEMONSTRATION) {
+            return (
+                $user->isModelMine($exit) &&
+                $user->can(PermissionNameEnum::DEMONSTRATION_DESTROY)
+            );
+        }
         return (
             $user->isModelMine($exit) &&
-            (
-                $exit->type === StockExitTypeEnum::LOSS ||
-                $exit->type === StockExitTypeEnum::PERSONAL_USE ||
-                $exit->type === StockExitTypeEnum::DEMONSTRATION
-            ) &&
-            $user->can(PermissionNameEnum::STOCK_EXIT_DESTROY)
+            $user->can(PermissionNameEnum::LOSS_DESTROY)
         );
     }
 
-    public function deleteLossList(User $user, array $stockExitList): bool
+    public function deleteGarbageList(User $user, array $stockExitList): bool
     {
         return (
             collect($stockExitList)->every(fn(StockExit $exit) => (
-                $user->isModelMine($exit) && (
-                    $exit->type === StockExitTypeEnum::LOSS ||
-                    $exit->type === StockExitTypeEnum::PERSONAL_USE ||
-                    $exit->type === StockExitTypeEnum::DEMONSTRATION
-                )
-            )) &&
-            $user->can(PermissionNameEnum::STOCK_EXIT_DESTROY_GROUP)
+                $this->deleteGarbage($user, $exit)
+            ))
         );
     }
 }

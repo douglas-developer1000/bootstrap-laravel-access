@@ -103,11 +103,6 @@
                 >
                     Somente meus descontos</x-organisms.filter-form-check
                 >
-
-                {{-- <x-packs.term-search
-                    label-text="Nome:"
-                    placeholder="Insira o nome do fornecedor"
-                /> --}}
                 <div
                     class="d-flex justify-content-end flex-grow-1 column-gap-2"
                 >

@@ -34,13 +34,17 @@ final class ExchangePolicy
         );
     }
 
+    /**
+     * Determine whether the user can delete the model list.
+     * 
+     * Used just by remotion list request.
+     */
     public function deleteList(User $user, array $exchangeList): bool
     {
         return (
             collect($exchangeList)->every(fn(Exchange $exchange) => (
-                $user->isModelMine($exchange)
-            )) &&
-            $user->can(PermissionNameEnum::EXCHANGE_DESTROY_GROUP)
+                $this->delete($user, $exchange, $exchange->stockExit)
+            ))
         );
     }
 }

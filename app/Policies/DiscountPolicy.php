@@ -75,20 +75,6 @@ final class DiscountPolicy
     }
 
     /**
-     * Determine whether the user can delete the model list.
-     *
-     * @param Discount[] $discountList
-     * @see ../../routes/custom/discounts.php
-     */
-    public function deleteList(User $user, array $discountList): bool
-    {
-        return collect($discountList)->every(fn(Discount $discount) => (
-            $user->isModelMine($discount) &&
-            !$discount->deleted_at
-        )) && $user->can(PermissionNameEnum::DISCOUNT_DESTROY_GROUP);
-    }
-
-    /**
      * Determine whether the user can delete the model.
      * @see ../../routes/custom/discounts.php
      */
@@ -98,6 +84,19 @@ final class DiscountPolicy
             !$discount->deleted_at &&
             $user->isModelMine($discount)
         ) && $user->can(PermissionNameEnum::DISCOUNT_RESTORE);
+    }
+
+    /**
+     * Determine whether the user can delete the model list.
+     *
+     * @param Discount[] $discountList
+     * @see ../../routes/custom/discounts.php
+     */
+    public function deleteList(User $user, array $discountList): bool
+    {
+        return collect($discountList)->every(fn(Discount $discount) => (
+            $this->delete($user, $discount)
+        ));
     }
 
     /**
@@ -121,8 +120,7 @@ final class DiscountPolicy
     public function restoreList(User $user, array $discountList): bool
     {
         return collect($discountList)->every(fn(Discount $discount) => (
-            $user->isModelMine($discount) &&
-            $discount->deleted_at
-        )) && $user->can(PermissionNameEnum::DISCOUNT_RESTORE_GROUP);
+            $this->delete($user, $discount)
+        ));
     }
 }

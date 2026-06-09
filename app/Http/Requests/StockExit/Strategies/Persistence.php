@@ -7,7 +7,6 @@ namespace App\Http\Requests\StockExit\Strategies;
 use App\Http\Requests\Checker;
 use App\Libraries\Enums\StockExitTypeEnum;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\Rule;
 
 final class Persistence implements Checker
 {
@@ -16,30 +15,19 @@ final class Persistence implements Checker
      */
     protected Collection $persistences;
 
-    public function __construct(
-        protected ?string $type,
-    ) {
+    public function __construct(protected StockExitTypeEnum $type)
+    {
         $this->persistences = collect([]);
     }
 
     public function rules(): array
     {
-        return [
-            'type' => [
-                'required',
-                Rule::enum(StockExitTypeEnum::class),
-            ],
-            ...$this->getRulesByType(),
-        ];
+        return $this->getRulesByType();
     }
 
     public function messages(): array
     {
-        return [
-            'type.required' => 'Requisição inválida',
-            'type.enum' => 'Requisição inválida',
-            ...$this->getMessagesByType(),
-        ];
+        return $this->getMessagesByType();
     }
 
     public function pushChecker(StockExitTypeEnum $enum, Checker $checker): Persistence
@@ -53,11 +41,11 @@ final class Persistence implements Checker
 
     protected function getRulesByType(): array
     {
-        return $this->persistences->get($this->type ?? '')['rules'] ?? [];
+        return $this->persistences->get($this->type->value ?? '')['rules'] ?? [];
     }
 
     protected function getMessagesByType()
     {
-        return $this->persistences->get($this->type ?? '')['messages'] ?? [];
+        return $this->persistences->get($this->type->value ?? '')['messages'] ?? [];
     }
 }

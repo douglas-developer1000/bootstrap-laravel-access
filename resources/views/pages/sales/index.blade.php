@@ -118,6 +118,7 @@
                                     type="checkbox"
                                     value="{{ $sale->id }}"
                                     class="form-check-input cursor-pointer multiselection-item"
+                                    @disabled (!$hasAccess('delete', $sale))
                                 />
                             </td>
                             <td>

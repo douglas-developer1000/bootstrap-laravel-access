@@ -44,7 +44,7 @@ final class SalePolicy
     public function deleteList(User $user, array $saleList): bool
     {
         return collect($saleList)->every(fn(Sale $sale) => (
-            $user->isModelMine($sale)
-        )) && $user->can(PermissionNameEnum::SALE_DESTROY_GROUP);
+            $this->delete($user, $sale)
+        ));
     }
 }

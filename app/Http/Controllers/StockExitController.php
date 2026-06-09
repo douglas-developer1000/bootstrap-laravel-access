@@ -10,7 +10,6 @@ use App\Libraries\Enums\StockExitTypeEnum;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\CustomerService;
 use App\Services\DiscountService;
 use App\Services\PaymentCardService;
 use App\Services\ProductToExitHandlerService;
@@ -35,14 +34,13 @@ final class StockExitController extends Controller
         StockExitSaleService $saleSvc,
         StockExitExchangeService $exchangeSvc,
         ProductToExitHandlerService $prodToExitSvc,
+        StockExitTypeEnum $exitType,
     ) {
-        $type = StockExitTypeEnum::from($request->input('type'));
+        $productExits = $this->svc->makeStockExits($this->svc->extractParams($request, $exitType));
 
-        $productExits = $this->svc->makeStockExits($this->svc->extractParams($request, $type));
-
-        if ($type === StockExitTypeEnum::SALE) {
+        if ($exitType === StockExitTypeEnum::SALE) {
             $this->svc->handleStockExits($saleSvc, $request, $productExits);
-        } elseif ($type === StockExitTypeEnum::EXCHANGE) {
+        } elseif ($exitType === StockExitTypeEnum::EXCHANGE) {
             $this->svc->handleStockExits($exchangeSvc, $request, $productExits);
         }
         $prodToExitSvc->clearProductsToExit();

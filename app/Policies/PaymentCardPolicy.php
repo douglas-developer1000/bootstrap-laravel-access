@@ -73,18 +73,6 @@ class PaymentCardPolicy
     }
 
     /**
-     * @param PaymentCard[] $paymentCardList
-     * @see ../../routes/custom/payment-cards.php
-     */
-    public function deleteList(User $user, array $paymentCardList): bool
-    {
-        return collect($paymentCardList)->every(fn(PaymentCard $card) => (
-            $user->isModelMine($card) &&
-            !$card->deleted_at
-        )) && $user->can(PermissionNameEnum::PAYMENT_CARD_DESTROY_GROUP);
-    }
-
-    /**
      * Determine whether the user can delete the model.
      * @see ../../routes/custom/payment-cards.php
      */
@@ -94,6 +82,17 @@ class PaymentCardPolicy
             $user->isModelMine($card) &&
             !$card->deleted_at
         ) && $user->can(PermissionNameEnum::PAYMENT_CARD_DESTROY);
+    }
+
+    /**
+     * @param PaymentCard[] $paymentCardList
+     * @see ../../routes/custom/payment-cards.php
+     */
+    public function deleteList(User $user, array $paymentCardList): bool
+    {
+        return collect($paymentCardList)->every(fn(PaymentCard $card) => (
+            $this->delete($user, $card)
+        ));
     }
 
     public function restore(User $user, PaymentCard $payCardDeleted): bool
@@ -107,8 +106,7 @@ class PaymentCardPolicy
     public function restoreList(User $user, array $paymentCardList): bool
     {
         return collect($paymentCardList)->every(fn(PaymentCard $card) => (
-            $user->isModelMine($card) &&
-            $card->deleted_at
-        )) && $user->can(PermissionNameEnum::PAYMENT_CARD_RESTORE_GROUP);
+            $this->restore($user, $card)
+        ));
     }
 }

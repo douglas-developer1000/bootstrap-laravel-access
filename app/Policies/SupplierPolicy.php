@@ -77,18 +77,6 @@ final class SupplierPolicy
     }
 
     /**
-     * Determine whether the user can delete the model list.
-     * @see ../../routes/custom/suppliers.php
-     */
-    public function deleteList(User $user, array $supplierList): bool
-    {
-        return collect($supplierList)->every(fn(Supplier $supplier) => (
-            $user->isModelMine($supplier) &&
-            !$supplier->deleted_at
-        )) && $user->can(PermissionNameEnum::SUPPLIER_DESTROY_GROUP);
-    }
-
-    /**
      * Determine whether the user can delete the model.
      * @see ../../routes/custom/suppliers.php
      */
@@ -98,6 +86,17 @@ final class SupplierPolicy
             $user->isModelMine($supplier) &&
             !$supplier->deleted_at
         ) && $user->can(PermissionNameEnum::SUPPLIER_DESTROY);
+    }
+
+    /**
+     * Determine whether the user can delete the model list.
+     * @see ../../routes/custom/suppliers.php
+     */
+    public function deleteList(User $user, array $supplierList): bool
+    {
+        return collect($supplierList)->every(fn(Supplier $supplier) => (
+            $this->delete($user, $supplier)
+        ));
     }
 
     /**
@@ -121,8 +120,7 @@ final class SupplierPolicy
     public function restoreList(User $user, array $supplierList): bool
     {
         return collect($supplierList)->every(fn(Supplier $supplier) => (
-            $user->isModelMine($supplier) &&
-            $supplier->deleted_at
-        )) && $user->can(PermissionNameEnum::SUPPLIER_RESTORE_GROUP);
+            $this->restore($user, $supplier)
+        ));
     }
 }

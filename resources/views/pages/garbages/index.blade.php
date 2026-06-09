@@ -40,79 +40,81 @@
                             <span>Estoques</span>
                         </x-atoms.button>
                     </li>
-                    <li>
-                        <x-atoms.button
-                            class="dropdown-item"
-                            format="anchor"
-                            href="{{
-                                route('stocks.exits.create', [
-                                    'exitType' => StockExitTypeEnum::PERSONAL_USE->value
-                                ])
-                            }}"
-                            title="Utilizar estoque como uso pessoal"
-                            :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::PERSONAL_USE])"
-                        >
-                            <i class="bi bi-plus-lg"></i>
-                            <span
-                                >{{ StockExitTypeEnum::PERSONAL_USE->toString() }}</span
+                    @can ('showPersonalUse', StockExit::class)
+                        <li>
+                            <x-atoms.button
+                                class="dropdown-item"
+                                format="anchor"
+                                href="{{
+                                    route('stocks.exits.create', [
+                                        'exitType' => StockExitTypeEnum::PERSONAL_USE->value
+                                    ])
+                                }}"
+                                title="Utilizar estoque como uso pessoal"
+                                :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::PERSONAL_USE])"
                             >
-                        </x-atoms.button>
-                    </li>
-                    <li>
-                        <x-atoms.button
-                            class="dropdown-item"
-                            format="anchor"
-                            href="{{
-                                route('stocks.exits.create', [
-                                    'exitType' => StockExitTypeEnum::DEMONSTRATION->value
-                                ])
-                            }}"
-                            title="Utilizar estoque como demonstração"
-                            :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::DEMONSTRATION])"
-                        >
-                            <i class="bi bi-plus-lg"></i>
-                            <span
-                                >{{ StockExitTypeEnum::DEMONSTRATION->toString() }}</span
+                                <i class="bi bi-plus-lg"></i>
+                                <span
+                                    >{{ StockExitTypeEnum::PERSONAL_USE->toString() }}</span
+                                >
+                            </x-atoms.button>
+                        </li>
+                    @endcan
+                    @can ('showDemonstration', StockExit::class)
+                        <li>
+                            <x-atoms.button
+                                class="dropdown-item"
+                                format="anchor"
+                                href="{{
+                                    route('stocks.exits.create', [
+                                        'exitType' => StockExitTypeEnum::DEMONSTRATION->value
+                                    ])
+                                }}"
+                                title="Utilizar estoque como demonstração"
+                                :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::DEMONSTRATION])"
                             >
-                        </x-atoms.button>
-                    </li>
-                    <li>
-                        <x-atoms.button
-                            class="dropdown-item"
-                            format="anchor"
-                            href="{{
-                                route('stocks.exits.create', [
-                                    'exitType' => StockExitTypeEnum::LOSS->value
-                                ])
-                            }}"
-                            title="Utilizar estoque como demonstração"
-                            :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::LOSS])"
-                        >
-                            <i class="bi bi-plus-lg"></i>
-                            <span
-                                >{{ StockExitTypeEnum::LOSS->toString() }}</span
+                                <i class="bi bi-plus-lg"></i>
+                                <span
+                                    >{{ StockExitTypeEnum::DEMONSTRATION->toString() }}</span
+                                >
+                            </x-atoms.button>
+                        </li>
+                    @endcan
+                    @can ('showLoss', StockExit::class)
+                        <li>
+                            <x-atoms.button
+                                class="dropdown-item"
+                                format="anchor"
+                                href="{{
+                                    route('stocks.exits.create', [
+                                        'exitType' => StockExitTypeEnum::LOSS->value
+                                    ])
+                                }}"
+                                title="Utilizar estoque como demonstração"
+                                :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::LOSS])"
                             >
-                        </x-atoms.button>
-                    </li>
-                </ul></x-packs.page-heading-row
-        >
+                                <i class="bi bi-plus-lg"></i>
+                                <span
+                                    >{{ StockExitTypeEnum::LOSS->toString() }}</span
+                                >
+                            </x-atoms.button>
+                        </li>
+                    @endcan
+                </ul>
+        </x-packs.page-heading-row>
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
             <div class="d-flex flex-wrap justify-content-between row-gap-2">
                 <x-packs.filter-form-checks
                     class="gap-3"
-                    :checkboxes="[
-                        StockExitTypeEnum::DEMONSTRATION->value => StockExitTypeEnum::DEMONSTRATION->toString(),
-                        StockExitTypeEnum::PERSONAL_USE->value => StockExitTypeEnum::PERSONAL_USE->toString(),
-                        StockExitTypeEnum::LOSS->value => StockExitTypeEnum::LOSS->toString(),
-                    ]"
+                    :checkboxes="$checkboxesData"
                 />
             </div>
             <div class="d-flex justify-content-end flex-grow-1 column-gap-2">
                 <x-organisms.confirm-rm-group-btn
                     :routeParams="['key' => 'remotion', 'stockExitList' => 'list']"
-                    route="losses.group.destroy"
+                    route="garbages.group.destroy"
                     heading="Remover estas perdas?"
                     positive-text="Remover perdas"
                     title="Remover perdas selecionadas"
@@ -174,6 +176,7 @@
                                     type="checkbox"
                                     value="{{ $exit->id }}"
                                     class="form-check-input cursor-pointer multiselection-item"
+                                    @disabled (!$hasAccess('deleteGarbage', $exit))
                                 />
                             </td>
                             <td>
@@ -194,10 +197,11 @@
                                 >
                                     <x-organisms.confirm-rm-btn
                                         :routeParams="['exit' => $exit->id]"
-                                        route="losses.destroy"
+                                        route="garbages.destroy"
                                         heading="Remover esta perda?"
                                         positiveText="Remover perda"
                                         title="Remover perda"
+                                        :disabled="!$hasAccess('deleteGarbage', $exit)"
                                     >
                                         Esta operação removerá esta perda
                                         permanentemente, liberando suas entradas

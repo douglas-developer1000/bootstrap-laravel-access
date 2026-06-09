@@ -15,15 +15,14 @@
 <form
     data-show="{{ StockExitTypeEnum::SALE->value }}"
     class="create-form"
-    action="{{ route('stocks.exits.store') }}"
+    action="{{
+        route('stocks.exits.store', [
+            'exitType' => StockExitTypeEnum::SALE->value
+        ])
+    }}"
     method="post"
 >
     @csrf
-    <input
-        type="hidden"
-        name="type"
-        value="{{ StockExitTypeEnum::SALE->value }}"
-    />
     <x-molecules.select-field
         label-text="Cliente:"
         name="customer"

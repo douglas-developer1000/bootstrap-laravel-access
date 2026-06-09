@@ -86,6 +86,17 @@ final class ProductPolicy
     }
 
     /**
+     * Determine whether the user can delete the model.
+     * @see ../../routes/custom/products.php
+     */
+    public function deleteList(User $user, array $productList): bool
+    {
+        return collect($productList)->every(fn(Product $product) => (
+            $this->delete($user, $product)
+        ));
+    }
+
+    /**
      * Determine whether the user can restore the model.
      * @see ../../routes/custom/products.php
      */
@@ -106,9 +117,8 @@ final class ProductPolicy
     public function restoreList(User $user, array $productList): bool
     {
         return collect($productList)->every(fn(Product $product) => (
-            $user->isModelMine($product) &&
-            $product->deleted_at
-        )) && $user->can(PermissionNameEnum::PRODUCT_RESTORE_GROUP);
+            $this->restore($user, $product)
+        ));
     }
 
     public function useOnExit(User $user, Product $product): bool

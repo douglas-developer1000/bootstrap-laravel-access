@@ -52,8 +52,8 @@ final class UserMenuItems extends MenuItem
                 ['viewAny', Exchange::class]
             ],
             'Perdas' => [
-                route('losses.index'),
-                ['viewLossAny', StockExit::class]
+                route('garbages.index'),
+                ['viewGarbageAny', StockExit::class]
             ],
         ]);
     }

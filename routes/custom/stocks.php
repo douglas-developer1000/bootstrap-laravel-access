@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Product;
 use App\Models\StockEntry;
 use App\Models\StockExit;
-use Illuminate\Support\Str;
 
 Route::get('/', [StockController::class, 'index'])
     /**
@@ -20,43 +19,47 @@ Route::get('/', [StockController::class, 'index'])
     ->name('stocks.index')
     ->can('viewAny', Product::class);
 
-Route::get('/exits/{exitType}', [StockExitController::class, 'createExit'])
+Route::get('/exits/{exitType}/create', [StockExitController::class, 'createExit'])
     /**
      * @ see view('pages.stocks.show')
      */
     ->name('stocks.exits.create')
     ->where([
-        'type' => Str::of(
-            collect([
-                StockExitTypeEnum::PERSONAL_USE->value,
-                StockExitTypeEnum::EXCHANGE->value,
-                StockExitTypeEnum::LOSS->value,
-            ])->join('|')
-        )
-            ->prepend('/^(')
-            ->append(')$/')
-            ->toString()
+        'exitType' => implode('|', [
+            StockExitTypeEnum::PERSONAL_USE->value,
+            StockExitTypeEnum::DEMONSTRATION->value,
+            StockExitTypeEnum::EXCHANGE->value,
+            StockExitTypeEnum::LOSS->value,
+        ])
     ])
     ->can('createExit', [StockExit::class, 'exitType']);
 
-Route::get('/exits/{exitType}/{customer}', [StockExitController::class, 'createSaleExit'])
+Route::get('/exits/{exitType}/{customer}/create', [StockExitController::class, 'createSaleExit'])
     /**
      * @ see view('pages.stocks.show')
      */
     ->name('stocks.exits.sale.create')
     ->can('createSaleExit', [StockExit::class, 'exitType', 'customer'])
     ->where([
-        'type' => StockExitTypeEnum::SALE->value
+        'exitType' => StockExitTypeEnum::SALE->value
     ]);
 
-Route::post('/sales/exits', [StockExitController::class, 'storeExit'])
+Route::post('/exits/{exitType}', [StockExitController::class, 'storeExit'])
     /**
      * @see view('pages.stocks.exits.shared.sale')
      * @see view('pages.stocks.exits.shared.remain')
      * @see view('pages.stocks.exits.shared.exchange')
      */
     ->name('stocks.exits.store')
-    ->can('store', StockExit::class);
+    ->where([
+        'exitType' => implode('|', [
+            StockExitTypeEnum::PERSONAL_USE->value,
+            StockExitTypeEnum::DEMONSTRATION->value,
+            StockExitTypeEnum::EXCHANGE->value,
+            StockExitTypeEnum::LOSS->value,
+        ])
+    ])
+    ->can('store', [StockExit::class, 'exitType']);
 
 Route::get('/{product}', [StockController::class, 'show'])
     /**
@@ -82,7 +85,7 @@ Route::post('/unmark/{product}/sales', [StockExitController::class, 'unmarkSale'
     ->name('stocks.sales.unmark')
     ->can('unmark', [StockExit::class, 'product']);
 
-Route::get('/create/{product}/entries', [StockEntryController::class, 'createEntry'])
+Route::get('/{product}/entries/create', [StockEntryController::class, 'createEntry'])
     /**
      * @see view('pages.stocks.show')
      * @see view('pages.stocks.index')

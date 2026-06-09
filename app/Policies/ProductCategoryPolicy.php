@@ -73,27 +73,27 @@ final class ProductCategoryPolicy
     }
 
     /**
+     * Determine whether the user can delete the model.
+     * @see ../../routes/custom/productCategories.php
+     */
+    public function delete(User $user, ProductCategory $category): bool
+    {
+        return (
+            $user->isModelMine($category) &&
+            !$category->deleted_at &&
+            $user->can(PermissionNameEnum::PRODUCT_CATEGORY_DESTROY)
+        );
+    }
+
+    /**
      * Determine whether the user can delte the model list.
      * @see ../../routes/custom/productCategories.php
      */
     public function deleteList(User $user, array $productCategoryList): bool
     {
         return collect($productCategoryList)->every(fn(ProductCategory $category) => (
-            !$category->deleted_at &&
-            $user->isModelMine($category)
-        )) && $user->can(PermissionNameEnum::PRODUCT_CATEGORY_DESTROY_GROUP);
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     * @see ../../routes/custom/productCategories.php
-     */
-    public function delete(User $user, ProductCategory $category): bool
-    {
-        return $user->isModelMine($category) && (
-            !$category->deleted_at &&
-            $category->products()->count() === 0
-        ) && $user->can(PermissionNameEnum::PRODUCT_CATEGORY_DESTROY);
+            $this->delete($user, $category)
+        ));
     }
 
     /**
@@ -115,8 +115,7 @@ final class ProductCategoryPolicy
     public function restoreList(User $user, array $productCategoryList): bool
     {
         return collect($productCategoryList)->every(fn(ProductCategory $category) => (
-            $category->deleted_at &&
-            $user->isModelMine($category)
-        )) && $user->can(PermissionNameEnum::PRODUCT_CATEGORY_RESTORE_GROUP);
+            $this->restore($user, $category)
+        ));
     }
 }

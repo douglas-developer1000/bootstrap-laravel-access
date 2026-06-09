@@ -135,6 +135,7 @@
                                     type="checkbox"
                                     value="{{ $exchange->id }}"
                                     class="form-check-input cursor-pointer multiselection-item"
+                                    @disabled (!$hasAccess('delete', [Exchange::class, $exchange, $exchange->exit]))
                                 />
                             </td>
                             <td>

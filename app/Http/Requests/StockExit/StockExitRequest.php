@@ -21,7 +21,7 @@ final class StockExitRequest extends CustomFormRequest
         $url = url()->current();
 
         switch ($url) {
-            case route('losses.group.destroy', [
+            case route('garbages.group.destroy', [
                 'key' => $this->route('key', 'key'),
                 'stockExitList' => 'list'
             ]):
@@ -30,9 +30,9 @@ final class StockExitRequest extends CustomFormRequest
                 'exchangeList' => 'list'
             ]):
                 return new DestroyGroup();
-            case route('stocks.exits.store'):
+            case route('stocks.exits.store', $this->route('exitType', 0)):
                 return (new Persistence(
-                    $this->input('type')
+                    $this->route('exitType')
                 ))->pushChecker(
                     StockExitTypeEnum::SALE,
                     new SalePersistence()

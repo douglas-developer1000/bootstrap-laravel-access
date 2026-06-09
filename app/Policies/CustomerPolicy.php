@@ -75,20 +75,6 @@ final class CustomerPolicy
     }
 
     /**
-     * Determine whether the user can delete the model list.
-     *
-     * @param Customer[] $customerList
-     * @see ../../routes/custom/customers.php
-     */
-    public function deleteList(User $user, array $customerList): bool
-    {
-        return collect($customerList)->every(fn(Customer $customer) => (
-            $user->isModelMine($customer) &&
-            !$customer->deleted_at
-        )) && $user->can(PermissionNameEnum::CUSTOMER_DESTROY_GROUP);
-    }
-
-    /**
      * Determine whether the user can delete the model.
      * @see ../../routes/custom/customers.php
      */
@@ -98,6 +84,19 @@ final class CustomerPolicy
             $user->isModelMine($customer) &&
             !$customer->deleted_at
         ) && $user->can(PermissionNameEnum::CUSTOMER_DESTROY);
+    }
+
+    /**
+     * Determine whether the user can delete the model list.
+     *
+     * @param Customer[] $customerList
+     * @see ../../routes/custom/customers.php
+     */
+    public function deleteList(User $user, array $customerList): bool
+    {
+        return collect($customerList)->every(fn(Customer $customer) => (
+            $this->delete($user, $customer)
+        ));
     }
 
     /**
@@ -123,6 +122,6 @@ final class CustomerPolicy
         return collect($customerList)->every(fn(Customer $customer) => (
             $user->isModelMine($customer) &&
             $customer->deleted_at
-        )) && $user->can(PermissionNameEnum::CUSTOMER_RESTORE_GROUP);
+        ));
     }
 }
