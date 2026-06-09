@@ -79,6 +79,9 @@ final class StockExitService
         $exit->delete();
     }
 
+    /**
+     * @param StockExit[] $stockExits
+     */
     public function removeStockExitGroup(array $stockExits): void
     {
         collect($stockExits)->each($this->removeStockExit(...));

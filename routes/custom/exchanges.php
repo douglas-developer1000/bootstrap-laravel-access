@@ -13,15 +13,15 @@ Route::get('/', [ExchangeController::class, 'index'])
      * @see view('pages.stocks.entries.create')
      */
     ->name('exchanges.index')
-    ->can('viewExchangeAny', StockExit::class);
+    ->can('viewAny', Exchange::class);
 
-Route::delete('/group/{key}/{stockExitList}', [ExchangeController::class, 'removeExchangeGroup'])
+Route::delete('/group/{key}/{exchangeList}', [ExchangeController::class, 'destroyGroup'])
     /**
      * @see view('pages.suppliers.index')
      */
     ->name('exchanges.group.destroy')
-    ->can('deleteExchangeList', [StockExit::class, 'stockExitList']);
+    ->can('deleteList', [Exchange::class, 'exchangeList']);
 
-Route::delete('/{exit}/exits', [ExchangeController::class, 'removeExchange'])
+Route::delete('/{exchange}/{exit}', [ExchangeController::class, 'destroy'])
     ->name('exchanges.destroy')
-    ->can('deleteExchange,exit');
+    ->can('delete', [Exchange::class, 'exchange', 'exit']);

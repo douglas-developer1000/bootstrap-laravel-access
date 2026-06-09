@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Libraries\Enums\StockExitTypeEnum;
 use App\Models\Exchange;
 use App\Models\StockExit;
 use App\Models\User;
@@ -19,15 +20,17 @@ use Override;
 
 final class ExchangeService
 {
+    protected User $user;
+    public function __construct()
+    {
+        $this->user = Auth::user();
+    }
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class extends AbstractPaginatorIndex
+        return (new class($this->user) extends AbstractPaginatorIndex
         {
-            protected User $user;
-
-            public function __construct()
+            public function __construct(protected User $user)
             {
-                $this->user = Auth::user();
                 parent::__construct();
             }
 
@@ -54,11 +57,16 @@ final class ExchangeService
                         'stock_entries.product_id'
                     )
                     ->select([
-                        'stock_exits.id',
-                        'exchanges.person',
+                        'stock_exits.id as exitId',
+                        'stock_exits.type as exitType',
                         'products.name as product',
+                        DB::raw('(stock_exits.qty * stock_entries.cost) as cost'),
+
+                        'exchanges.id',
+                        'exchanges.person',
                         'exchanges.created_at',
-                        DB::raw('(stock_exits.qty * stock_entries.cost) as cost')
+                        'exchanges.user_id',
+                        'exchanges.stock_exit_id',
                     ])
                     ->getQuery();
             }
@@ -77,7 +85,13 @@ final class ExchangeService
     public function hydrateExchange(array $exchanges): Collection
     {
         return Exchange::hydrate($exchanges)->map(
-            function (Exchange $exchange, int $i) use ($exchanges) {
+            function (Exchange $exchange, int $i) use (&$exchanges) {
+                $exchange->exit = tap(new StockExit(), function (StockExit $exit) use (&$exchanges, &$i) {
+                    $exit->id = $exchanges[$i]->exitId;
+                    $exit->user_id = $this->user->id;
+                    $exit->type = StockExitTypeEnum::from($exchanges[$i]->exitType);
+                });
+                $exchange->product = $exchanges[$i]->product;
                 $exchange->cost = Number::currency(
                     number: (float)$exchanges[$i]->cost,
                     in: 'BRL',
@@ -89,14 +103,26 @@ final class ExchangeService
         );
     }
 
-    public function removeExchange(StockExit $exit): void
+    public function removeExchange(Exchange $exchange): void
     {
-        $exchange = Exchange::firstWhere(['stock_exit_id' => $exit->id]);
         $exchange->delete();
     }
 
-    public function removeExchangeGroup(array $exits): void
+    /**
+     * @param Exchange[] $exchanges
+     * @return StockExit[]
+     */
+    public function removeExchangeGroup(array $exchanges): array
     {
-        collect($exits)->each($this->removeExchange(...));
+        return collect($exchanges)->map(function (Exchange $exchange) {
+            /**
+             * @var StockExit $exit
+             */
+            $exit = $exchange->stockExit;
+
+            $this->removeExchange($exchange);
+
+            return $exit;
+        })->all();
     }
 }

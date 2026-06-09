@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StockExit\StockExitRequest;
+use App\Models\Exchange;
 use App\Models\StockExit;
 use App\Models\User;
 use App\Services\ExchangeService;
@@ -37,9 +38,9 @@ final class ExchangeController extends Controller
         ]);
     }
 
-    public function removeExchange(StockExit $exit)
+    public function destroy(Exchange $exchange, StockExit $exit)
     {
-        $this->svc->removeExchange($exit);
+        $this->svc->removeExchange($exchange);
         $this->exitSvc->removeStockExit($exit);
 
         return redirect()->back()->with([
@@ -48,10 +49,10 @@ final class ExchangeController extends Controller
         ]);
     }
 
-    public function removeExchangeGroup(StockExitRequest $request, string $key, array $stockExitList)
+    public function destroyGroup(StockExitRequest $request, string $key, array $exchangeList)
     {
-        $this->svc->removeExchangeGroup($stockExitList);
-        $this->exitSvc->removeStockExitGroup($stockExitList);
+        $exits = $this->svc->removeExchangeGroup($exchangeList);
+        $this->exitSvc->removeStockExitGroup($exits);
 
         return redirect()->back()->with([
             'toastShow' => true,

@@ -1,5 +1,6 @@
 @use ('App\Models\Product')
 @use ('App\Models\StockExit')
+@use ('App\Models\Exchange')
 @use ('App\Libraries\Utils\DatetimeFormatter')
 @use ('App\Libraries\Enums\StockExitTypeEnum')
 @push ('styling')
@@ -70,7 +71,7 @@
                     class="d-flex justify-content-end flex-grow-1 column-gap-2"
                 >
                     <x-organisms.confirm-rm-group-btn
-                        :routeParams="['key' => 'remotion', 'stockExitList' => 'list']"
+                        :routeParams="['key' => 'remotion', 'exchangeList' => 'list']"
                         route="exchanges.group.destroy"
                         heading="Remover estas trocas?"
                         positive-text="Remover trocas"
@@ -153,11 +154,12 @@
                                     class="w-100 d-flex justify-content-between gap-1"
                                 >
                                     <x-organisms.confirm-rm-btn
-                                        :routeParams="['exit' => $exchange->id]"
+                                        :routeParams="['exchange' => $exchange->id, 'exit' => $exchange->exit->id]"
                                         route="exchanges.destroy"
                                         heading="Remover esta troca?"
                                         positiveText="Remover troca"
                                         title="Remover troca"
+                                        :disabled="!$hasAccess('delete', [Exchange::class, $exchange, $exchange->exit])"
                                     >
                                         Esta operação removerá esta troca
                                         permanentemente, liberando suas entradas

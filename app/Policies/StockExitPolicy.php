@@ -64,16 +64,28 @@ final class StockExitPolicy
         $productsToExit = collect(
             $this->productToExitSvc->getProductsToExit()
         );
-
+        if ($exitType === StockExitTypeEnum::EXCHANGE) {
+            return (
+                $productsToExit->isNotEmpty() &&
+                $user->can(PermissionNameEnum::EXCHANGE_CREATE)
+            );
+        }
+        if ($exitType === StockExitTypeEnum::PERSONAL_USE) {
+            return (
+                $productsToExit->isNotEmpty() &&
+                $user->can(PermissionNameEnum::PERSONAL_USE_CREATE)
+            );
+        }
+        if ($exitType === StockExitTypeEnum::DEMONSTRATION) {
+            return (
+                $productsToExit->isNotEmpty() &&
+                $user->can(PermissionNameEnum::DEMONSTRATION_CREATE)
+            );
+        }
         return (
             $productsToExit->isNotEmpty() &&
-            collect([
-                StockExitTypeEnum::PERSONAL_USE,
-                StockExitTypeEnum::EXCHANGE,
-                StockExitTypeEnum::DEMONSTRATION,
-                StockExitTypeEnum::LOSS,
-            ])->contains($exitType) &&
-            $user->can(PermissionNameEnum::STOCK_EXIT_CREATE)
+            $exitType === StockExitTypeEnum::LOSS &&
+            $user->can(PermissionNameEnum::LOSS_CREATE)
         );
     }
 
@@ -87,7 +99,7 @@ final class StockExitPolicy
             $productsToExit->isNotEmpty() &&
             $exitType === StockExitTypeEnum::SALE &&
             $user->isModelMine($customer) &&
-            $user->can(PermissionNameEnum::STOCK_EXIT_CREATE)
+            $user->can(PermissionNameEnum::SALE_CREATE)
         );
     }
 
@@ -143,34 +155,6 @@ final class StockExitPolicy
                     $exit->type === StockExitTypeEnum::PERSONAL_USE ||
                     $exit->type === StockExitTypeEnum::DEMONSTRATION
                 )
-            )) &&
-            $user->can(PermissionNameEnum::STOCK_EXIT_DESTROY_GROUP)
-        );
-    }
-
-    /**
-     * Determine whether the user can view any Exchange models.
-     */
-    public function viewExchangeAny(User $user): bool
-    {
-        return $user->can(PermissionNameEnum::EXCHANGE_INDEX);
-    }
-
-    public function deleteExchange(User $user, StockExit $exit): bool
-    {
-        return (
-            $user->isModelMine($exit) &&
-            $exit->type === StockExitTypeEnum::EXCHANGE &&
-            $user->can(PermissionNameEnum::STOCK_EXIT_DESTROY)
-        );
-    }
-
-    public function deleteExchangeList(User $user, array $stockExitList): bool
-    {
-        return (
-            collect($stockExitList)->every(fn(StockExit $exit) => (
-                $user->isModelMine($exit) &&
-                $exit->type === StockExitTypeEnum::EXCHANGE
             )) &&
             $user->can(PermissionNameEnum::STOCK_EXIT_DESTROY_GROUP)
         );

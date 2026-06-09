@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Libraries\Enums\PermissionNameEnum;
@@ -7,7 +9,7 @@ use App\Models\Discount;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class DiscountPolicy
+final class DiscountPolicy
 {
     /**
      * Determine whether the user can view any models.

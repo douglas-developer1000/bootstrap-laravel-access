@@ -49,7 +49,7 @@ final class UserMenuItems extends MenuItem
             ],
             'Trocas' => [
                 route('exchanges.index'),
-                ['viewExchangeAny', StockExit::class]
+                ['viewAny', Exchange::class]
             ],
             'Perdas' => [
                 route('losses.index'),

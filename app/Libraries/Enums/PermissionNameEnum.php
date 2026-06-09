@@ -7,6 +7,8 @@ namespace App\Libraries\Enums;
 enum PermissionNameEnum: string
 {
     case HEADER_SETTINGS = 'header-settings';
+
+
     case CUSTOMER_INDEX = 'customer-index';
     case CUSTOMER_CREATE = 'customer-create';
     case CUSTOMER_STORE = 'customer-store';
@@ -17,13 +19,18 @@ enum PermissionNameEnum: string
     case CUSTOMER_DESTROY_GROUP = 'customer-destroy-group';
     case CUSTOMER_RESTORE = 'customer-restore';
     case CUSTOMER_RESTORE_GROUP = 'customer-restore-group';
-    case STOCK_EXIT_CREATE = 'stock-exit-create';
+
+
     case STOCK_EXIT_STORE = 'stock-exit-store';
     case STOCK_EXIT_DESTROY = 'stock-exit-destroy';
     case STOCK_EXIT_DESTROY_GROUP = 'stock-exit-destroy-group';
+
+
     case STOCK_ENTRY_CREATE = 'stock-entry-create';
     case STOCK_ENTRY_SPEND = 'stock-entry-spend';
     case STOCK_ENTRY_STORE = 'stock-entry-store';
+
+
     case PRODUCT_INDEX = 'product-index';
     case PRODUCT_SHOW = 'product-show';
     case PRODUCT_CREATE = 'product-create';
@@ -34,6 +41,8 @@ enum PermissionNameEnum: string
     case PRODUCT_DESTROY_GROUP = 'product-destroy-group';
     case PRODUCT_RESTORE = 'product-restore';
     case PRODUCT_RESTORE_GROUP = 'product-restore-group';
+
+
     case PRODUCT_CATEGORY_INDEX = 'product-category-index';
     case PRODUCT_CATEGORY_SHOW = 'product-category-show';
     case PRODUCT_CATEGORY_EDIT = 'product-category-edit';
@@ -44,6 +53,8 @@ enum PermissionNameEnum: string
     case PRODUCT_CATEGORY_DESTROY_GROUP = 'product-category-destroy-group';
     case PRODUCT_CATEGORY_RESTORE = 'product-category-restore';
     case PRODUCT_CATEGORY_RESTORE_GROUP = 'product-category-restore-group';
+
+
     case SUPPLIER_INDEX = 'supplier-index';
     case SUPPLIER_CREATE = 'supplier-create';
     case SUPPLIER_STORE = 'supplier-store';
@@ -54,6 +65,8 @@ enum PermissionNameEnum: string
     case SUPPLIER_UPDATE = 'supplier-update';
     case SUPPLIER_RESTORE = 'supplier-restore';
     case SUPPLIER_RESTORE_GROUP = 'supplier-restore-group';
+
+
     case DISCOUNT_INDEX = 'discount-index';
     case DISCOUNT_CREATE = 'discount-create';
     case DISCOUNT_SHOW = 'discount-show';
@@ -64,6 +77,8 @@ enum PermissionNameEnum: string
     case DISCOUNT_DESTROY_GROUP = 'discount-destroy-group';
     case DISCOUNT_RESTORE = 'discount-restore';
     case DISCOUNT_RESTORE_GROUP = 'discount-restore-group';
+
+
     case PAYMENT_CARD_INDEX = 'payment-card-index';
     case PAYMENT_CARD_SHOW = 'payment-card-show';
     case PAYMENT_CARD_CREATE = 'payment-card-create';
@@ -74,10 +89,27 @@ enum PermissionNameEnum: string
     case PAYMENT_CARD_DESTROY_GROUP = 'payment-card-destroy-group';
     case PAYMENT_CARD_RESTORE = 'payment-card-restore';
     case PAYMENT_CARD_RESTORE_GROUP = 'payment-card-restore-group';
+
+
     case SALE_INDEX = 'sale-index';
     case SALE_SHOW = 'sale-show';
+    case SALE_CREATE = 'sale-create';
     case SALE_DESTROY = 'sale-destroy';
     case SALE_DESTROY_GROUP = 'sale-destroy-group';
+
+
     case EXCHANGE_INDEX = 'exchange-index';
+    case EXCHANGE_CREATE = 'exchange-create';
+    case EXCHANGE_DESTROY = 'exchange-destroy';
+    case EXCHANGE_DESTROY_GROUP = 'exchange-destroy-group';
+
+
+    case PERSONAL_USE_CREATE = 'personal-use-create';
+
+
+    case DEMONSTRATION_CREATE = 'demonstration-create';
+
+
     case LOSS_INDEX = 'loss-index';
+    case LOSS_CREATE = 'loss-create';
 }

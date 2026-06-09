@@ -27,7 +27,7 @@ final class StockExitRequest extends CustomFormRequest
             ]):
             case route('exchanges.group.destroy', [
                 'key' => $this->route('key', 'key'),
-                'stockExitList' => 'list'
+                'exchangeList' => 'list'
             ]):
                 return new DestroyGroup();
             case route('stocks.exits.store'):
