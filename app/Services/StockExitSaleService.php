@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Libraries\Enums\CardPayWayEnum;
 use App\Libraries\Enums\PaymentTypeEnum;
-use App\Libraries\Enums\StockExitTypeEnum;
 use App\Libraries\Traits\InputPickerTrait;
 use App\Models\Discount;
 use App\Models\Payment;
@@ -40,9 +39,9 @@ final class StockExitSaleService implements StockExitHandlerInterface
      *      },
      * }
      */
-    protected function getCardParams(Request $request, StockExitTypeEnum $exitType, PaymentTypeEnum $payType): array
+    protected function getCardParams(Request $request, PaymentTypeEnum $payType): array
     {
-        if ($exitType !== StockExitTypeEnum::SALE || $payType !== PaymentTypeEnum::CARD) {
+        if ($payType !== PaymentTypeEnum::CARD) {
             return [];
         }
         return [
@@ -114,28 +113,6 @@ final class StockExitSaleService implements StockExitHandlerInterface
 
     /**
      * @return array{
-     *     exits: array{
-     *        type: StockExitTypeEnum,
-     *        qty: int,
-     *        stock_entry_id: int
-     *     }[]
-     * }
-     */
-    protected function getStockExistsParams(Request $request, StockExitTypeEnum $exitType): array
-    {
-        return [
-            'exits' => collect($request->input('entries'))->reject(
-                fn($qty) => \intval($qty) === 0
-            )->map(fn($qty, $id) => [
-                'type' => $exitType,
-                'qty' => $qty,
-                'stock_entry_id' => $id
-            ])->all()
-        ];
-    }
-
-    /**
-     * @return array{
      *      sale: array{
      *          discount_id?: int,
      *          user_id: int
@@ -154,12 +131,11 @@ final class StockExitSaleService implements StockExitHandlerInterface
      */
     protected function extractParams(Request $request, Collection $productExits): array
     {
-        $exitType = StockExitTypeEnum::from($request->input('type'));
         $payType = PaymentTypeEnum::from($request->input('payment-type'));
         return [
             ...$this->getSaleParams($request),
             ...$this->getPaymentParams($request, $productExits, $payType),
-            ...$this->getCardParams($request, $exitType, $payType),
+            ...$this->getCardParams($request, $payType),
         ];
     }
 

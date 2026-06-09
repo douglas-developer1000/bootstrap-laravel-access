@@ -26,6 +26,7 @@ final class SelectField extends Component
         string|null $value = NULL,
         public bool $required = false,
         public bool $readonly = false,
+        public bool $disabled = false,
         public bool $autofocus = false,
         /**
          * @var 'relative'|'absolute' $position

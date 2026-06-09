@@ -50,14 +50,12 @@
     <main class="bg-secondary-subtle create-main main-default">
         <section class="content bg-light">
             <x-molecules.select-field
-                label-text="Tipo de saída:"
                 name="type"
-                aria-label="Selecione um tipo de saída de estoque"
-                size="auto"
+                aria-hidden="true"
                 :value="old('type', $exitType->value)"
-                class="mb-4"
                 id="type"
-                readonly
+                :disabled="true"
+                class="d-none"
             >
                 <option
                     @selected (true)

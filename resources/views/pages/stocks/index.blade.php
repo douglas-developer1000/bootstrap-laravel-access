@@ -15,7 +15,8 @@
 
 @push ('ecmascript-bottom')
     @vite ([
-        'resources/js/pages/generic/multiselection.ts'
+        'resources/js/pages/generic/multiselection.ts',
+        'resources/js/pages/generic/realocate-markups.ts'
     ])
 @endpush
 

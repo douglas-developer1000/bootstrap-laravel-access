@@ -14,6 +14,7 @@
     tabindex="-1"
     aria-labelledby="modalLabel{{ $id }}"
     aria-hidden="true"
+    data-realocate="confirm-modal"
 >
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

@@ -49,6 +49,7 @@
             onfocus="this.initialValue = this.value"
             onchange="this.value = this.initialValue"
         @endif
+        @disabled ($disabled)
         @if ($autofocus)
             autofocus
         @endif

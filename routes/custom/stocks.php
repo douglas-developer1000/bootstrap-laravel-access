@@ -57,6 +57,7 @@ Route::post('/exits/{exitType}', [StockExitController::class, 'storeExit'])
             StockExitTypeEnum::DEMONSTRATION->value,
             StockExitTypeEnum::EXCHANGE->value,
             StockExitTypeEnum::LOSS->value,
+            StockExitTypeEnum::SALE->value,
         ])
     ])
     ->can('store', [StockExit::class, 'exitType']);
