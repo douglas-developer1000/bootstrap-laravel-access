@@ -33,6 +33,7 @@ export default defineConfig({
                 'resources/css/pages/suppliers/show.css',
                 'resources/css/pages/products/categories/show.css',
                 'resources/css/pages/stocks/exit.css',
+                'resources/css/pages/stocks/exit-cards.css',
                 
                 'resources/css/components/atoms/create-button.css',
                 'resources/css/components/atoms/form-field-error.css',

@@ -47,12 +47,16 @@ final class SaleService
                         'payments.customer_id'
                     )
                     ->select([
-                        'sales.*',
+                        'sales.id',
+                        'sales.created_at',
+                        'sales.user_id',
                         'customers.name as customer',
                         DB::raw('SUM(payments.value) as value')
                     ])
                     ->groupBy([
                         'sales.id',
+                        'sales.created_at',
+                        'sales.user_id',
                         'sales.discount_id',
                         'customer',
                     ])->getQuery();

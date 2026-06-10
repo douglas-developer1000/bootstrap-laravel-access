@@ -139,7 +139,9 @@ final class StockEntryService
                 function ($join) use ($productTableName) {
                     $join->on("{$productTableName}.id", '=', 'sub.product_id');
                 }
-            );
+            )
+            ->groupBy('sub.available')
+            ->groupBy('sub.uses');
     }
 
     /**
