@@ -7,19 +7,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SettingsUser\SettingsUserRequest;
 use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 final class SettingsUserController extends Controller
 {
-    public function show(Request $request)
+    protected User $user;
+
+    public function __construct()
     {
-        /** @var Authenticatable $user */
-        $user = $request->user();
-        return view('pages.settings.user.show', ['user' => $user]);
+        $this->user = Auth::user();
     }
 
-    public function edit(User $user)
+    public function show(): View
+    {
+        return view('pages.settings.user.show', ['user' => $this->user]);
+    }
+
+    public function edit(User $user): View
     {
         return view('pages.settings.user.edit', ['user' => $user]);
     }
@@ -27,7 +33,7 @@ final class SettingsUserController extends Controller
     /**
      * Update the user's data by the authenticated user themselves
      */
-    public function update(SettingsUserRequest $request, UserService $userSvc, User $user)
+    public function update(SettingsUserRequest $request, UserService $userSvc, User $user): RedirectResponse
     {
         $userSvc->updateUserByOwner($request, $user);
 

@@ -6,7 +6,7 @@
     ])
 @endpush
 
-<x-layout title="Configurações">
+<x-layout title="Configurações: Usuário">
     <x-packs.header>
         <x-packs.page-heading-row>
             <x-slot:heading>
