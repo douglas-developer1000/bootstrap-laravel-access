@@ -45,9 +45,7 @@ class RoleUserController extends Controller
     {
         $this->roleUserSvc->unbindRoleFromUser($user, $role);
 
-        return redirect()->route('users.show', [
-            'user' => $user->id
-        ])->with([
+        return redirect()->back()->with([
             'toastShow' => true,
             'toastMsg' => 'Desvinculação executada com sucesso!'
         ]);

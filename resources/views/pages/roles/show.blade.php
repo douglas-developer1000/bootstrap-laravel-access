@@ -32,6 +32,71 @@
             <fieldset
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >
+                <legend class="field-legend bg-light">Utilizadores</legend>
+                <table class="table tabular-data">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nome</th>
+                            <th
+                                scope="col"
+                                class="last-thdata"
+                                style="width: 4em"
+                            >
+                                Ações
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($role->users as $user)
+                            <tr>
+                                <td>
+                                    <div class="text-truncate">
+                                        {{ $user->name }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div
+                                        class="w-100 d-flex justify-content-between gap-1"
+                                    >
+                                        <x-organisms.confirm-detach-btn
+                                            :routeParams="['user' => $user->id, 'role' => $role->id]"
+                                            route="users.unbind.roles"
+                                            heading="Desvincular este papel?"
+                                            negative-text="Agora não"
+                                            positive-text="Desvincular papel"
+                                            title="Desvincular"
+                                        >
+                                            Isso desvinculará o papel
+                                            <span
+                                                class="fw-medium"
+                                                >{{ $role->name }}</span
+                                            >
+                                            do usuário
+                                            <span
+                                                class="fw-medium"
+                                                >{{ $user->name }}</span
+                                            >.
+                                        </x-organisms.confirm-detach-btn>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td
+                                    colspan="2"
+                                    class="no-values"
+                                >
+                                    Sem utilizadores deste papel
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </fieldset>
+
+            <fieldset
+                class="border border-1 border-dark rounded-1 fieldset-tag"
+            >
                 <legend class="field-legend bg-light">Permissões</legend>
                 <div class="fieldset-top-btn">
                     <x-organisms.confirm-detach-group-btn
