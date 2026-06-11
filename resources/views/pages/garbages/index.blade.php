@@ -50,7 +50,7 @@
                                         'exitType' => StockExitTypeEnum::PERSONAL_USE->value
                                     ])
                                 }}"
-                                title="Utilizar estoque como uso pessoal"
+                                title="Utilizar estoque como {{ StockExitTypeEnum::PERSONAL_USE->toString() }}"
                                 :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::PERSONAL_USE])"
                             >
                                 <i class="bi bi-plus-lg"></i>
@@ -70,7 +70,7 @@
                                         'exitType' => StockExitTypeEnum::DEMONSTRATION->value
                                     ])
                                 }}"
-                                title="Utilizar estoque como demonstração"
+                                title="Utilizar estoque como {{ StockExitTypeEnum::DEMONSTRATION->toString() }}"
                                 :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::DEMONSTRATION])"
                             >
                                 <i class="bi bi-plus-lg"></i>
@@ -90,7 +90,7 @@
                                         'exitType' => StockExitTypeEnum::LOSS->value
                                     ])
                                 }}"
-                                title="Utilizar estoque como demonstração"
+                                title="Utilizar estoque como {{ StockExitTypeEnum::LOSS->toString() }}"
                                 :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::LOSS])"
                             >
                                 <i class="bi bi-plus-lg"></i>
