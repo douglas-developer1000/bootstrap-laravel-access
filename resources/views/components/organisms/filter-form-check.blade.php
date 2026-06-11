@@ -1,3 +1,8 @@
+@php
+    /**
+     * @see App\View\Components\Organisms\FilterFormCheck::class
+     */
+@endphp
 <form
     {{
         $attributes->class([
