@@ -1,11 +1,6 @@
 <form
-    data-show="{{ $exitType }}"
     class="create-form"
-    action="{{
-        route('stocks.exits.store', [
-            'exitType' => $exitType
-        ])
-    }}"
+    action="{{ route('stocks.exits.store', ['exitType' => $exitType]) }}"
     method="post"
 >
     @csrf

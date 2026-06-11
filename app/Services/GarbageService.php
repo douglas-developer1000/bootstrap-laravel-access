@@ -111,13 +111,13 @@ final class GarbageService
     protected function defineStockExitTypes(): Collection
     {
         $stockExitTypes = collect();
-        if ($this->user->can(PermissionNameEnum::DEMONSTRATION_SHOW)) {
+        if ($this->user->can(PermissionNameEnum::DEMONSTRATION_EXIT_SHOW)) {
             $stockExitTypes->push(StockExitTypeEnum::DEMONSTRATION);
         }
-        if ($this->user->can(PermissionNameEnum::PERSONAL_USE_SHOW)) {
+        if ($this->user->can(PermissionNameEnum::PERSONAL_USE_EXIT_SHOW)) {
             $stockExitTypes->push(StockExitTypeEnum::PERSONAL_USE);
         }
-        if ($this->user->can(PermissionNameEnum::LOSS_SHOW)) {
+        if ($this->user->can(PermissionNameEnum::LOSS_EXIT_SHOW)) {
             $stockExitTypes->push(StockExitTypeEnum::LOSS);
         }
         return $stockExitTypes;

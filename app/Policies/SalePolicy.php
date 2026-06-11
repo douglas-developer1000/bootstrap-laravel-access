@@ -16,14 +16,14 @@ final class SalePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can(PermissionNameEnum::SALE_INDEX);
+        return $user->can(PermissionNameEnum::SALE_EXIT_INDEX);
     }
 
     public function show(User $user, Sale $sale)
     {
         return (
             $user->isModelMine($sale) &&
-            $user->can(PermissionNameEnum::SALE_SHOW)
+            $user->can(PermissionNameEnum::SALE_EXIT_SHOW)
         );
     }
 
@@ -34,7 +34,7 @@ final class SalePolicy
     {
         return (
             $user->isModelMine($sale) &&
-            $user->can(PermissionNameEnum::SALE_DESTROY)
+            $user->can(PermissionNameEnum::SALE_EXIT_DESTROY)
         );
     }
 

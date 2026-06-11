@@ -37,21 +37,21 @@ final class StockExitPolicy
     public function showPersonalUse(User $user): bool
     {
         return (
-            $user->can(PermissionNameEnum::PERSONAL_USE_SHOW)
+            $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_SHOW)
         );
     }
 
     public function showDemonstration(User $user): bool
     {
         return (
-            $user->can(PermissionNameEnum::DEMONSTRATION_SHOW)
+            $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_SHOW)
         );
     }
 
     public function showLoss(User $user): bool
     {
         return (
-            $user->can(PermissionNameEnum::LOSS_SHOW)
+            $user->can(PermissionNameEnum::LOSS_EXIT_SHOW)
         );
     }
 
@@ -99,25 +99,25 @@ final class StockExitPolicy
         if ($exitType === StockExitTypeEnum::EXCHANGE) {
             return (
                 $productsToExit->isNotEmpty() &&
-                $user->can(PermissionNameEnum::EXCHANGE_CREATE)
+                $user->can(PermissionNameEnum::EXCHANGE_EXIT_CREATE)
             );
         }
         if ($exitType === StockExitTypeEnum::PERSONAL_USE) {
             return (
                 $productsToExit->isNotEmpty() &&
-                $user->can(PermissionNameEnum::PERSONAL_USE_CREATE)
+                $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_CREATE)
             );
         }
         if ($exitType === StockExitTypeEnum::DEMONSTRATION) {
             return (
                 $productsToExit->isNotEmpty() &&
-                $user->can(PermissionNameEnum::DEMONSTRATION_CREATE)
+                $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_CREATE)
             );
         }
         return (
             $productsToExit->isNotEmpty() &&
             $exitType === StockExitTypeEnum::LOSS &&
-            $user->can(PermissionNameEnum::LOSS_CREATE)
+            $user->can(PermissionNameEnum::LOSS_EXIT_CREATE)
         );
     }
 
@@ -131,7 +131,7 @@ final class StockExitPolicy
             $productsToExit->isNotEmpty() &&
             $exitType === StockExitTypeEnum::SALE &&
             $user->isModelMine($customer) &&
-            $user->can(PermissionNameEnum::SALE_CREATE)
+            $user->can(PermissionNameEnum::SALE_EXIT_CREATE)
         );
     }
 
@@ -143,7 +143,7 @@ final class StockExitPolicy
     {
         if ($exitType === StockExitTypeEnum::SALE) {
             return (
-                $user->can(PermissionNameEnum::SALE_STORE) &&
+                $user->can(PermissionNameEnum::SALE_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
                     fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
                 )
@@ -151,7 +151,7 @@ final class StockExitPolicy
         }
         if ($exitType === StockExitTypeEnum::EXCHANGE) {
             return (
-                $user->can(PermissionNameEnum::EXCHANGE_STORE) &&
+                $user->can(PermissionNameEnum::EXCHANGE_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
                     fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
                 )
@@ -159,7 +159,7 @@ final class StockExitPolicy
         }
         if ($exitType === StockExitTypeEnum::PERSONAL_USE) {
             return (
-                $user->can(PermissionNameEnum::PERSONAL_USE_STORE) &&
+                $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
                     fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
                 )
@@ -167,14 +167,14 @@ final class StockExitPolicy
         }
         if ($exitType === StockExitTypeEnum::DEMONSTRATION) {
             return (
-                $user->can(PermissionNameEnum::DEMONSTRATION_STORE) &&
+                $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
                     fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
                 )
             );
         }
         return (
-            $user->can(PermissionNameEnum::LOSS_STORE) &&
+            $user->can(PermissionNameEnum::LOSS_EXIT_STORE) &&
             $this->productsToExitModels()->every(
                 fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
             )
@@ -198,18 +198,18 @@ final class StockExitPolicy
         if ($exit->type === StockExitTypeEnum::PERSONAL_USE) {
             return (
                 $user->isModelMine($exit) &&
-                $user->can(PermissionNameEnum::PERSONAL_USE_DESTROY)
+                $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_DESTROY)
             );
         }
         if ($exit->type === StockExitTypeEnum::DEMONSTRATION) {
             return (
                 $user->isModelMine($exit) &&
-                $user->can(PermissionNameEnum::DEMONSTRATION_DESTROY)
+                $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_DESTROY)
             );
         }
         return (
             $user->isModelMine($exit) &&
-            $user->can(PermissionNameEnum::LOSS_DESTROY)
+            $user->can(PermissionNameEnum::LOSS_EXIT_DESTROY)
         );
     }
 

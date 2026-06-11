@@ -13,7 +13,6 @@
 @endpush
 
 <form
-    data-show="{{ StockExitTypeEnum::SALE->value }}"
     class="create-form"
     action="{{
         route('stocks.exits.store', [

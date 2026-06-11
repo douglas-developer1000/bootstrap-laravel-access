@@ -1,18 +1,4 @@
 @scope (.main-default) {
-    form[data-show] {
-        position: absolute;
-        opacity: 0;
-        z-index: -2;
-        transition: opacity 1s;
-        display: none;
-
-        &.show {
-            position: relative;
-            z-index: 1;
-            opacity: 1;
-            display: grid;
-        }
-    }
     .table-container {
         position: relative;
         margin-top: 2em;

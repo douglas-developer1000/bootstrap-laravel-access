@@ -10,7 +10,6 @@
 @push ('ecmascript-bottom')
     @vite ([
         'resources/js/pages/generic/masks.ts',
-        'resources/js/pages/stocks/exit.ts',
         'resources/js/pages/stocks/stock-qty-exit.ts',
     ])
 @endpush
@@ -49,21 +48,6 @@
     </x-packs.header>
     <main class="bg-secondary-subtle create-main main-default">
         <section class="content bg-light">
-            <x-molecules.select-field
-                name="type"
-                aria-hidden="true"
-                :value="old('type', $exitType->value)"
-                id="type"
-                :disabled="true"
-                class="d-none"
-            >
-                <option
-                    @selected (true)
-                    value="{{ $exitType->value }}"
-                >
-                    {{ $exitType->toString() }}
-                </option>
-            </x-molecules.select-field>
             @switch ($exitType)
                 @case (StockExitTypeEnum::SALE)
                     @include ('pages.stocks.exits.shared.sale')

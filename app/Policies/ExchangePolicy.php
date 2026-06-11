@@ -18,7 +18,7 @@ final class ExchangePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can(PermissionNameEnum::EXCHANGE_INDEX);
+        return $user->can(PermissionNameEnum::EXCHANGE_EXIT_INDEX);
     }
 
     /**
@@ -30,7 +30,7 @@ final class ExchangePolicy
             $user->isModelMine($exit) &&
             $exchange->stock_exit_id === $exit->id &&
             $exit->type === StockExitTypeEnum::EXCHANGE &&
-            $user->can(PermissionNameEnum::EXCHANGE_DESTROY)
+            $user->can(PermissionNameEnum::EXCHANGE_EXIT_DESTROY)
         );
     }
 

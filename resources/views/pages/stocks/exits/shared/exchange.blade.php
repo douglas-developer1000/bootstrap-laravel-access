@@ -1,7 +1,6 @@
 @use ('App\Libraries\Enums\StockExitTypeEnum')
 
 <form
-    data-show="{{ StockExitTypeEnum::EXCHANGE->value }}"
     class="create-form"
     action="{{
         route('stocks.exits.store', [

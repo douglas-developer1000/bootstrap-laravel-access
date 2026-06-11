@@ -80,11 +80,11 @@ enum PermissionNameEnum: string
      *    @see App\Models\Sale::class
      *  ================================================================
      */
-    case SALE_INDEX = 'sale-index';
-    case SALE_SHOW = 'sale-show';
-    case SALE_CREATE = 'sale-create';
-    case SALE_STORE = 'sale-store';
-    case SALE_DESTROY = 'sale-destroy';
+    case SALE_EXIT_INDEX = 'sale-exit-index';
+    case SALE_EXIT_SHOW = 'sale-exit-show';
+    case SALE_EXIT_CREATE = 'sale-exit-create';
+    case SALE_EXIT_STORE = 'sale-exit-store';
+    case SALE_EXIT_DESTROY = 'sale-exit-destroy';
 
     /** ================================================================
      *        Permissions for stock-exit as EXCHANGE
@@ -98,40 +98,40 @@ enum PermissionNameEnum: string
      *  ================================================================
      */
 
-    case EXCHANGE_INDEX = 'exchange-index';
-    case EXCHANGE_CREATE = 'exchange-create';
-    case EXCHANGE_DESTROY = 'exchange-destroy';
-    case EXCHANGE_STORE = 'exchange-store';
+    case EXCHANGE_EXIT_INDEX = 'exchange-exit-index';
+    case EXCHANGE_EXIT_CREATE = 'exchange-exit-create';
+    case EXCHANGE_EXIT_DESTROY = 'exchange-exit-destroy';
+    case EXCHANGE_EXIT_STORE = 'exchange-exit-store';
 
     /** ================================================================
      *        Permissions for stock-exit as PERSONAL_USE
      * 
      *  ================================================================
      */
-    case PERSONAL_USE_SHOW = 'personal-use-show';
-    case PERSONAL_USE_CREATE = 'personal-use-create';
-    case PERSONAL_USE_STORE = 'personal-use-store';
-    case PERSONAL_USE_DESTROY = 'personal-use-destroy';
+    case PERSONAL_USE_EXIT_SHOW = 'personal-use-exit-show';
+    case PERSONAL_USE_EXIT_CREATE = 'personal-use-exit-create';
+    case PERSONAL_USE_EXIT_STORE = 'personal-use-exit-store';
+    case PERSONAL_USE_EXIT_DESTROY = 'personal-use-exit-destroy';
 
     /** ================================================================
      *        Permissions for stock-exit as DEMONSTRATION
      * 
      *  ================================================================
      */
-    case DEMONSTRATION_SHOW = 'demonstration-show';
-    case DEMONSTRATION_CREATE = 'demonstration-create';
-    case DEMONSTRATION_STORE = 'demonstration-store';
-    case DEMONSTRATION_DESTROY = 'demonstration-destroy';
+    case DEMONSTRATION_EXIT_SHOW = 'demonstration-exit-show';
+    case DEMONSTRATION_EXIT_CREATE = 'demonstration-exit-create';
+    case DEMONSTRATION_EXIT_STORE = 'demonstration-exit-store';
+    case DEMONSTRATION_EXIT_DESTROY = 'demonstration-exit-destroy';
 
     /** ================================================================
      *        Permissions for stock-exit as LOSS
      * 
      *  ================================================================
      */
-    case LOSS_SHOW = 'loss-show';
-    case LOSS_CREATE = 'loss-create';
-    case LOSS_STORE = 'loss-store';
-    case LOSS_DESTROY = 'loss-destroy';
+    case LOSS_EXIT_SHOW = 'loss-exit-show';
+    case LOSS_EXIT_CREATE = 'loss-exit-create';
+    case LOSS_EXIT_STORE = 'loss-exit-store';
+    case LOSS_EXIT_DESTROY = 'loss-exit-destroy';
 
     /** ================================================================
      *        Permissions for stock-exit as:
