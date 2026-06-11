@@ -50,7 +50,10 @@
                 <table class="table tabular-data">
                     <thead>
                         <tr>
-                            <th scope="col">
+                            <th
+                                scope="col"
+                                class="with-checker"
+                            >
                                 <input
                                     type="checkbox"
                                     class="form-check-input cursor-pointer multiselection-all"

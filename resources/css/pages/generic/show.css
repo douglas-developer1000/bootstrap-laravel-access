@@ -6,7 +6,7 @@
     }
 }
 @scope (.tabular-data) {
-    thead th:first-child {
+    thead th.with-checker {
         width: 2em;
     }
 }
