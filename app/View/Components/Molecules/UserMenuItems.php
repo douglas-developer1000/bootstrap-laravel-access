@@ -55,6 +55,10 @@ final class UserMenuItems extends MenuItem
                 route('garbages.index'),
                 ['viewGarbageAny', StockExit::class]
             ],
+            'Saídas de estoque' => [
+                route('raw.exits.index'),
+                ['viewRawExitAny', StockExit::class]
+            ]
         ]);
     }
 }

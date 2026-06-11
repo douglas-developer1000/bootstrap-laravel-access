@@ -57,6 +57,7 @@ final class WebRouteServiceProvider extends ServiceProvider
                 ['sales', 'sales.php'],
                 ['exchanges', 'exchanges.php'],
                 ['garbages', 'garbages.php'],
+                ['raw-exits', 'raw-exits.php'],
             ])->each(function (array $item) {
                 [$prefix, $filename] = $item;
 

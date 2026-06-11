@@ -7,7 +7,7 @@ namespace App\Http\Requests\StockExit;
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
 use App\Http\Requests\StockExit\Strategies\ExchangePersistence;
-use App\Http\Requests\StockExit\Strategies\LossPersistence;
+use App\Http\Requests\StockExit\Strategies\StockExitPersistence;
 use App\Http\Requests\StockExit\Strategies\Persistence;
 use App\Http\Requests\StockExit\Strategies\SalePersistence;
 use App\Http\Requests\StockExit\Strategies\DestroyGroup;
@@ -21,6 +21,10 @@ final class StockExitRequest extends CustomFormRequest
         $url = url()->current();
 
         switch ($url) {
+            case route('raw.exits.group.destroy', [
+                'key' => $this->route('key', 'key'),
+                'stockExitList' => 'list'
+            ]):
             case route('garbages.group.destroy', [
                 'key' => $this->route('key', 'key'),
                 'stockExitList' => 'list'
@@ -41,13 +45,16 @@ final class StockExitRequest extends CustomFormRequest
                     new ExchangePersistence($this)
                 )->pushChecker(
                     StockExitTypeEnum::DEMONSTRATION,
-                    new LossPersistence()
+                    new StockExitPersistence()
                 )->pushChecker(
                     StockExitTypeEnum::PERSONAL_USE,
-                    new LossPersistence()
+                    new StockExitPersistence()
                 )->pushChecker(
                     StockExitTypeEnum::LOSS,
-                    new LossPersistence()
+                    new StockExitPersistence()
+                )->pushChecker(
+                    StockExitTypeEnum::RAW,
+                    new StockExitPersistence()
                 );
             default:
                 throw new Exception("Method Not Implemented", 1);

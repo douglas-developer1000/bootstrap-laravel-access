@@ -7,7 +7,7 @@ namespace App\Http\Requests\StockExit\Strategies;
 use App\Http\Requests\Checker;
 use App\Rules\StockEntriesToExitRule;
 
-final class LossPersistence implements Checker
+final class StockExitPersistence implements Checker
 {
     public function __construct() {}
 

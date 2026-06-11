@@ -14,10 +14,10 @@
     ])
 @endpush
 
-<x-layout title="Perdas">
+<x-layout title="Saídas">
     <x-packs.header>
         <x-packs.page-heading-row
-            heading="Perdas"
+            heading="Saídas"
             class="page-heading-row-custom"
         >
             <div class="dropdown top-right-item">
@@ -40,62 +40,22 @@
                             <span>Estoques</span>
                         </x-atoms.button>
                     </li>
-                    @can ('showPersonalUse', StockExit::class)
+                    @can ('showRaw', StockExit::class)
                         <li>
                             <x-atoms.button
                                 class="dropdown-item"
                                 format="anchor"
                                 href="{{
                                     route('stocks.exits.create', [
-                                        'exitType' => StockExitTypeEnum::PERSONAL_USE->value
+                                        'exitType' => StockExitTypeEnum::RAW->value
                                     ])
                                 }}"
-                                title="Utilizar estoque como {{ StockExitTypeEnum::PERSONAL_USE->toString() }}"
-                                :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::PERSONAL_USE])"
+                                title="Utilizar estoque como {{ StockExitTypeEnum::RAW->toString() }}"
+                                :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::RAW])"
                             >
                                 <i class="bi bi-plus-lg"></i>
                                 <span
-                                    >{{ StockExitTypeEnum::PERSONAL_USE->toString() }}</span
-                                >
-                            </x-atoms.button>
-                        </li>
-                    @endcan
-                    @can ('showDemonstration', StockExit::class)
-                        <li>
-                            <x-atoms.button
-                                class="dropdown-item"
-                                format="anchor"
-                                href="{{
-                                    route('stocks.exits.create', [
-                                        'exitType' => StockExitTypeEnum::DEMONSTRATION->value
-                                    ])
-                                }}"
-                                title="Utilizar estoque como {{ StockExitTypeEnum::DEMONSTRATION->toString() }}"
-                                :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::DEMONSTRATION])"
-                            >
-                                <i class="bi bi-plus-lg"></i>
-                                <span
-                                    >{{ StockExitTypeEnum::DEMONSTRATION->toString() }}</span
-                                >
-                            </x-atoms.button>
-                        </li>
-                    @endcan
-                    @can ('showLoss', StockExit::class)
-                        <li>
-                            <x-atoms.button
-                                class="dropdown-item"
-                                format="anchor"
-                                href="{{
-                                    route('stocks.exits.create', [
-                                        'exitType' => StockExitTypeEnum::LOSS->value
-                                    ])
-                                }}"
-                                title="Utilizar estoque como {{ StockExitTypeEnum::LOSS->toString() }}"
-                                :disabled="!$hasAccess('createExit', [StockExit::class, StockExitTypeEnum::LOSS])"
-                            >
-                                <i class="bi bi-plus-lg"></i>
-                                <span
-                                    >{{ StockExitTypeEnum::LOSS->toString() }}</span
+                                    >{{ StockExitTypeEnum::RAW->toString() }}</span
                                 >
                             </x-atoms.button>
                         </li>
@@ -105,21 +65,15 @@
     </x-packs.header>
     <main class="bg-secondary-subtle list-main">
         <section class="content bg-light">
-            <div class="d-flex flex-wrap justify-content-between row-gap-2">
-                <x-packs.filter-form-checks
-                    class="gap-3"
-                    :checkboxes="$checkboxesData"
-                />
-            </div>
             <div class="d-flex justify-content-end flex-grow-1 column-gap-2">
                 <x-organisms.confirm-rm-group-btn
                     :routeParams="['key' => 'remotion', 'stockExitList' => 'list']"
-                    route="garbages.group.destroy"
-                    heading="Remover estas perdas?"
-                    positive-text="Remover perdas"
-                    title="Remover perdas selecionadas"
+                    route="raw.exits.group.destroy"
+                    heading="Remover estas saídas?"
+                    positive-text="Remover saídas"
+                    title="Remover saídas selecionadas"
                 >
-                    Esta operação removerá cada perda selecionada
+                    Esta operação removerá cada saída selecionada
                     permanentemente, liberando todas as entradas de estoque
                     delas para uso no sistema.
                 </x-organisms.confirm-rm-group-btn>
@@ -127,7 +81,6 @@
             <x-molecules.table-index :qtyBtns="1.25">
                 <x-slot:cols>
                     <col class="col-remain-product" />
-                    <col class="col-remain-cost" />
                     <col class="col-remain-created_at" />
                 </x-slot:cols>
                 <thead>
@@ -146,12 +99,6 @@
                         >
                         <x-atoms.table-head sort="product">
                             Produto</x-atoms.table-head
-                        >
-                        <x-atoms.table-head
-                            colRemain
-                            sort="cost"
-                        >
-                            Custo</x-atoms.table-head
                         >
                         <x-atoms.table-head
                             default
@@ -186,9 +133,6 @@
                                 <div>{{$exit->product}}</div>
                             </td>
                             <td>
-                                <div class="ellipsis">{{$exit->cost}}</div>
-                            </td>
-                            <td>
                                 {{ DatetimeFormatter::formatToDate($exit->created_at) }}
                             </td>
                             <td>
@@ -197,13 +141,13 @@
                                 >
                                     <x-organisms.confirm-rm-btn
                                         :routeParams="['exit' => $exit->id]"
-                                        route="garbages.destroy"
-                                        heading="Remover esta perda?"
-                                        positiveText="Remover perda"
-                                        title="Remover perda"
+                                        route="raw.exits.destroy"
+                                        heading="Remover esta saída?"
+                                        positiveText="Remover saída"
+                                        title="Remover saída"
                                         :disabled="!$hasAccess('delete', $exit)"
                                     >
-                                        Esta operação removerá esta perda
+                                        Esta operação removerá esta saída
                                         permanentemente, liberando suas entradas
                                         de estoque para uso no sistema.
                                     </x-organisms.confirm-rm-btn>
@@ -213,10 +157,10 @@
                     @empty
                         <tr>
                             <td
-                                colspan="6"
+                                colspan="5"
                                 class="no-values"
                             >
-                                Sem perdas para o filtro atual
+                                Sem saídas para o filtro atual
                             </td>
                         </tr>
                     @endforelse

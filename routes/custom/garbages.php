@@ -18,8 +18,8 @@ Route::delete('/group/{key}/{stockExitList}', [GarbageController::class, 'destro
      * @see view('pages.suppliers.index')
      */
     ->name('garbages.group.destroy')
-    ->can('deleteGarbageList', [StockExit::class, 'stockExitList']);
+    ->can('deleteList', [StockExit::class, 'stockExitList']);
 
 Route::delete('/{exit}', [GarbageController::class, 'destroy'])
     ->name('garbages.destroy')
-    ->can('deleteGarbage,exit');
+    ->can('delete,exit');

@@ -55,19 +55,9 @@
                 @case (StockExitTypeEnum::EXCHANGE)
                     @include ('pages.stocks.exits.shared.exchange')
                     @break
-                @case (StockExitTypeEnum::DEMONSTRATION)
-                    @include ('pages.stocks.exits.shared.remain', [
-                        'exitType' => StockExitTypeEnum::DEMONSTRATION->value
-                    ])
-                    @break
-                @case (StockExitTypeEnum::PERSONAL_USE)
-                    @include ('pages.stocks.exits.shared.remain', [
-                        'exitType' => StockExitTypeEnum::PERSONAL_USE->value
-                    ])
-                    @break
                 @default
                     @include ('pages.stocks.exits.shared.remain', [
-                        'exitType' => StockExitTypeEnum::LOSS->value
+                        'exitType' => $exitType->value
                     ])
             @endswitch
             @foreach ($products as $product)

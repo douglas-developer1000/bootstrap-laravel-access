@@ -55,6 +55,13 @@ final class StockExitPolicy
         );
     }
 
+    public function showRaw(User $user): bool
+    {
+        return (
+            $user->can(PermissionNameEnum::RAW_EXIT_SHOW)
+        );
+    }
+
     /**
      * Determine whether the user can mark products to stock exit.
      * @see ../../routes/custom/stocks.php
@@ -114,10 +121,16 @@ final class StockExitPolicy
                 $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_CREATE)
             );
         }
+        if ($exitType === StockExitTypeEnum::LOSS) {
+            return (
+                $productsToExit->isNotEmpty() &&
+                $user->can(PermissionNameEnum::LOSS_EXIT_CREATE)
+            );
+        }
         return (
             $productsToExit->isNotEmpty() &&
-            $exitType === StockExitTypeEnum::LOSS &&
-            $user->can(PermissionNameEnum::LOSS_EXIT_CREATE)
+            $exitType === StockExitTypeEnum::RAW &&
+            $user->can(PermissionNameEnum::RAW_EXIT_CREATE)
         );
     }
 
@@ -173,8 +186,16 @@ final class StockExitPolicy
                 )
             );
         }
+        if ($exitType === StockExitTypeEnum::LOSS) {
+            return (
+                $user->can(PermissionNameEnum::LOSS_EXIT_STORE) &&
+                $this->productsToExitModels()->every(
+                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
+                )
+            );
+        }
         return (
-            $user->can(PermissionNameEnum::LOSS_EXIT_STORE) &&
+            $user->can(PermissionNameEnum::RAW_EXIT_STORE) &&
             $this->productsToExitModels()->every(
                 fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
             )
@@ -182,7 +203,7 @@ final class StockExitPolicy
     }
 
     /**
-     * Determine whether the user can view any Exchange models.
+     * Determine whether the user can view any garbage models.
      */
     public function viewGarbageAny(User $user): bool
     {
@@ -190,10 +211,18 @@ final class StockExitPolicy
     }
 
     /**
+     * Determine whether the user can view any raw stock exit models.
+     */
+    public function viewRawExitAny(User $user): bool
+    {
+        return $user->can(PermissionNameEnum::RAW_EXIT_INDEX);
+    }
+
+    /**
      * Determine whether the user can destroy models.
      * @see ../../routes/custom/stocks.php
      */
-    public function deleteGarbage(User $user, StockExit $exit): bool
+    public function delete(User $user, StockExit $exit): bool
     {
         if ($exit->type === StockExitTypeEnum::PERSONAL_USE) {
             return (
@@ -207,17 +236,23 @@ final class StockExitPolicy
                 $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_DESTROY)
             );
         }
+        if ($exit->type === StockExitTypeEnum::LOSS) {
+            return (
+                $user->isModelMine($exit) &&
+                $user->can(PermissionNameEnum::LOSS_EXIT_DESTROY)
+            );
+        }
         return (
             $user->isModelMine($exit) &&
-            $user->can(PermissionNameEnum::LOSS_EXIT_DESTROY)
+            $user->can(PermissionNameEnum::RAW_EXIT_DESTROY)
         );
     }
 
-    public function deleteGarbageList(User $user, array $stockExitList): bool
+    public function deleteList(User $user, array $stockExitList): bool
     {
         return (
             collect($stockExitList)->every(fn(StockExit $exit) => (
-                $this->deleteGarbage($user, $exit)
+                $this->delete($user, $exit)
             ))
         );
     }

@@ -11,6 +11,7 @@ enum StockExitTypeEnum: string
     case DEMONSTRATION = 'demonstration';
     case PERSONAL_USE = 'personal-use';
     case LOSS = 'loss';
+    case RAW = 'raw';
 
     public function toString(): string
     {
@@ -20,6 +21,7 @@ enum StockExitTypeEnum: string
             self::DEMONSTRATION => 'Demonstração',
             self::PERSONAL_USE => 'Uso pessoal',
             self::LOSS => 'Descarte',
+            self::RAW => 'Saída',
             default => throw new \Exception("Saída inválida de estoque", 1)
         };
     }

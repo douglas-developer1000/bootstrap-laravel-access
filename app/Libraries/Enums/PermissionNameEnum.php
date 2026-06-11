@@ -134,6 +134,17 @@ enum PermissionNameEnum: string
     case LOSS_EXIT_DESTROY = 'loss-exit-destroy';
 
     /** ================================================================
+     *        Permissions for stock-exit as RAW
+     * 
+     *  ================================================================
+     */
+    case RAW_EXIT_INDEX = 'raw-exit-index';
+    case RAW_EXIT_SHOW = 'raw-exit-show';
+    case RAW_EXIT_CREATE = 'raw-exit-create';
+    case RAW_EXIT_STORE = 'raw-exit-store';
+    case RAW_EXIT_DESTROY = 'raw-exit-destroy';
+
+    /** ================================================================
      *        Permissions for stock-exit as:
      *  - PERSONAL_USE
      *  - DEMONSTRATION
