@@ -26,7 +26,6 @@
                     <x-atoms.button
                         class="btn-secondary"
                         type="submit"
-                        href="{{ route('permissions.create') }}"
                     >
                         <i class="bi bi-database-fill-up"></i>
                     </x-atoms.button>
