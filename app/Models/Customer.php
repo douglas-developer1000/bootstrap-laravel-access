@@ -13,7 +13,17 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
+ * @property string $name
+ * @property string $email
+ * @property string $hostess
+ * @property \Illuminate\Support\Carbon $birthdate
+ * @property string $contact
+ * @property string $schedule
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property int $user_id
  * @property-read Collection<DayPeriodsEnum> $schedule_list
+ * @property-read Collection<CustomerContactEnum> $contact_list
  */
 #[Fillable(['name', 'email', 'hostess', 'birthdate', 'contact', 'schedule', 'user_id'])]
 final class Customer extends Model
@@ -23,7 +33,7 @@ final class Customer extends Model
     /**
      * Parse the contact stored by database to a CustomerContactEnum list
      *
-     * @property-read Collection<CustomerContactEnum> $contact_list
+     * @return Collection<CustomerContactEnum>
      */
     public function getContactListAttribute(): Collection
     {
