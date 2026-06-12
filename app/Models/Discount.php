@@ -13,6 +13,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property DiscountTypeEnum $type
+ * @property float $value
+ * @property bool $native
+ * @property null|\Illuminate\Support\Carbon $deleted_at
+ * @property int $user_id
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[Fillable(['type', 'value', 'user_id'])]
 final class Discount extends Model
 {
@@ -22,7 +32,7 @@ final class Discount extends Model
     use HasFactory;
 
     protected $casts = [
-        'discount' => DiscountTypeEnum::class
+        'type' => DiscountTypeEnum::class
     ];
 
     public function stockEntries(): HasMany
@@ -30,7 +40,7 @@ final class Discount extends Model
         return $this->hasMany(StockEntry::class);
     }
 
-    public function stockExists(): HasMany
+    public function stockExits(): HasMany
     {
         return $this->hasMany(StockExit::class);
     }

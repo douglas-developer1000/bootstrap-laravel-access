@@ -18,6 +18,18 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property string $remember_token
+ * @property null|\App\Libraries\Values\PhoneValue $phone
+ * @property null|\Illuminate\Support\Carbon $email_verified_at
+ * @property null|\Illuminate\Support\Carbon $deleted_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property \Illuminate\Support\Carbon $created_at
+ */
 #[Fillable(['name', 'email', 'password', 'phone', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 final class User extends Authenticatable implements MustVerifyEmail

@@ -12,6 +12,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $customer_id
+ * @property int $discount_id
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[Fillable(['discount_id', 'user_id', 'customer_id'])]
 final class Sale extends Model
 {

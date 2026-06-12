@@ -10,6 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
+/**
+ * @property int $id
+ * @property CustomerPhoneTypeEnum $type
+ * @property \App\Libraries\Values\PhoneValue $number
+ * @property int $customer_id
+ * @property \Illuminate\Support\Carbon $created_at
+ */
 #[Fillable(['type', 'customer_id', 'number', 'created_at'])]
 final class CustomerPhone extends Model
 {

@@ -15,6 +15,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
+/**
+ * @property int $id
+ * @property string $flag
+ * @property string $pay_way
+ * @property string $img
+ * @property bool $native
+ * @property int $deleted_at
+ * @property int $user_id
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[Fillable(['flag', 'pay_way', 'img', 'native', 'user_id'])]
 final class PaymentCard extends Model
 {

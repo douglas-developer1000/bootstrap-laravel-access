@@ -44,7 +44,6 @@ class SaleController extends Controller
         $payments = $sale->payments()->with(
             'paymentCards'
         )->get();
-        // dd(json_encode($exits));
 
         return view('pages.sales.show', [
             'sale' => $sale,

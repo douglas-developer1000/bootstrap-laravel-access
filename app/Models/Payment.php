@@ -13,8 +13,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * @property-read float $value
- * @property-read PaymentTypeEnum $type
+ * @property int $id
+ * @property float $value
+ * @property PaymentTypeEnum $type
+ * @property int $customer_id
+ * @property int $sale_id
  */
 #[Fillable(['value', 'type', 'customer_id', 'sale_id'])]
 final class Payment extends Model

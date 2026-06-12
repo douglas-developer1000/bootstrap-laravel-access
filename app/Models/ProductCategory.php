@@ -12,6 +12,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property int $parent_id
+ * @property int $user_id
+ * @property null|\Illuminate\Support\Carbon $deleted_at
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[Fillable(['name', 'parent_id', 'user_id'])]
 final class ProductCategory extends Model
 {

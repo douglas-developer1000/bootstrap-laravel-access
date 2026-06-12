@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 /**
+ * @property int $id
+ * @property string $email
+ * @property string $phone
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
  * @property-read string $created_at_formatted
  * @property-read string $updated_at_formatted
  */

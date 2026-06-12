@@ -10,6 +10,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Database\Factories\ExchangeFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property string $person
+ * @property int $stock_exit_id
+ * @property int $user_id
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[Fillable(['person', 'stock_exit_id', 'user_id'])]
 final class Exchange extends Model
 {

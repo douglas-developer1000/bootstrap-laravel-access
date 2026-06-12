@@ -13,6 +13,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
 /**
+ * @property int $id
+ * @property string $email
+ * @property string $phone
+ * @property string $token
+ * @property \Illuminate\Support\Carbon $expiration_data
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
  * @property-read string $created_at_formatted
  * @property-read string $updated_at_formatted
  * @property-read string $expiration_data_formatted

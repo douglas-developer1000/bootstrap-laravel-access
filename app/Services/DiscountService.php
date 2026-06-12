@@ -130,7 +130,7 @@ final class DiscountService
     {
         if (
             $discount->stockEntries()->count() > 0 ||
-            $discount->stockExists()->count() > 0
+            $discount->stockExits()->count() > 0
         ) {
             $discount->delete();
         } else {

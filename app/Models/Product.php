@@ -13,6 +13,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $obs
+ * @property string $img
+ * @property string $details
+ * @property int $product_category_id
+ * @property int $user_id
+ * @property null|\Illuminate\Support\Carbon $deleted_at
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[Fillable(['name', 'obs', 'img', 'details', 'product_category_id', 'user_id'])]
 final class Product extends Model
 {
