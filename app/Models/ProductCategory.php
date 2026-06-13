@@ -46,12 +46,12 @@ final class ProductCategory extends Model
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(ProductCategory::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
     public function children(): HasMany
     {
-        return $this->hasMany(ProductCategory::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     public function products()
