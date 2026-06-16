@@ -9,7 +9,6 @@ use Illuminate\Database\Query\Builder;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Override;
 
 final class PermissionService
@@ -21,21 +20,23 @@ final class PermissionService
             #[Override]
             public function query(Request $request): Builder
             {
-                return DB::table('permissions');
+                return Permission::getQuery();
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $search = $this->paginator->buildSearch($request->only('q'));
-                if ($search) {
-                    $search = addcslashes($search, '%_');
-                    return parent::attachQuery($request, $query)->whereLike(
-                        'name',
-                        "%{$search}%"
+                return parent::attachQuery($request, $query)
+                    ->when(
+                        $this->paginator->buildSearch($request->only('q')),
+                        function (Builder $query, string $search) {
+                            $search = addcslashes($search, '%_');
+                            return $query->whereLike(
+                                'name',
+                                "%{$search}%"
+                            );
+                        }
                     );
-                }
-                return parent::attachQuery($request, $query);
             }
         })->prepareIndex(
             $request,

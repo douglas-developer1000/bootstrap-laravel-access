@@ -6,6 +6,8 @@ namespace App\Http\Requests\Product\Strategies;
 
 use App\Http\Requests\Checker;
 use App\Http\Requests\LateValidationInterface;
+use App\Models\Product;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -56,24 +58,25 @@ final class Destroy implements Checker
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $query = DB::table('products', 'prod');
-        if (!$user->hasRole('super-admin')) {
-            $query = $query->join(
-                'users',
-                'prod.user_id',
-                '=',
-                'users.id'
-            )->where('users.id', '=', $user->id);
-        }
-        $count = $query
-            ->whereNull(
-                'prod.deleted_at'
+        $count = Product::query()
+            ->when(
+                !$user->hasRole('super-admin'),
+                fn(Builder $query) => $query->join(
+                    'users',
+                    'products.user_id',
+                    '=',
+                    'users.id'
+                )->where([
+                    'users.id' => $user->id
+                ])
             )
-            ->whereIn('prod.id', $idList)
-            ->count('prod.id');
+            ->whereNull(
+                'products.deleted_at'
+            )
+            ->whereIn('products.id', $idList)
+            ->count('products.id');
 
-        $ok = $count === \count($idList);
-        if (!$ok) {
+        if ($count !== \count($idList)) {
             $validator->errors()->add(
                 'remotion.*',
                 'Remoção inválida'

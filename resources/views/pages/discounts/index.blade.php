@@ -197,13 +197,13 @@
                             <td>
                                 <div class="text-truncate">
                                     {{
-                                        $parseDiscountEnum($discount->type, $discount->value)
+                                        $parseDiscountEnum($discount->type->value, $discount->value)
                                     }}
                                 </div>
                             </td>
                             <td>
                                 <div class="text-truncate">
-                                    {{ DiscountTypeEnum::tryFrom($discount->type)->toString() }}
+                                    {{ $discount->type->toString() }}
                                 </div>
                             </td>
                             <td>

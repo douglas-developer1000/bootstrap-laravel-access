@@ -8,7 +8,6 @@ use App\Libraries\Traits\InputPickerTrait;
 use App\Libraries\Traits\PicRequestHandleTrait;
 use App\Models\Product;
 use Closure;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -91,14 +90,20 @@ final class ProductService
      */
     public function queryProduct(bool $deleted = false, string $alias = 'products', ?Closure $callback = NULL): Builder
     {
-        $query = DB::table('products', $alias);
-        if ($callback) {
-            $query = $callback($query);
-        }
         $column = (new Product())->getDeletedAtColumn();
-        if ($deleted) {
-            return $query->whereNotNull("{$alias}.{$column}");
-        }
-        return $query->whereNull("{$alias}.{$column}");
+
+        return DB::table('products', $alias)
+            ->when(
+                \is_callable($callback),
+                $callback(...)
+            )
+            ->when(
+                $deleted,
+                fn(Builder $query) => $query->whereNotNull("{$alias}.{$column}")
+            )
+            ->when(
+                !$deleted,
+                fn(Builder $query) => $query->whereNull("{$alias}.{$column}")
+            );
     }
 }

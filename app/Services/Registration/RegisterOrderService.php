@@ -32,21 +32,22 @@ final class RegisterOrderService
             #[Override]
             public function query(Request $request): Builder
             {
-                return DB::table('register_orders');
+                return RegisterOrder::getQuery();
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $search = $this->paginator->buildSearch($request->only('q'));
-                if ($search) {
-                    $search = addcslashes($search, '%_');
-                    return parent::attachQuery($request, $query)->whereLike(
-                        'email',
-                        "%{$search}%"
-                    );
-                }
-                return parent::attachQuery($request, $query);
+                return parent::attachQuery($request, $query)->when(
+                    $this->paginator->buildSearch($request->only('q')),
+                    function (Builder $query, string $search) {
+                        $search = addcslashes($search, '%_');
+                        return $query->whereLike(
+                            'email',
+                            "%{$search}%"
+                        );
+                    }
+                );
             }
         })->prepareIndex(
             $request,

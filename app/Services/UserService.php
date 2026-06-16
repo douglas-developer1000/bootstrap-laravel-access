@@ -44,24 +44,28 @@ final class UserService
             public function query(Request $request): Builder
             {
                 $trashed = $request->boolean('trashed');
-                if ($trashed) {
-                    return DB::table('users')->whereNotNull('deleted_at');
-                }
-                return DB::table('users')->whereNull('deleted_at');
+                return User::getQuery()
+                    ->when(
+                        $trashed,
+                        fn(Builder $query) => $query->whereNotNull('deleted_at')
+                    )
+                    ->when(
+                        !$trashed,
+                        fn(Builder $query) => $query->whereNull('deleted_at')
+                    );
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $nameSearch = $this->paginator->buildSearch($request->only('name'), 'name');
-                if ($nameSearch) {
-                    $nameSearch = addcslashes($nameSearch, '%_');
-                    return parent::attachQuery(
-                        $request,
-                        $query
-                    )->whereLike('name', "%{$nameSearch}%");
-                }
-                return parent::attachQuery($request, $query);
+                return parent::attachQuery($request, $query)
+                    ->when(
+                        $this->paginator->buildSearch($request->only('name'), 'name'),
+                        function (Builder $query, string $nameSearch) {
+                            $nameSearch = addcslashes($nameSearch, '%_');
+                            return $query->whereLike('name', "%{$nameSearch}%");
+                        }
+                    );
             }
         })->prepareIndex(
             $request,

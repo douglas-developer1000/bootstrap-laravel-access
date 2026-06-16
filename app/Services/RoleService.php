@@ -22,21 +22,23 @@ final class RoleService
             #[Override]
             public function query(Request $request): Builder
             {
-                return DB::table('roles');
+                return Role::getQuery();
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $search = $this->paginator->buildSearch($request->only('q'));
-                if ($search) {
-                    $search = addcslashes($search, '%_');
-                    return parent::attachQuery(
-                        $request,
-                        $query
-                    )->whereLike('name', "%{$search}%");
-                }
-                return parent::attachQuery($request, $query);
+                return parent::attachQuery($request, $query)
+                    ->when(
+                        $this->paginator->buildSearch($request->only('q')),
+                        function (Builder $query, string $search) {
+                            $search = addcslashes($search, '%_');
+                            return $query->whereLike(
+                                'name',
+                                "%{$search}%"
+                            );
+                        }
+                    );
             }
         })->prepareIndex(
             $request,
@@ -59,25 +61,21 @@ final class RoleService
             public function query(Request $request): Builder
             {
                 $role = $this->role;
-                $eloquentQuery = Permission::whereDoesntHave('roles', function ($query) use ($role) {
+                return Permission::whereDoesntHave('roles', function ($query) use ($role) {
                     $query->where('id', $role->id);
-                });
-
-                return $eloquentQuery->getQuery();
+                })->getQuery();
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $search = $this->paginator->buildSearch($request->only('q'));
-                if ($search) {
-                    $search = addcslashes($search, '%_');
-                    return parent::attachQuery(
-                        $request,
-                        $query
-                    )->whereLike('name', "%{$search}%");
-                }
-                return parent::attachQuery($request, $query);
+                return parent::attachQuery($request, $query)->when(
+                    $this->paginator->buildSearch($request->only('q')),
+                    function (Builder $query, string $search) {
+                        $search = addcslashes($search, '%_');
+                        return $query->whereLike('name', "%{$search}%");
+                    }
+                );
             }
         })->prepareIndex(
             $request,

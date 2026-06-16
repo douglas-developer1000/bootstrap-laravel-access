@@ -149,10 +149,10 @@ final class StockEntryService
      */
     public function joinStockEntries(Builder $query, string $productTableName = 'products', ?Closure $callback = NULL): Builder
     {
-        $subQuery = $this->makeAvailableStockEntriesQuery();
-        if ($callback) {
-            $subQuery = $callback($subQuery);
-        }
+        $subQuery = $this->makeAvailableStockEntriesQuery()->when(
+            \is_callable($callback),
+            $callback(...)
+        );
         return $query->leftJoinSub(
             $subQuery,
             'sub',

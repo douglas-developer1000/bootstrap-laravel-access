@@ -17,7 +17,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Override;
-use Closure;
 
 final class CustomerService
 {
@@ -28,32 +27,33 @@ final class CustomerService
             #[Override]
             public function query(Request $request): Builder
             {
-                /** @var int|string $id */
-                $id = Auth::id();
-
                 $trashed = $request->boolean('trashed');
-                if ($trashed) {
-                    return Customer::where(
-                        ['user_id' => $id]
-                    )->whereNotNull('deleted_at')->getQuery();
-                }
-                return Customer::where(
-                    ['user_id' => $id]
-                )->whereNull('deleted_at')->getQuery();
+
+                return Customer::whereBelongsTo(Auth::user())->getQuery()
+                    ->when(
+                        $trashed,
+                        fn(Builder $query) => $query->whereNotNull('deleted_at')
+                    )
+                    ->when(
+                        !$trashed,
+                        fn(Builder $query) => $query->whereNull('deleted_at')
+                    );
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $searchName = $this->paginator->buildSearch($request->only('name'), 'name');
-                if ($searchName) {
-                    $searchName = addcslashes($searchName, '%_');
-                    return parent::attachQuery($request, $query)->whereLike(
-                        'name',
-                        "%{$searchName}%"
+                return parent::attachQuery($request, $query)
+                    ->when(
+                        $this->paginator->buildSearch($request->only('name'), 'name'),
+                        function (Builder $query, string $searchName) use ($request) {
+                            $searchName = addcslashes($searchName, '%_');
+                            return $query->whereLike(
+                                'name',
+                                "%{$searchName}%"
+                            );
+                        }
                     );
-                }
-                return parent::attachQuery($request, $query);
             }
 
             #[Override]
@@ -165,24 +165,6 @@ final class CustomerService
     public function removeCustomerList(array $customers): void
     {
         collect($customers)->each($this->removeCustomer(...));
-    }
-
-    /**
-     * @param Closure(Builder): Builder $callback
-     * @return \Illuminate\Database\Eloquent\Collection<int, Customer>
-     */
-    public function getAllCustomer(?Closure $callback = NULL)
-    {
-        /** @var int|string $id */
-        $id = Auth::id();
-
-        $query = Customer::where([
-            'user_id' => $id
-        ]);
-        if ($callback) {
-            $query = $callback($query->getQuery());
-        }
-        return $query->get();
     }
 
     public function restoreCustomer(Customer $customer)

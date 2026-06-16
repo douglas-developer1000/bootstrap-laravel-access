@@ -15,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property int $id
  * @property string $email
- * @property string $phone
+ * @property \App\Libraries\Values\PhoneValue $phone
  * @property string $token
  * @property \Illuminate\Support\Carbon $expiration_data
  * @property \Illuminate\Support\Carbon $created_at

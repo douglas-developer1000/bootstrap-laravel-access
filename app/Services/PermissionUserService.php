@@ -29,23 +29,24 @@ final class PermissionUserService
                 $ids = $this->user->getAllPermissions()->map(
                     fn(Permission $perm) => $perm->id
                 )->all();
-                $eloquentQuery = Permission::whereNotIn('id', $ids);
 
-                return $eloquentQuery->getQuery();
+                return Permission::whereNotIn('id', $ids)->getQuery();
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $search = $this->paginator->buildSearch($request->only('q'));
-                if ($search) {
-                    $search = addcslashes($search, '%_');
-                    return parent::attachQuery($request, $query)->whereLike(
-                        'name',
-                        "%{$search}%"
+                return parent::attachQuery($request, $query)
+                    ->when(
+                        $this->paginator->buildSearch($request->only('q')),
+                        function (Builder $query, string $search) {
+                            $search = addcslashes($search, '%_');
+                            return $query->whereLike(
+                                'name',
+                                "%{$search}%"
+                            );
+                        }
                     );
-                }
-                return parent::attachQuery($request, $query);
             }
         })->prepareIndex(
             $request,

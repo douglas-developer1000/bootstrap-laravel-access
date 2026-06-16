@@ -22,14 +22,12 @@ final class ExchangePersistence implements Checker
         $this->personMaxSize = \intval(
             config('database.schema.sizes.exchange-exit.person.max')
         );
-        $before->pushBeforeValidation(function ($formRequest) {
-            $person = $formRequest->input('person');
-            if ($person) {
-                $formRequest->merge([
-                    'person' => trim($person)
-                ]);
-            }
-        });
+        $before->pushBeforeValidation(fn($formRequest) => when(
+            $formRequest->input('person'),
+            fn(string $person) => $formRequest->merge([
+                'person' => trim($person)
+            ])
+        ));
     }
     public function rules(): array
     {

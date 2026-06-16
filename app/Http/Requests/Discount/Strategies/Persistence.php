@@ -9,8 +9,8 @@ use App\Http\Requests\LateValidationInterface;
 use Illuminate\Validation\Rule;
 use App\Libraries\Enums\DiscountTypeEnum;
 use App\Models\Discount;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 
 class Persistence implements Checker
@@ -70,51 +70,49 @@ class Persistence implements Checker
         ];
     }
 
-    protected function validateValue(Validator $validator, string $type, string $value, ?Discount $except = NULL): void
+    protected function isDiscountIntoDatabase(string $type, string $value, ?Discount $except, int $native = 0): bool
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $query = DB::table('discounts')->where([
+        return Discount::where([
             'type' => $type,
             'value' => $value,
-            'native' => 1,
-        ]);
-        if ($except) {
-            $query = $query->whereNot([
-                'id' => $except->id
-            ]);
-        }
+            'native' => $native,
+        ])
+            ->when(
+                $native === 0,
+                function (Builder $query) {
+                    /** @var \App\Models\User $user */
+                    $user = Auth::user();
 
-        if ($query->exists()) {
+                    return $query->where([
+                        'user_id' => $user->id
+                    ]);
+                },
+            )
+            ->when(
+                $except !== NULL,
+                fn(Builder $query) => $query->whereNot([
+                    'id' => $except->id
+                ])
+            )
+            ->exists();
+    }
+
+    protected function validateValue(Validator $validator, string $type, string $value, ?Discount $except = NULL): void
+    {
+        if ($this->isDiscountIntoDatabase($type, $value, $except, 1)) {
             $name = DiscountTypeEnum::tryFrom($type)->toString();
 
             $validator->errors()->add(
                 'value',
                 "{$name} já existente"
             );
-        } else {
-            $query = DB::table('discounts')->where([
-                'type' => $type,
-                'value' => $value,
-                'native' => 0,
-                'user_id' => $user->id,
-            ]);
+        } else if ($this->isDiscountIntoDatabase($type, $value, $except)) {
+            $name = DiscountTypeEnum::tryFrom($type)->toString();
 
-            if ($except) {
-                $query = $query->whereNot([
-                    'id' => $except->id
-                ]);
-            }
-
-            if ($query->exists()) {
-                $name = DiscountTypeEnum::tryFrom($type)->toString();
-
-                $validator->errors()->add(
-                    'value',
-                    "{$name} já existente"
-                );
-            }
+            $validator->errors()->add(
+                'value',
+                "{$name} já existente"
+            );
         }
     }
 }

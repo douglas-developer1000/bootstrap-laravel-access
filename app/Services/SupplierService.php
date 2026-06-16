@@ -67,33 +67,38 @@ final class SupplierService
 
             protected function filterDeleted(Request $request, Builder $query): Builder
             {
-                $trashed = $request->boolean('trashed');
                 $deletedColumn = (new Supplier)->getDeletedAtColumn();
-                if ($trashed) {
-                    return $query->whereNotNull($deletedColumn);
-                }
-                return $query->whereNull($deletedColumn);
+                $trashed = $request->boolean('trashed');
+                return $query
+                    ->when(
+                        $trashed,
+                        fn(Builder $query) => $query->whereNotNull($deletedColumn)
+                    )
+                    ->when(
+                        !$trashed,
+                        fn(Builder $query) => $query->whereNull($deletedColumn)
+                    );
             }
 
             protected function filterSuppliersOwnership(Request $request, Builder $query): Builder
             {
-                $own = $request->boolean('own');
-                if (!$own) {
-                    return $query->union(
-                        Supplier::where('native', '=', 1)->getQuery()
-                    );
-                }
-                return $query;
+                return $query->when(
+                    !$request->boolean('own'),
+                    fn(Builder $query) => $query->union(
+                        Supplier::where(['native' => 1])->getQuery()
+                    )
+                );
             }
 
             protected function filterSupplierName(Request $request, Builder $query): Builder
             {
-                $nameSearch = $this->paginator->buildSearch($request->only('name'), 'name');
-                if ($nameSearch) {
-                    $nameSearch = addcslashes($nameSearch, '%_');
-                    return $query->whereLike('name', "%{$nameSearch}%");
-                }
-                return $query;
+                return $query->when(
+                    $this->paginator->buildSearch($request->only('name'), 'name'),
+                    function (Builder $query, string $nameSearch) {
+                        $nameSearch = addcslashes($nameSearch, '%_');
+                        return $query->whereLike('name', "%{$nameSearch}%");
+                    }
+                );
             }
         })->prepareIndex(
             $request,
@@ -178,6 +183,10 @@ final class SupplierService
             )
             ->where([
                 'products.user_id' => $this->user->id
+            ])
+            ->groupBy([
+                'prodName',
+                'prodCatName'
             ])
             ->get([
                 'products.name as prodName',

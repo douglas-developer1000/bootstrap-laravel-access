@@ -53,45 +53,47 @@ final class PaymentCardService
                 string $deletedColumn,
                 bool $trashed
             ): Builder {
-                $own = $request->boolean('own');
-                if ($own) {
-                    return $this->buildNonNativeQuery(
-                        $deletedColumn,
-                        $trashed
-                    );
-                }
-                return $this->buildNativeQuery(
+                return $this->buildNonNativeQuery(
                     $deletedColumn,
                     $trashed
-                )->union(
-                    $this->buildNonNativeQuery(
-                        $deletedColumn,
-                        $trashed
-                    )
-                );
+                )
+                    ->when(
+                        !$request->boolean('own'),
+                        fn(Builder $query) => $query->union(
+                            $this->buildNativeQuery(
+                                $deletedColumn,
+                                $trashed
+                            )
+                        )
+                    );
             }
 
             protected function buildNonNativeQuery(string $deletedColumn, bool $trashed): Builder
             {
-                $query = PaymentCard::whereBelongsTo($this->user)
-                    ->getQuery();
-
-                if ($trashed) {
-                    return $query->whereNotNull($deletedColumn);
-                }
-                return $query->whereNull($deletedColumn);
+                return PaymentCard::whereBelongsTo($this->user)->getQuery()
+                    ->when(
+                        $trashed,
+                        fn(Builder $builder) => $builder->whereNotNull($deletedColumn)
+                    )
+                    ->when(
+                        !$trashed,
+                        fn(Builder $builder) => $builder->whereNull($deletedColumn)
+                    );
             }
 
             protected function buildNativeQuery(string $deletedColumn, bool $trashed): Builder
             {
-                $query = PaymentCard::where([
+                return PaymentCard::where([
                     'native' => 1
-                ])->getQuery();
-
-                if ($trashed) {
-                    return $query->whereNotNull($deletedColumn);
-                }
-                return $query->whereNull($deletedColumn);
+                ])->getQuery()
+                    ->when(
+                        $trashed,
+                        fn(Builder $query) => $query->whereNotNull($deletedColumn)
+                    )
+                    ->when(
+                        !$trashed,
+                        fn(Builder $query) => $query->whereNull($deletedColumn)
+                    );
             }
 
             #[Override]

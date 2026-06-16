@@ -82,14 +82,13 @@ final class StockService
 
             protected function filterExits(Request $request, Builder $query): Builder
             {
-                $exits = $request->boolean('exits');
-                if ($exits) {
-                    return $query->whereIn(
+                return $query->when(
+                    $request->boolean('exits'),
+                    fn(Builder $query) => $query->whereIn(
                         'p.id',
                         $this->exitHandlerSvc->getProductsToExit()
-                    );
-                }
-                return $query;
+                    )
+                );
             }
 
             protected function joinCategory(Builder $query): Builder

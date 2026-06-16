@@ -52,42 +52,47 @@ final class DiscountService
                 string $deletedColumn,
                 bool $trashed
             ): Builder {
-                $own = $request->boolean('own');
-                if ($own) {
-                    return $this->buildNonNativeQuery(
-                        $deletedColumn,
-                        $trashed
-                    );
-                }
-                return $this->buildNativeQuery(
+                return $this->buildNonNativeQuery(
                     $deletedColumn,
                     $trashed
-                )->union(
-                    $this->buildNonNativeQuery(
-                        $deletedColumn,
-                        $trashed
-                    )
-                );
+                )
+                    ->when(
+                        !$request->boolean('own'),
+                        fn(Builder $query) => $query->union(
+                            $this->buildNativeQuery(
+                                $deletedColumn,
+                                $trashed
+                            )
+                        )
+                    );
             }
 
             protected function buildNonNativeQuery(string $deletedColumn, bool $trashed): Builder
             {
-                $query = Discount::whereBelongsTo($this->user);
-                if ($trashed) {
-                    return $query->whereNotNull($deletedColumn)->getQuery();
-                }
-                return $query->whereNull($deletedColumn)->getQuery();
+                return Discount::whereBelongsTo($this->user)->getQuery()
+                    ->when(
+                        $trashed,
+                        fn(Builder $query) => $query->whereNotNull($deletedColumn)
+                    )
+                    ->when(
+                        !$trashed,
+                        fn(Builder $query) => $query->whereNull($deletedColumn)
+                    );
             }
 
             protected function buildNativeQuery(string $deletedColumn, bool $trashed): Builder
             {
-                $query = Discount::where([
+                return Discount::where([
                     'native' => 1
-                ]);
-                if ($trashed) {
-                    return $query->whereNotNull($deletedColumn)->getQuery();
-                }
-                return $query->whereNull($deletedColumn)->getQuery();
+                ])->getQuery()
+                    ->when(
+                        $trashed,
+                        fn(Builder $query) => $query->whereNotNull($deletedColumn)
+                    )
+                    ->when(
+                        !$trashed,
+                        fn(Builder $query) => $query->whereNull($deletedColumn)
+                    );
             }
 
             #[Override]
