@@ -1,3 +1,4 @@
+@use ('App\Libraries\Utils\DatetimeFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -23,6 +24,73 @@
     </x-packs.header>
     <main class="bg-secondary-subtle create-main main-default">
         <section class="content bg-light d-flex flex-column row-gap-3">
+            <fieldset
+                class="border border-1 border-dark rounded-1 fieldset-tag"
+            >
+                <legend class="field-legend bg-light">Dados</legend>
+                <div class="data-box">
+                    <div class="label">Nome:</div>
+                    <div>{{ $user->name }}</div>
+                    <div class="label">E-mail:</div>
+                    <div>{{ $user->email ?? 'N/A' }}</div>
+                    <div class="label">Telefone:</div>
+                    <div>{{ $user->phone ?? 'N/A' }}</div>
+                </div>
+            </fieldset>
+            <fieldset
+                class="border border-1 border-dark rounded-1 fieldset-tag"
+            >
+                <legend class="field-legend bg-light">Licenças</legend>
+                @forelse ($user->licenses as $license)
+                    <table class="table tabular-data">
+                        <tbody>
+                            <tr>
+                                <th scope="row" class="text-end align-middle">Plano:</th>
+                                <td class="text-start align-middle">
+                                    <a
+                                        href="{{
+                                            route('plans.show', [
+                                                'plan' => $license->plan->slug
+                                            ])
+                                        }}"
+                                        class="text-truncate text-decoration-none text-info border-0 ps-0"
+                                    >
+                                        {{$license->plan->name}}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-end align-middle">Status:</th>
+                                <td class="text-start align-middle">{{$license->status->toString()}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-end align-middle">Faturamento:</th>
+                                <td class="text-start align-middle">{{$license->plan->billing_period->toString()}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-end align-middle">Preço pago:</th>
+                                <td class="text-start align-middle">{{$parsePrice($license->price_paid)}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-end align-middle">Data de início:</th>
+                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->starts_at)}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-end align-middle">Data de expiração:</th>
+                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->expires_at)}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" class="text-end align-middle">Recorrente:</th>
+                                <td class="text-start align-middle">{{$license->is_recurring ? 'Sim' : 'Não'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                @empty
+                    <ul class="list-group">
+                        <li class="list-group-item text-danger">Nenhuma licença</li>
+                    </ul>
+                @endforelse
+            </fieldset>
             <fieldset
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >

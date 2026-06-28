@@ -6,19 +6,20 @@ namespace App\Http\Requests;
 
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 use Override;
 
-abstract class CustomFormRequest extends FormRequest implements LateValidationInterface, BeforeValidationInterface
+abstract class CustomFormRequest extends FormRequest implements BeforeValidationInterface, LateValidationInterface
 {
     protected $stopOnFirstFailure = true;
 
     /**
-     * @var Closure[] $afterValidationClosures
+     * @var Closure[]
      */
     protected $afterValidationClosures = [];
 
     /**
-     * @var array<Closure(FormRequest $formRequest): void> $beforeValidationClosures
+     * @var array<Closure(FormRequest): void>
      */
     protected $beforeValidationClosures = [];
 
@@ -27,13 +28,23 @@ abstract class CustomFormRequest extends FormRequest implements LateValidationIn
     #[Override]
     public function pushAfterValidation(Closure $callback): void
     {
-        $this->afterValidationClosures[] = $callback;
+        $this->afterValidationClosures[] = function (Validator $validator, ...$remain) use (&$callback) {
+            if ($validator->errors()->isEmpty()) {
+                $callback($validator, ...$remain);
+            }
+        };
     }
 
     #[Override]
-    public function getInput(string $key, $default = NULL): mixed
+    public function getInput(string $key, $default = null): mixed
     {
         return $this->input($key, $default);
+    }
+
+    #[Override]
+    public function getRoute(string $key): mixed
+    {
+        return $this->route($key);
     }
 
     public function after(): array

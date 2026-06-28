@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Role\RoleRequest;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Illuminate\Http\Request;
+use App\Services\ListSelectorService;
 use App\Services\PaginatorService;
 use App\Services\RoleService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 final class RoleController extends Controller
 {
     public function __construct(
         protected RoleService $svc,
-        protected PaginatorService $paginator
+        protected ListSelectorService $listSelector,
+        protected PaginatorService $paginator,
     ) {
         // ...
     }
@@ -23,7 +27,24 @@ final class RoleController extends Controller
     public function index(Request $request)
     {
         return view('pages.roles.index', [
-            'list' => $this->svc->prepareIndex($request)
+            'list' => $this->svc->prepareIndex($request),
+            'models' => fn (LengthAwarePaginator $pagination) => (
+                $this->svc->hydrateRole($pagination->all())
+            ),
+            'filterVisibility' => [
+                'for-plan' => (
+                    ! $request->boolean('no-user') &&
+                    ! $request->boolean('no-plan')
+                ),
+                'no-user' => (
+                    ! $request->boolean('for-plan') &&
+                    ! $request->boolean('no-plan')
+                ),
+                'no-plan' => (
+                    ! $request->boolean('for-plan') &&
+                    ! $request->boolean('no-user')
+                ),
+            ],
         ]);
     }
 
@@ -31,7 +52,7 @@ final class RoleController extends Controller
     {
         return view('pages.roles.show', [
             'role' => $role,
-            'permissions' => $role->permissions
+            'permissions' => $role->permissions,
         ]);
     }
 
@@ -52,7 +73,7 @@ final class RoleController extends Controller
             'list' => $this->svc->prepareRemainPermissionsIndex(
                 $request,
                 $role
-            )
+            ),
         ]);
     }
 
@@ -62,7 +83,7 @@ final class RoleController extends Controller
 
         return redirect()->route('roles.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Papel criado com sucesso!'
+            'toastMsg' => 'Papel criado com sucesso!',
         ]);
     }
 
@@ -72,9 +93,10 @@ final class RoleController extends Controller
 
         return redirect()->route('roles.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Papel editado com sucesso!'
+            'toastMsg' => 'Papel editado com sucesso!',
         ]);
     }
+
     public function destroy(Role $role)
     {
         $this->svc->removeRole($role);
@@ -84,7 +106,7 @@ final class RoleController extends Controller
             request()->query() ?? []
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Papel removido com sucesso!'
+            'toastMsg' => 'Papel removido com sucesso!',
         ]);
     }
 
@@ -97,7 +119,7 @@ final class RoleController extends Controller
             request()->query() ?? []
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Papéis removidos com sucesso!'
+            'toastMsg' => 'Papéis removidos com sucesso!',
         ]);
     }
 
@@ -107,10 +129,10 @@ final class RoleController extends Controller
 
         return redirect()->route('roles.attach', [
             'role' => $role->id,
-            ...(request()->query() ?? [])
+            ...(request()->query() ?? []),
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Vinculação executada com sucesso!'
+            'toastMsg' => 'Vinculação executada com sucesso!',
         ]);
     }
 
@@ -119,10 +141,10 @@ final class RoleController extends Controller
         $this->svc->unbindPermissionFromRole($role, $permission);
 
         return redirect()->route('roles.show', [
-            'role' => $role->id
+            'role' => $role->id,
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Desvinculação executada com sucesso!'
+            'toastMsg' => 'Desvinculação executada com sucesso!',
         ]);
     }
 
@@ -134,10 +156,10 @@ final class RoleController extends Controller
         );
 
         return redirect()->route('roles.attach', [
-            'role' => $role->id
+            'role' => $role->id,
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Vinculação executada com sucesso!'
+            'toastMsg' => 'Vinculação executada com sucesso!',
         ]);
     }
 
@@ -149,10 +171,37 @@ final class RoleController extends Controller
         );
 
         return redirect()->route('roles.show', [
-            'role' => $role->id
+            'role' => $role->id,
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Desvinculação executada com sucesso!'
+            'toastMsg' => 'Desvinculação executada com sucesso!',
+        ]);
+    }
+
+    public function markRole(RoleRequest $request, Role $role): RedirectResponse
+    {
+        $this->listSelector->store('rolesToPlan', $role->name);
+
+        return redirect()->back()->with([
+            'toastShow' => true,
+            'toastMsg' => "Papel {$role->name} marcado com sucesso!",
+        ]);
+    }
+
+    public function unmarkRole(RoleRequest $request, Role $role): RedirectResponse
+    {
+        $this->listSelector->unstore('rolesToPlan', $role->name);
+        $list = collect($this->listSelector->getList('rolesToPlan'));
+        if ($list->isEmpty() && ! $request->boolean('keep')) {
+            return redirect()->route('roles.index')->with([
+                'toastShow' => true,
+                'toastMsg' => 'Papéis desmarcados com sucesso!',
+            ]);
+        }
+
+        return redirect()->back()->with([
+            'toastShow' => true,
+            'toastMsg' => "Papel {$role->name} desmarcado com sucesso!",
         ]);
     }
 }

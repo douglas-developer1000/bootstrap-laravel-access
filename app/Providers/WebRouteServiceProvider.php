@@ -28,14 +28,14 @@ final class WebRouteServiceProvider extends ServiceProvider
             collect([
                 'guest.php',
                 'verify-email.php',
-                'default.php'
+                'default.php',
             ])->each(function ($filename) {
                 Route::middleware(['web'])->group(
                     base_path(
                         implode(DIRECTORY_SEPARATOR, [
                             'routes',
                             'custom',
-                            $filename
+                            $filename,
                         ])
                     )
                 );
@@ -58,6 +58,8 @@ final class WebRouteServiceProvider extends ServiceProvider
                 ['exchanges', 'exchanges.php'],
                 ['garbages', 'garbages.php'],
                 ['raw-exits', 'raw-exits.php'],
+                ['plans', 'plans.php'],
+                ['licenses', 'licenses.php'],
             ])->each(function (array $item) {
                 [$prefix, $filename] = $item;
 
@@ -68,7 +70,7 @@ final class WebRouteServiceProvider extends ServiceProvider
                             implode(DIRECTORY_SEPARATOR, [
                                 'routes',
                                 'custom',
-                                $filename
+                                $filename,
                             ])
                         )
                     );

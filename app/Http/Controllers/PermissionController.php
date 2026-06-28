@@ -6,22 +6,37 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Permission\PermissionRequest;
 use App\Libraries\Enums\PermissionNameEnum;
+use App\Services\FeatureService;
 use App\Services\PermissionService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Artisan;
 use Spatie\Permission\Models\Permission;
 
 final class PermissionController extends Controller
 {
-    public function __construct(protected PermissionService $svc)
-    {
+    public function __construct(
+        protected PermissionService $svc,
+        protected FeatureService $featSvc,
+    ) {
         // ...
     }
+
     public function index(Request $request)
     {
         return view('pages.permissions.index', [
-            'list' => $this->svc->prepareIndex($request)
+            'list' => $this->pullData($request),
+            'qs' => collect($request->query->all()),
         ]);
+    }
+
+    protected function pullData(Request $request): LengthAwarePaginator
+    {
+        if ($request->boolean('lost')) {
+            return $this->featSvc->prepareIdlePermissionIndex($request);
+        }
+
+        return $this->svc->prepareIndex($request);
     }
 
     public function create()
@@ -32,9 +47,10 @@ final class PermissionController extends Controller
     public function store(PermissionRequest $request)
     {
         $this->svc->createPermission($request->validated('name'));
+
         return redirect()->route('permissions.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Permissão criada com sucesso!'
+            'toastMsg' => 'Permissão criada com sucesso!',
         ]);
     }
 
@@ -50,7 +66,7 @@ final class PermissionController extends Controller
 
         return redirect()->route('permissions.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Permissão editada com sucesso!'
+            'toastMsg' => 'Permissão editada com sucesso!',
         ]);
     }
 
@@ -61,10 +77,11 @@ final class PermissionController extends Controller
         return redirect()->route(
             'permissions.index',
             request()->query() ?? []
-        )->with([
-            'toastShow' => true,
-            'toastMsg' => 'Permissão removida com sucesso!'
-        ]);
+        )
+            ->with([
+                'toastShow' => true,
+                'toastMsg' => 'Permissão removida com sucesso!',
+            ]);
     }
 
     public function removeGroup(PermissionRequest $request)
@@ -76,7 +93,7 @@ final class PermissionController extends Controller
             request()->query() ?? []
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Permissões removidas com sucesso!'
+            'toastMsg' => 'Permissões removidas com sucesso!',
         ]);
     }
 
@@ -90,7 +107,7 @@ final class PermissionController extends Controller
 
         return redirect()->back()->with([
             'toastShow' => true,
-            'toastMsg' => 'Permissões atualizadas com sucesso!'
+            'toastMsg' => 'Permissões atualizadas com sucesso!',
         ]);
     }
 }

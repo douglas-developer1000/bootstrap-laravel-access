@@ -149,7 +149,10 @@
                                 >
                             </td>
                             <td>
-                                <div class="text-truncate">
+                                <div
+                                    class="text-truncate"
+                                    title="{{ $user->email }}"
+                                >
                                     {{$user->email}}
                                 </div>
                             </td>

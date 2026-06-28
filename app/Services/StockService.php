@@ -21,20 +21,20 @@ final class StockService
     public function __construct(
         protected StockEntryService $stockEntrySvc,
         protected ProductService $prodSvc,
-        protected ProductToExitHandlerService $exitHandlerSvc,
+        protected ListSelectorService $listSelector,
     ) {
         $this->user = Auth::user();
     }
 
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class($this->user, $this->stockEntrySvc, $this->prodSvc, $this->exitHandlerSvc) extends AbstractPaginatorIndex
+        return (new class($this->user, $this->stockEntrySvc, $this->prodSvc, $this->listSelector) extends AbstractPaginatorIndex
         {
             public function __construct(
                 protected User $user,
                 protected StockEntryService $stockEntrySvc,
                 protected ProductService $prodSvc,
-                protected ProductToExitHandlerService $exitHandlerSvc,
+                protected ListSelectorService $listSelector,
             ) {
                 parent::__construct();
             }
@@ -43,17 +43,18 @@ final class StockService
             public function query(Request $request): Builder
             {
                 $trashed = $request->boolean('trashed');
+
                 return $this->prodSvc->queryProduct(
                     deleted: $trashed,
                     alias: 'p',
-                    callback: fn($query) => $query->where(
+                    callback: fn ($query) => $query->where(
                         ['p.user_id' => $this->user->id]
                     )
                 )->select([
                     'p.id',
                     'p.name',
                     'p.user_id',
-                    'p.deleted_at'
+                    'p.deleted_at',
                 ]);
             }
 
@@ -84,9 +85,9 @@ final class StockService
             {
                 return $query->when(
                     $request->boolean('exits'),
-                    fn(Builder $query) => $query->whereIn(
+                    fn (Builder $query) => $query->whereIn(
                         'p.id',
-                        $this->exitHandlerSvc->getProductsToExit()
+                        $this->listSelector->getList('productsToExit')
                     )
                 );
             }
@@ -122,8 +123,8 @@ final class StockService
 
     public function hydrateStocks(array $stocks): Collection
     {
-        $svc = app(ProductToExitHandlerService::class);
-        $productsToExit = collect($svc->getProductsToExit());
+        $svc = app(ListSelectorService::class);
+        $productsToExit = collect($svc->getList('productsToExit'));
 
         return Product::hydrate($stocks)->map(function (Product $product, int $i) use (&$stocks, &$productsToExit) {
             $product->catId = $stocks[$i]->catId;
@@ -142,7 +143,7 @@ final class StockService
                 $this->prodSvc->queryProduct(
                     deleted: false,
                     alias: 'p',
-                    callback: fn($query) => $query->where(
+                    callback: fn ($query) => $query->where(
                         ['p.user_id' => $this->user->id]
                     )
                 ),

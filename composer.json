@@ -20,7 +20,7 @@
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2",
-        "laravel/pint": "^1.27",
+        "laravel/pint": "^1.29",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "pestphp/pest": "^4.4",
@@ -72,6 +72,19 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "pint-n": [
+            "git ls-files --others --exclude-standard | grep '\\.php$' | xargs ./vendor/bin/pint"
+        ],
+        "pint-m": [
+            "git diff --diff-filter=M --name-only | grep '\\.php$' | xargs ./vendor/bin/pint"
+        ],
+        "pint-a": [
+            "composer pint-n",
+            "composer pint-m"
+        ],
+        "pint": [
+            "./vendor/bin/pint"
         ]
     },
     "extra": {

@@ -11,4 +11,6 @@ interface LateValidationInterface
     public function getInput(string $key): mixed;
 
     public function pushAfterValidation(Closure $callback): void;
+
+    public function getRoute(string $key): mixed;
 }

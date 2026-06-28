@@ -7,12 +7,13 @@ namespace App\Providers;
 use App\Models\Customer;
 use App\Models\Discount;
 use App\Models\PaymentCard;
+use App\Models\Plan;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Supplier;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -25,6 +26,7 @@ final class RouteModelBindingProvider extends ServiceProvider
         'discountDeleted' => Discount::class,
         'supplierDeleted' => Supplier::class,
         'productDeleted' => Product::class,
+        'planDeleted' => Plan::class,
     ];
 
     /**
@@ -40,7 +42,7 @@ final class RouteModelBindingProvider extends ServiceProvider
         foreach ($this->deletedBindings as $key => $model) {
             Route::bind(
                 $key,
-                fn(int|string $id) => $model::withTrashed()->find($id)
+                fn (int|string $id) => $model::withTrashed()->find($id)
             );
         }
     }
@@ -48,15 +50,15 @@ final class RouteModelBindingProvider extends ServiceProvider
     protected function applyModelListBindingRoute(): void
     {
         collect(File::allFiles(app_path('Models')))->map(
-            fn($file) => 'App\\Models\\' . $file->getFilenameWithoutExtension()
+            fn ($file) => 'App\\Models\\'.$file->getFilenameWithoutExtension()
         )->filter(
-            fn($class) => class_exists($class)
+            fn ($class) => class_exists($class)
         )->each(function ($class) {
             $routeKey = Str::of($class)->remove('App\\Models\\')->lcfirst()->append('List')->toString();
 
             Route::bind($routeKey, function ($value, $route) use ($class) {
                 $inputKey = $route->parameter('key');
-                if (!request()->has($inputKey)) {
+                if (! request()->has($inputKey)) {
                     throw new NotFoundHttpException();
                 }
 
@@ -67,6 +69,7 @@ final class RouteModelBindingProvider extends ServiceProvider
                 if ($value === 'trashed') {
                     return $class::onlyTrashed()->findMany($idList)->all();
                 }
+
                 return $class::findMany($idList)->all();
             });
         });

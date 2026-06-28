@@ -7,7 +7,8 @@
 @endpush
 @push ('ecmascript-bottom')
     @vite ([
-        'resources/js/pages/generic/multiselection.ts'
+        'resources/js/pages/generic/realocate-markups.ts',
+        'resources/js/pages/generic/multiselection.ts',
     ])
 @endpush
 
@@ -34,16 +35,49 @@
                     label-text="Nome:"
                     placeholder="Insira o nome do papel"
                 />
-                <x-organisms.confirm-rm-group-btn
-                    route="roles.group.destroy"
-                    heading="Remover estes papéis?"
-                    positive-text="Remover papéis"
-                    title="Remover vários papéis"
+                <div
+                    class="d-flex justify-content-end flex-grow-1 column-gap-2"
                 >
-                    Isso removerá os papéis selecionados permanentemente.
-                </x-organisms.confirm-rm-group-btn>
+                    <x-organisms.confirm-rm-group-btn
+                        route="roles.group.destroy"
+                        heading="Remover estes papéis?"
+                        positive-text="Remover papéis"
+                        title="Remover vários papéis"
+                    >
+                        Isso removerá os papéis selecionados permanentemente.
+                    </x-organisms.confirm-rm-group-btn>
+                </div>
+                <div class="d-flex gap-2 w-100 flex-wrap">
+                    @if ($filterVisibility['for-plan'])
+                        <x-organisms.filter-form-check
+                            key="for-plan"
+                            :checked="request()->boolean('for-plan')"
+                            class="py-2"
+                        >
+                            Reservados para plano</x-organisms.filter-form-check
+                        >
+                    @endif
+                    @if ($filterVisibility['no-user'])
+                        <x-organisms.filter-form-check
+                            key="no-user"
+                            :checked="request()->boolean('no-user')"
+                            class="py-2"
+                        >
+                            Sem usuário</x-organisms.filter-form-check
+                        >
+                    @endif
+                    @if ($filterVisibility['no-plan'])
+                        <x-organisms.filter-form-check
+                            key="no-plan"
+                            :checked="request()->boolean('no-plan')"
+                            class="py-2"
+                        >
+                            Sem plano</x-organisms.filter-form-check
+                        >
+                    @endif
+                </div>
             </div>
-            <x-molecules.table-index>
+            <x-molecules.table-index qtyBtns="1">
                 <x-slot:cols>
                     <col class="col-remain-created_at" />
                 </x-slot:cols>
@@ -74,7 +108,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($list as $role)
+                    @forelse ($models($list) as $role)
                         <tr>
                             <td>
                                 <input
@@ -97,29 +131,70 @@
                             <td>
                                 {{ DatetimeFormatter::formatToDate($role->created_at) }}
                             </td>
-                            <td>
-                                <div
-                                    class="w-100 d-flex justify-content-between gap-1"
+                            <td class="dropdown dropstart">
+                                <x-atoms.button
+                                    class="btn-secondary dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
                                 >
-                                    <x-atoms.button
-                                        format="anchor"
-                                        class="btn-secondary"
-                                        href="{{ route('roles.edit', ['role' => $role->id]) }}"
-                                        title="Editar"
-                                    >
-                                        <i class="bi bi-wrench"></i>
-                                    </x-atoms.button>
-                                    <x-organisms.confirm-rm-btn
-                                        :routeParams="['role' => $role->id]"
-                                        route="roles.destroy"
-                                        heading="Remover este papel?"
-                                        positiveText="Remover papel"
-                                        title="Remover papel"
-                                    >
-                                        Isso removerá permanentemente este
-                                        papel.
-                                    </x-organisms.confirm-rm-btn>
-                                </div>
+                                    <i class="bi bi-menu-button-wide"></i>
+                                </x-atoms.button>
+                                <ul
+                                    class="dropdown-menu dropdown-menu-start action-btns"
+                                >
+                                    <li>
+                                        <div class="position-relative">
+                                            @if ($role->inRolesCart)
+                                                <span
+                                                    class="position-absolute end-0 top-0 badge rounded-pill bg-danger p-0 z-1"
+                                                    ><i class="bi bi-plus"></i
+                                                ></span>
+                                            @endif
+                                            <form
+                                                action="{{
+                                                    route(
+                                                        $role->inRolesCart ? 'roles.unmark' : 'roles.mark',
+                                                        ['role' => $role->id]
+                                                    )
+                                                }}"
+                                                method="post"
+                                            >
+                                                @csrf
+                                                <x-atoms.button
+                                                    class="btn-secondary position-relative"
+                                                    type="submit"
+                                                    title="Adicionar papel"
+                                                >
+                                                    <i
+                                                        class="bi bi-cart-plus"
+                                                    ></i>
+                                                </x-atoms.button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <x-atoms.button
+                                            format="anchor"
+                                            class="btn-secondary"
+                                            href="{{ route('roles.edit', ['role' => $role->id]) }}"
+                                            title="Editar"
+                                        >
+                                            <i class="bi bi-wrench"></i>
+                                        </x-atoms.button>
+                                    </li>
+                                    <li>
+                                        <x-organisms.confirm-rm-btn
+                                            :routeParams="['role' => $role->id]"
+                                            route="roles.destroy"
+                                            heading="Remover este papel?"
+                                            positiveText="Remover papel"
+                                            title="Remover papel"
+                                        >
+                                            Isso removerá permanentemente este
+                                            papel.
+                                        </x-organisms.confirm-rm-btn>
+                                    </li>
+                                </ul>
                             </td>
                         </tr>
                     @empty

@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/js/pages/generic/masks.ts',
                 'resources/js/pages/generic/datepicker.ts',
                 'resources/js/pages/generic/realocate-markups.ts',
+                'resources/js/pages/plans/edit.ts',
                 'resources/js/pages/stocks/stock-qty-exit.ts',
                 'resources/js/pages/stocks/sale-cards-exit.ts',
 

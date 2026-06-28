@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 trait InputPickerTrait
 {
     /**
-     * @param string|array<string, string> $keys
+     * @param  string|array<string, string>  $keys
      */
     public function pickInputs(Request $request, array $base, string|array ...$keys): array
     {
@@ -18,16 +18,18 @@ trait InputPickerTrait
             function (Collection $base, string|array $next) use (&$request) {
                 if (\is_string($next)) {
                     $input = $request->input($next);
-                    if ($input !== NULL) {
+                    if ($input !== null) {
                         $base->put($next, $input);
                     }
                 } else {
-                    $key = array_key_first($next);
-                    $input = $request->input($key);
-                    if ($input !== NULL) {
-                        $base->put($next[$key], $input);
+                    $requestKey = array_key_first($next);
+                    $input = $request->input($requestKey);
+                    if ($input !== null) {
+                        $modelKey = $next[$requestKey];
+                        $base->put($modelKey, $input);
                     }
                 }
+
                 return $base;
             },
             collect($base)

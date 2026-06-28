@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Events\PlanAssigned;
 use App\Http\Requests\User\UserRequest;
-use Illuminate\Http\Request;
+use App\Models\Plan;
 use App\Models\User;
+use App\Services\ChecklistService;
+use App\Services\LicenseService;
+use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Number;
 
 final class UserController extends Controller
 {
@@ -25,7 +32,7 @@ final class UserController extends Controller
     public function index(Request $request)
     {
         return view('pages.users.index', [
-            'list' => $this->userSvc->prepareIndex($request)
+            'list' => $this->userSvc->prepareIndex($request),
         ]);
     }
 
@@ -34,22 +41,39 @@ final class UserController extends Controller
      */
     public function show(User $user)
     {
-        $permissions = $user->roles->map(fn($role) => $role->permissions)->flatten();
+        $permissions = $user->roles->map(fn ($role) => $role->permissions)->flatten();
 
         return view('pages.users.show', [
             'user' => $user,
             'roles' => $user->roles,
             'permissions' => $permissions,
-            'dPermissions' => $user->getDirectPermissions()
+            'dPermissions' => $user->getDirectPermissions(),
+            'parsePrice' => fn (float|int $value) => (
+                Number::currency(
+                    number: $value,
+                    in: 'BRL',
+                    locale: 'pt_BR',
+                    precision: 2
+                )
+            ),
         ]);
     }
 
     /**
      * Show the view for user creation (used by super-admin)
      */
-    public function create()
+    public function create(ChecklistService $checkSvc)
     {
-        return view('pages.users.create');
+        $plans = Plan::all();
+        $additionalRoles = $plans->mapWithKeys(fn (Plan $plan) => [
+            $plan->slug => $plan->roles()->wherePivot('additional', 1)->get(),
+        ]);
+
+        return view('pages.users.create', [
+            'plans' => $plans,
+            'additionalRoles' => $additionalRoles,
+            'boxChecked' => $checkSvc->boxChecked(...),
+        ]);
     }
 
     /**
@@ -77,20 +101,44 @@ final class UserController extends Controller
 
         return redirect()->route('users.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuário editado com sucesso!'
+            'toastMsg' => 'Usuário editado com sucesso!',
         ]);
     }
 
     /**
      * Store an user during an internal creation
      */
-    public function store(UserRequest $request)
+    public function store(UserRequest $request, PlanService $planSvc, LicenseService $licenseSvc)
     {
-        $this->userSvc->createInternalUser($request);
+        /** @var array{name: string, email: string, password: string, recurring: bool } $inputs */
+        $inputs = $this->userSvc->extractParams(
+            $request,
+            ['name', 'email', 'password'],
+            ['recurring']
+        );
+        $plan = $planSvc->parsePlan($request->input('plan'));
+
+        ['user' => $user, 'license' => $license] = DB::transaction(function () use ($plan, $inputs, $licenseSvc) {
+            $user = $this->userSvc->createInternalUser(
+                $inputs['name'],
+                $inputs['email'],
+                $inputs['password']
+            );
+
+            return [
+                'user' => $user,
+                'license' => $licenseSvc->bindPlan(
+                    $plan,
+                    $user,
+                    $inputs['recurring']
+                ),
+            ];
+        });
+        PlanAssigned::dispatch($user, $plan, $license);
 
         return redirect()->route('users.create')->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuário criado com sucesso!'
+            'toastMsg' => 'Usuário criado com sucesso!',
         ]);
     }
 
@@ -99,11 +147,21 @@ final class UserController extends Controller
      */
     public function storeSigned(UserRequest $request)
     {
-        $this->userSvc->createExternalUser($request);
+        /** @var array{ name: string, email: string, password: string, phone: string|null } $inputs */
+        $inputs = $this->userSvc->extractParams(
+            $request,
+            ['name', 'email', 'password', 'phone']
+        );
+        $this->userSvc->createExternalUser(
+            $inputs['name'],
+            $inputs['email'],
+            $inputs['password'],
+            $inputs['phone'],
+        );
 
         return redirect()->route('login')->with([
             'toastShow' => true,
-            'toastMsg' => 'Conta criada com sucesso! Autenticação liberada!'
+            'toastMsg' => 'Conta criada com sucesso! Autenticação liberada!',
         ]);
     }
 
@@ -120,7 +178,7 @@ final class UserController extends Controller
             request()->query() ?? []
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuário removido com sucesso!'
+            'toastMsg' => 'Usuário removido com sucesso!',
         ]);
     }
 
@@ -136,7 +194,7 @@ final class UserController extends Controller
             request()->query() ?? []
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuário removido com sucesso!'
+            'toastMsg' => 'Usuário removido com sucesso!',
         ]);
     }
 
@@ -153,7 +211,7 @@ final class UserController extends Controller
             $qs->all()
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuários removidos com sucesso!'
+            'toastMsg' => 'Usuários removidos com sucesso!',
         ]);
     }
 
@@ -169,7 +227,7 @@ final class UserController extends Controller
             request()->query() ?? []
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuário restaurado com sucesso!'
+            'toastMsg' => 'Usuário restaurado com sucesso!',
         ]);
     }
 
@@ -185,7 +243,7 @@ final class UserController extends Controller
             ['trashed' => '1']
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Usuários restaurados com sucesso!'
+            'toastMsg' => 'Usuários restaurados com sucesso!',
         ]);
     }
 }

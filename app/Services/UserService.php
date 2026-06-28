@@ -12,13 +12,12 @@ use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use App\Services\Contracts\ImgStoragerInterface;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 use Override;
 
 final class UserService
@@ -32,7 +31,7 @@ final class UserService
 
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class extends AbstractPaginatorIndex
+        return (new class() extends AbstractPaginatorIndex
         {
             #[Override]
             public function getSortColumns(): array
@@ -44,14 +43,15 @@ final class UserService
             public function query(Request $request): Builder
             {
                 $trashed = $request->boolean('trashed');
+
                 return User::getQuery()
                     ->when(
                         $trashed,
-                        fn(Builder $query) => $query->whereNotNull('deleted_at')
+                        fn (Builder $query) => $query->whereNotNull('deleted_at')
                     )
                     ->when(
-                        !$trashed,
-                        fn(Builder $query) => $query->whereNull('deleted_at')
+                        ! $trashed,
+                        fn (Builder $query) => $query->whereNull('deleted_at')
                     );
             }
 
@@ -63,6 +63,7 @@ final class UserService
                         $this->paginator->buildSearch($request->only('name'), 'name'),
                         function (Builder $query, string $nameSearch) {
                             $nameSearch = addcslashes($nameSearch, '%_');
+
                             return $query->whereLike('name', "%{$nameSearch}%");
                         }
                     );
@@ -76,22 +77,22 @@ final class UserService
         );
     }
 
-    protected function handleUserPhoto(Request $request, User $user): string|null
+    protected function handleUserPhoto(Request $request, User $user): ?string
     {
         return (new ProfileService(
             app(ImgStoragerInterface::class, [
                 'model' => $user,
                 'key' => 'photo',
-                'lastFolderName' => \strval($user->id)
+                'lastFolderName' => \strval($user->id),
             ])
         ))->storageProfileImg($request);
     }
 
     /**
      * Remove the register approval from database and return the user's phone
-     * 
-     * @param string $email The request's email
-     * @param PhoneValue $phone The request's phone used as default phone value
+     *
+     * @param  string  $email  The request's email
+     * @param  PhoneValue  $phone  The request's phone used as default phone value
      * @return PhoneValue The phone from the stored register approval or request
      */
     protected function deleteRegisterApproval(string $email, PhoneValue $phone): PhoneValue
@@ -99,24 +100,27 @@ final class UserService
         /** @var RegisterApproval $registerApproval */
         $registerApproval = RegisterApproval::where(['email' => $email])->first(['id', 'phone']);
         $registerApproval->delete();
-        if ($registerApproval->phone->getValue() !== NULL) {
+        if ($registerApproval->phone->getValue() !== null) {
             return $registerApproval->phone;
         }
+
         return $phone;
     }
 
-    public function createInternalUser(Request $request): User|null
+    /**
+     * @param  string[]  $inputs
+     * @param  string[]  $booleans
+     * @return array<string, string>
+     */
+    public function extractParams(Request $request, array $inputs, array $booleans = []): array
     {
-        /**
-         * @var string $name
-         * @var string $email
-         * @var string $password
-         */
-        [
-            'name' => $name,
-            'email' => $email,
-            'password' => $password
-        ] = $request->only(['name', 'email', 'password']);
+        return collect($request->only($inputs))->merge(collect($booleans)->mapWithKeys(fn (string $key) => [
+            $key => $request->boolean($key),
+        ]))->all();
+    }
+
+    public function createInternalUser(string $name, string $email, string $password): User
+    {
         return User::create(
             (new UserCreationDto(
                 $name,
@@ -127,18 +131,23 @@ final class UserService
         );
     }
 
-    public function createExternalUser(Request $request): void
+    public function createExternalUser(string $name, string $email, string $password, ?string $phone): User
     {
         $user = User::create((new UserCreationDto(
-            $request->name,
-            $request->email,
-            $request->password
+            $name,
+            $email,
+            $password
         ))->putPhone(
-            phone: $this->deleteRegisterApproval($request->email, new PhoneValue($request->phone))
+            phone: $this->deleteRegisterApproval(
+                $email,
+                new PhoneValue($phone)
+            )
         )->toArray());
         $user->assignRole('user');
 
         event(new Registered($user));
+
+        return $user;
     }
 
     public function updateUser(int $id, string $name)
@@ -153,10 +162,10 @@ final class UserService
         $inputs = collect([
             ...$request->only(['name', 'password']),
             ...($photoPath ? ['photo' => $photoPath] : []),
-        ])->filter(fn($val, $key) => $user->$key !== $val);
+        ])->filter(fn ($val, $key) => $val !== $user->$key);
 
         $newPhone = new PhoneValue($request->validated('phone'));
-        if (!$newPhone->equals($user->phone)) {
+        if (! $newPhone->equals($user->phone)) {
             $inputs->put('phone', $newPhone);
         }
 
@@ -178,7 +187,7 @@ final class UserService
     {
         $query = User::whereIn('id', $request->validated('remotion'));
         $forceDelete = $qs->contains(
-            fn($value, $key) => $key === 'trashed' && $value === '1'
+            fn ($value, $key) => $key === 'trashed' && $value === '1'
         );
         if ($forceDelete) {
             $query->forceDelete();

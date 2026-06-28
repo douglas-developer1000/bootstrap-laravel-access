@@ -2,27 +2,15 @@
 
 declare(strict_types=1);
 
-use App\Libraries\Enums\RoleNameEnum;
+use App\Libraries\Traits\EagerPermissionTrait;
 use App\Libraries\Traits\EagerRoleTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Libraries\Enums\PermissionNameEnum;
-use App\Libraries\Traits\EagerPermissionTrait;
 
-return new class extends Migration
+return new class() extends Migration
 {
-    use EagerRoleTrait, EagerPermissionTrait;
-
-    protected function getRoleNames(): array
-    {
-        return array_column(RoleNameEnum::cases(), 'value');
-    }
-
-    protected function getPermissionNames(): array
-    {
-        return array_column(PermissionNameEnum::cases(), 'value');
-    }
+    use EagerPermissionTrait, EagerRoleTrait;
 
     /**
      * Run the migrations.
@@ -143,9 +131,6 @@ return new class extends Migration
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
-
-        $this->makeRoles(...$this->getRoleNames());
-        $this->makePermissions(...$this->getPermissionNames());
     }
 
     /**
@@ -162,8 +147,5 @@ return new class extends Migration
         Schema::dropIfExists($tableNames['model_has_permissions']);
         Schema::dropIfExists($tableNames['roles']);
         Schema::dropIfExists($tableNames['permissions']);
-
-        $this->clearRoles(...$this->getRoleNames());
-        $this->clearPermissions(...$this->getPermissionNames());
     }
 };

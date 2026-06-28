@@ -18,18 +18,6 @@
             class="page-heading-row-custom"
         >
             <div class="top-right-item d-flex gap-2">
-                <form
-                    action="{{ route('permissions.flush') }}"
-                    method="post"
-                >
-                    @csrf
-                    <x-atoms.button
-                        class="btn-secondary"
-                        type="submit"
-                    >
-                        <i class="bi bi-database-fill-up"></i>
-                    </x-atoms.button>
-                </form>
                 <x-atoms.button
                     class="btn-secondary"
                     format="anchor"
@@ -45,18 +33,31 @@
             <x-molecules.block-error :keys="['remotion', 'remotion.*']" />
 
             <div class="d-flex flex-wrap justify-content-between row-gap-2">
-                <x-packs.term-search
-                    label-text="Nome:"
-                    placeholder="Insira o nome da permissão"
-                />
-                <x-organisms.confirm-rm-group-btn
-                    route="permissions.group.destroy"
-                    heading="Remover estas permissões?"
-                    positive-text="Remover permissões"
-                    title="Remover várias permissões"
+                <div
+                    class="d-flex justify-content-between flex-grow-1 column-gap-2"
                 >
-                    Isso removerá as permissões selecionadas permanentemente.
-                </x-organisms.confirm-rm-group-btn>
+                    <x-packs.term-search
+                        label-text="Nome:"
+                        placeholder="Insira o nome da permissão"
+                    />
+                    <x-organisms.confirm-rm-group-btn
+                        :routeParams="[...($qs ?: [])]"
+                        route="permissions.group.destroy"
+                        heading="Remover estas permissões?"
+                        positive-text="Remover permissões"
+                        title="Remover várias permissões"
+                    >
+                        Isso removerá as permissões selecionadas
+                        permanentemente.
+                    </x-organisms.confirm-rm-group-btn>
+                </div>
+                <x-organisms.filter-form-check
+                    key="lost"
+                    :checked="request()->boolean('lost')"
+                    class="py-2 w-100"
+                >
+                    Sem papel</x-organisms.filter-form-check
+                >
             </div>
             <x-molecules.table-index>
                 <x-slot:cols>
@@ -116,7 +117,10 @@
                                         <i class="bi bi-wrench"></i>
                                     </x-atoms.button>
                                     <x-organisms.confirm-rm-btn
-                                        :routeParams="['permission' => $perm->id]"
+                                        :routeParams="[
+                                            'permission' => $perm->id,
+                                            ...($qs ?: []),
+                                        ]"
                                         route="permissions.destroy"
                                         heading="Remover esta permissão?"
                                         positiveText="Remover permissão"

@@ -6,11 +6,12 @@ namespace App\Http\Requests\Role;
 
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
+use App\Http\Requests\Role\Strategies\Attach;
 use App\Http\Requests\Role\Strategies\Destroy;
+use App\Http\Requests\Role\Strategies\Detach;
+use App\Http\Requests\Role\Strategies\Marking;
 use App\Http\Requests\Role\Strategies\Persistence;
 use App\Http\Requests\Role\Strategies\Update;
-use App\Http\Requests\Role\Strategies\Attach;
-use App\Http\Requests\Role\Strategies\Detach;
 use Exception;
 
 final class RoleRequest extends CustomFormRequest
@@ -19,6 +20,10 @@ final class RoleRequest extends CustomFormRequest
     {
         $url = url()->current();
         switch ($url) {
+            case route('roles.mark', ['role' => $this->route('role', 0)]):
+                return new Marking($this->route('role', 0), $this, true);
+            case route('roles.unmark', ['role' => $this->route('role', 0)]):
+                return new Marking($this->route('role', 0), $this);
             case route('roles.store'):
                 return new Persistence();
             case route('roles.group.bind', $this->route('role', 0)):
@@ -30,7 +35,7 @@ final class RoleRequest extends CustomFormRequest
             case route('roles.group.unbind', $this->route('role', 0)):
                 return new Detach();
             default:
-                throw new Exception("Method Not Implemented", 1);
+                throw new Exception('Method Not Implemented', 1);
         }
     }
 

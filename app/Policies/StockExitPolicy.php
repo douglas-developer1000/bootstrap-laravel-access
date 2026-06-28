@@ -10,16 +10,15 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\StockExit;
 use App\Models\User;
-use App\Services\ProductToExitHandlerService;
+use App\Services\ListSelectorService;
 use App\Services\StockService;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Collection;
 
 final class StockExitPolicy
 {
     public function __construct(
         protected StockService $stockSvc,
-        protected ProductToExitHandlerService $productToExitSvc
+        protected ListSelectorService $listSelector
     ) {
         // ...
     }
@@ -30,176 +29,158 @@ final class StockExitPolicy
     protected function productsToExitModels(): Collection
     {
         return Product::findMany(
-            $this->productToExitSvc->getProductsToExit()
+            $this->listSelector->getList('productsToExit')
         );
     }
 
     public function showPersonalUse(User $user): bool
     {
-        return (
-            $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_SHOW)
-        );
+        return $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_SHOW);
     }
 
     public function showDemonstration(User $user): bool
     {
-        return (
-            $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_SHOW)
-        );
+        return $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_SHOW);
     }
 
     public function showLoss(User $user): bool
     {
-        return (
-            $user->can(PermissionNameEnum::LOSS_EXIT_SHOW)
-        );
+        return $user->can(PermissionNameEnum::LOSS_EXIT_SHOW);
     }
 
     public function showRaw(User $user): bool
     {
-        return (
-            $user->can(PermissionNameEnum::RAW_EXIT_SHOW)
-        );
+        return $user->can(PermissionNameEnum::RAW_EXIT_SHOW);
     }
 
     /**
      * Determine whether the user can mark products to stock exit.
+     *
      * @see ../../routes/custom/stocks.php
      */
     public function mark(User $user, Product $product): bool
     {
-        return (
+        return
             $user->isModelMine($product) &&
-            !$product->deleted_at &&
+            ! $product->deleted_at &&
             $this->stockSvc->getProductRemainQty($product) > 0 &&
-            !collect($this->productToExitSvc->getProductsToExit())->contains(
+            ! collect($this->listSelector->getList('productsToExit'))->contains(
                 $product->id
-            )
-        );
+            );
     }
 
     /**
      * Determine whether the user can unmark products to stock exit.
+     *
      * @see ../../routes/custom/stocks.php
      */
     public function unmark(User $user, Product $product): bool
     {
-        return (
+        return
             $user->isModelMine($product) &&
-            !$product->deleted_at &&
+            ! $product->deleted_at &&
             $this->stockSvc->getProductRemainQty($product) > 0 &&
-            collect($this->productToExitSvc->getProductsToExit())->contains(
+            collect($this->listSelector->getList('productsToExit'))->contains(
                 $product->id
-            )
-        );
+            );
     }
 
     /**
      * Determine whether the user can create models.
+     *
      * @see ../../routes/custom/stocks.php
      */
     public function createExit(User $user, StockExitTypeEnum $exitType): bool
     {
         $productsToExit = collect(
-            $this->productToExitSvc->getProductsToExit()
+            $this->listSelector->getList('productsToExit')
         );
         if ($exitType === StockExitTypeEnum::EXCHANGE) {
-            return (
+            return
                 $productsToExit->isNotEmpty() &&
-                $user->can(PermissionNameEnum::EXCHANGE_EXIT_CREATE)
-            );
+                $user->can(PermissionNameEnum::EXCHANGE_EXIT_CREATE);
         }
         if ($exitType === StockExitTypeEnum::PERSONAL_USE) {
-            return (
+            return
                 $productsToExit->isNotEmpty() &&
-                $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_CREATE)
-            );
+                $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_CREATE);
         }
         if ($exitType === StockExitTypeEnum::DEMONSTRATION) {
-            return (
+            return
                 $productsToExit->isNotEmpty() &&
-                $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_CREATE)
-            );
+                $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_CREATE);
         }
         if ($exitType === StockExitTypeEnum::LOSS) {
-            return (
+            return
                 $productsToExit->isNotEmpty() &&
-                $user->can(PermissionNameEnum::LOSS_EXIT_CREATE)
-            );
+                $user->can(PermissionNameEnum::LOSS_EXIT_CREATE);
         }
-        return (
+
+        return
             $productsToExit->isNotEmpty() &&
             $exitType === StockExitTypeEnum::RAW &&
-            $user->can(PermissionNameEnum::RAW_EXIT_CREATE)
-        );
+            $user->can(PermissionNameEnum::RAW_EXIT_CREATE);
     }
 
     public function createSaleExit(User $user, StockExitTypeEnum $exitType, Customer $customer): bool
     {
-        $productsToExit = collect(
-            $this->productToExitSvc->getProductsToExit()
-        );
+        $productsToExit = collect($this->listSelector->getList('productsToExit'));
 
-        return (
+        return
             $productsToExit->isNotEmpty() &&
             $exitType === StockExitTypeEnum::SALE &&
             $user->isModelMine($customer) &&
-            $user->can(PermissionNameEnum::SALE_EXIT_CREATE)
-        );
+            $user->can(PermissionNameEnum::SALE_EXIT_CREATE);
     }
 
     /**
      * Determine whether the user can create models.
+     *
      * @see ../../routes/custom/stocks.php
      */
     public function store(User $user, StockExitTypeEnum $exitType): bool
     {
         if ($exitType === StockExitTypeEnum::SALE) {
-            return (
+            return
                 $user->can(PermissionNameEnum::SALE_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
-                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
-                )
-            );
+                    fn (Product $product) => $user->isModelMine($product) && ! $product->deleted_at
+                );
         }
         if ($exitType === StockExitTypeEnum::EXCHANGE) {
-            return (
+            return
                 $user->can(PermissionNameEnum::EXCHANGE_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
-                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
-                )
-            );
+                    fn (Product $product) => $user->isModelMine($product) && ! $product->deleted_at
+                );
         }
         if ($exitType === StockExitTypeEnum::PERSONAL_USE) {
-            return (
+            return
                 $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
-                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
-                )
-            );
+                    fn (Product $product) => $user->isModelMine($product) && ! $product->deleted_at
+                );
         }
         if ($exitType === StockExitTypeEnum::DEMONSTRATION) {
-            return (
+            return
                 $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
-                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
-                )
-            );
+                    fn (Product $product) => $user->isModelMine($product) && ! $product->deleted_at
+                );
         }
         if ($exitType === StockExitTypeEnum::LOSS) {
-            return (
+            return
                 $user->can(PermissionNameEnum::LOSS_EXIT_STORE) &&
                 $this->productsToExitModels()->every(
-                    fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
-                )
-            );
+                    fn (Product $product) => $user->isModelMine($product) && ! $product->deleted_at
+                );
         }
-        return (
+
+        return
             $user->can(PermissionNameEnum::RAW_EXIT_STORE) &&
             $this->productsToExitModels()->every(
-                fn(Product $product) => $user->isModelMine($product) && !$product->deleted_at
-            )
-        );
+                fn (Product $product) => $user->isModelMine($product) && ! $product->deleted_at
+            );
     }
 
     /**
@@ -220,40 +201,37 @@ final class StockExitPolicy
 
     /**
      * Determine whether the user can destroy models.
+     *
      * @see ../../routes/custom/stocks.php
      */
     public function delete(User $user, StockExit $exit): bool
     {
         if ($exit->type === StockExitTypeEnum::PERSONAL_USE) {
-            return (
+            return
                 $user->isModelMine($exit) &&
-                $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_DESTROY)
-            );
+                $user->can(PermissionNameEnum::PERSONAL_USE_EXIT_DESTROY);
         }
         if ($exit->type === StockExitTypeEnum::DEMONSTRATION) {
-            return (
+            return
                 $user->isModelMine($exit) &&
-                $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_DESTROY)
-            );
+                $user->can(PermissionNameEnum::DEMONSTRATION_EXIT_DESTROY);
         }
         if ($exit->type === StockExitTypeEnum::LOSS) {
-            return (
+            return
                 $user->isModelMine($exit) &&
-                $user->can(PermissionNameEnum::LOSS_EXIT_DESTROY)
-            );
+                $user->can(PermissionNameEnum::LOSS_EXIT_DESTROY);
         }
-        return (
+
+        return
             $user->isModelMine($exit) &&
-            $user->can(PermissionNameEnum::RAW_EXIT_DESTROY)
-        );
+            $user->can(PermissionNameEnum::RAW_EXIT_DESTROY);
     }
 
     public function deleteList(User $user, array $stockExitList): bool
     {
-        return (
-            collect($stockExitList)->every(fn(StockExit $exit) => (
+        return
+            collect($stockExitList)->every(fn (StockExit $exit) => (
                 $this->delete($user, $exit)
-            ))
-        );
+            ));
     }
 }

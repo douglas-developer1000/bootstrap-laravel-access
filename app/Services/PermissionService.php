@@ -6,16 +6,16 @@ namespace App\Services;
 
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Override;
+use Spatie\Permission\Models\Permission;
 
 final class PermissionService
 {
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class extends AbstractPaginatorIndex
+        return (new class() extends AbstractPaginatorIndex
         {
             #[Override]
             public function query(Request $request): Builder
@@ -26,23 +26,25 @@ final class PermissionService
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                return parent::attachQuery($request, $query)
-                    ->when(
-                        $this->paginator->buildSearch($request->only('q')),
-                        function (Builder $query, string $search) {
-                            $search = addcslashes($search, '%_');
-                            return $query->whereLike(
-                                'name',
-                                "%{$search}%"
-                            );
-                        }
-                    );
+                return $this->filterSearch(
+                    parent::attachQuery($request, $query),
+                    $this->paginator->buildSearch($request->only('q')),
+                    'name'
+                );
+            }
+
+            #[Override]
+            public function getSortColumns(): array
+            {
+                return [
+                    'created_at',
+                    'id',
+                    'name',
+                ];
             }
         })->prepareIndex(
             $request,
-            'created_at',
-            'id',
-            'name'
+            '*'
         );
     }
 
@@ -66,6 +68,6 @@ final class PermissionService
         // This remotion occurs by each model, because
         // the spatie permissions package removes the permissions
         // from the cache this way
-        collect($ids)->each(fn($id) => Permission::findById($id)->delete());
+        collect($ids)->each(fn ($id) => Permission::findById($id)->delete());
     }
 }

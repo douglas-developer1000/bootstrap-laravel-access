@@ -6,8 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\User;
+use App\Services\ListSelectorService;
 use App\Services\ProductCategoryService;
-use App\Services\ProductToExitHandlerService;
 use App\Services\StockEntryService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 final class StockController extends Controller
 {
     protected User $user;
+
     public function __construct(
         protected StockService $svc,
 
@@ -26,16 +27,16 @@ final class StockController extends Controller
         $this->user = Auth::user();
     }
 
-    public function index(ProductToExitHandlerService $saleProdSvc, Request $request)
+    public function index(ListSelectorService $listSelectorSvc, Request $request)
     {
         return view('pages.stocks.index', [
             'list' => $this->svc->prepareIndex($request),
 
-            'models' => fn(LengthAwarePaginator $pagination) => (
+            'models' => fn (LengthAwarePaginator $pagination) => (
                 $this->svc->hydrateStocks($pagination->all())
             ),
             'hasAccess' => $this->user->can(...),
-            'productsToExitEmpty' => collect($saleProdSvc->getProductsToExit())->isEmpty()
+            'productsToExitEmpty' => collect($listSelectorSvc->getList('productsToExit'))->isEmpty(),
         ]);
     }
 
@@ -43,16 +44,16 @@ final class StockController extends Controller
      * Display:
      *
      * - product's name
-     * - categories (sub e sup) 
+     * - categories (sub e sup)
      * - total quantity sum available into stock
      * - suppliers
      *     + stock quantity
      * - stock entries validity (ordered from lower to greater)
-     *
      */
     protected function showStockData(Product $product, bool $deleted)
     {
         $data = $this->stockEntrySvc->getProductStockEntries($product, $deleted);
+
         return view('pages.stocks.show', [
             'product' => $product,
             'entries' => $data['entries'],
@@ -72,7 +73,7 @@ final class StockController extends Controller
 
     /**
      * Display stock data from removed product
-     * 
+     *
      * @see self::show
      */
     public function showDeleted(Product $productDeleted)

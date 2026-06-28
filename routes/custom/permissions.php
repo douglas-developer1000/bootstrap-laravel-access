@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PermissionController;
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 Route::middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()])->group(function () {
@@ -15,6 +15,4 @@ Route::middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()
     Route::put('/{permission}', [PermissionController::class, 'update'])->name('permissions.update');
     Route::delete('/group', [PermissionController::class, 'removeGroup'])->name('permissions.group.destroy');
     Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
-
-    Route::post('/flush', [PermissionController::class, 'flushPersistence'])->name('permissions.flush');
 });

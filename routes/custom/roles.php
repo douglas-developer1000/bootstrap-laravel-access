@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Models\User;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 Route::middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()])->group(function () {
@@ -22,4 +22,10 @@ Route::middleware([Str::of('can:beSuperAdmin,')->append(User::class)->toString()
     Route::post('/{role}/attach/{permission}', [RoleController::class, 'bind'])->name('roles.bind');
     Route::delete('/{role}/detach/group', [RoleController::class, 'unbindGroup'])->name('roles.group.unbind');
     Route::delete('/{role}/detach/{permission}', [RoleController::class, 'unbind'])->name('roles.unbind');
+
+    Route::post('/mark/{role}', [RoleController::class, 'markRole'])
+        ->name('roles.mark');
+
+    Route::post('/unmark/{role}/sales', [RoleController::class, 'unmarkRole'])
+        ->name('roles.unmark');
 });
