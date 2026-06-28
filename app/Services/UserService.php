@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Libraries\Dtos\UserCreationDto;
 use App\Libraries\Traits\PicRequestHandleTrait;
 use App\Libraries\Values\PhoneValue;
 use App\Models\RegisterApproval;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use App\Services\Contracts\ImgStoragerInterface;
-use Carbon\Carbon;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -47,11 +45,11 @@ final class UserService
                 return User::getQuery()
                     ->when(
                         $trashed,
-                        fn(Builder $query) => $query->whereNotNull('deleted_at')
+                        fn (Builder $query) => $query->whereNotNull('deleted_at')
                     )
                     ->when(
                         ! $trashed,
-                        fn(Builder $query) => $query->whereNull('deleted_at')
+                        fn (Builder $query) => $query->whereNull('deleted_at')
                     );
             }
 
@@ -114,35 +112,32 @@ final class UserService
      */
     public function extractParams(Request $request, array $inputs, array $booleans = []): array
     {
-        return collect($request->only($inputs))->merge(collect($booleans)->mapWithKeys(fn(string $key) => [
+        return collect($request->only($inputs))->merge(collect($booleans)->mapWithKeys(fn (string $key) => [
             $key => $request->boolean($key),
         ]))->all();
     }
 
     public function createInternalUser(string $name, string $email, string $password): User
     {
-        return User::create(
-            (new UserCreationDto(
-                $name,
-                $email,
-                Hash::make($password)
-            )
-            )->putEmailVerifiedAt(Carbon::now())->toArray()
-        );
+        return User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => Hash::make($password),
+            'email_verified_at' => now(),
+        ]);
     }
 
     public function createExternalUser(string $name, string $email, string $password, ?string $phone): User
     {
-        $user = User::create((new UserCreationDto(
-            $name,
-            $email,
-            $password
-        ))->putPhone(
-            phone: $this->deleteRegisterApproval(
+        $user = User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'phone' => $this->deleteRegisterApproval(
                 $email,
                 new PhoneValue($phone)
-            )
-        )->toArray());
+            ),
+        ]);
 
         event(new Registered($user));
 
@@ -161,7 +156,7 @@ final class UserService
         $inputs = collect([
             ...$request->only(['name', 'password']),
             ...($photoPath ? ['photo' => $photoPath] : []),
-        ])->filter(fn($val, $key) => $val !== $user->$key);
+        ])->filter(fn ($val, $key) => $val !== $user->$key);
 
         $newPhone = new PhoneValue($request->validated('phone'));
         if (! $newPhone->equals($user->phone)) {
@@ -186,7 +181,7 @@ final class UserService
     {
         $query = User::whereIn('id', $request->validated('remotion'));
         $forceDelete = $qs->contains(
-            fn($value, $key) => $key === 'trashed' && $value === '1'
+            fn ($value, $key) => $key === 'trashed' && $value === '1'
         );
         if ($forceDelete) {
             $query->forceDelete();
