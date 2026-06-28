@@ -118,23 +118,21 @@ final class UserController extends Controller
         );
         $plan = $planSvc->parsePlan($request->input('plan'));
 
-        ['user' => $user, 'license' => $license] = DB::transaction(function () use ($plan, $inputs, $licenseSvc) {
+        DB::transaction(function () use ($plan, $inputs, $licenseSvc) {
             $user = $this->userSvc->createInternalUser(
                 $inputs['name'],
                 $inputs['email'],
                 $inputs['password']
             );
 
-            return [
-                'user' => $user,
-                'license' => $licenseSvc->bindPlan(
-                    $plan,
-                    $user,
-                    $inputs['recurring']
-                ),
-            ];
+            $license = $licenseSvc->bindPlan(
+                $plan,
+                $user,
+                $inputs['recurring']
+            );
+
+            PlanAssigned::dispatch($user, $plan, $license);
         });
-        PlanAssigned::dispatch($user, $plan, $license);
 
         return redirect()->route('users.create')->with([
             'toastShow' => true,

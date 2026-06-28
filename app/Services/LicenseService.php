@@ -181,9 +181,11 @@ final class LicenseService
 
     public function cancelLicense(License $license): void
     {
-        $license->update(['status' => LicenseStatusEnum::CANCELED]);
+        DB::transaction(function () use ($license) {
+            $license->update(['status' => LicenseStatusEnum::CANCELED]);
 
-        LicenseCanceled::dispatch($license->licensable, $license->plan, $license);
+            LicenseCanceled::dispatch($license->licensable, $license->plan, $license);
+        });
     }
 
     public function activateLicense(License $license): void
