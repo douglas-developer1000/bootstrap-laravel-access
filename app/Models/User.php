@@ -6,7 +6,7 @@ namespace App\Models;
 
 use App\Casts\PhoneCast;
 use App\Libraries\Values\PhoneValue;
-use App\Models\Contracts\Billable;
+use App\Models\Contracts\BillingContactable;
 use App\Models\Contracts\HasLicenseHandling;
 use App\Models\Contracts\HasRoleHandling;
 use App\Notifications\PreResetPasswordNotification;
@@ -43,7 +43,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password', 'phone', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
-final class User extends Authenticatable implements Billable, HasLicenseHandling, HasRoleHandling, MustVerifyEmail
+final class User extends Authenticatable implements BillingContactable, HasLicenseHandling, HasRoleHandling, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, SoftDeletes;
