@@ -74,10 +74,10 @@
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ],
         "pint-n": [
-            "git ls-files --others --exclude-standard | grep '\\.php$' | xargs ./vendor/bin/pint"
+            "git ls-files --others --exclude-standard | grep '\\.php$' | xargs --no-run-if-empty ./vendor/bin/pint"
         ],
         "pint-m": [
-            "git diff --diff-filter=M --name-only | grep '\\.php$' | xargs ./vendor/bin/pint"
+            "git diff --diff-filter=M --name-only | grep '\\.php$' | xargs --no-run-if-empty ./vendor/bin/pint"
         ],
         "pint-a": [
             "composer pint-n",
