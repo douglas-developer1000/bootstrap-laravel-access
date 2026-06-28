@@ -47,11 +47,11 @@ final class UserService
                 return User::getQuery()
                     ->when(
                         $trashed,
-                        fn (Builder $query) => $query->whereNotNull('deleted_at')
+                        fn(Builder $query) => $query->whereNotNull('deleted_at')
                     )
                     ->when(
                         ! $trashed,
-                        fn (Builder $query) => $query->whereNull('deleted_at')
+                        fn(Builder $query) => $query->whereNull('deleted_at')
                     );
             }
 
@@ -114,7 +114,7 @@ final class UserService
      */
     public function extractParams(Request $request, array $inputs, array $booleans = []): array
     {
-        return collect($request->only($inputs))->merge(collect($booleans)->mapWithKeys(fn (string $key) => [
+        return collect($request->only($inputs))->merge(collect($booleans)->mapWithKeys(fn(string $key) => [
             $key => $request->boolean($key),
         ]))->all();
     }
@@ -143,7 +143,6 @@ final class UserService
                 new PhoneValue($phone)
             )
         )->toArray());
-        $user->assignRole('user');
 
         event(new Registered($user));
 
@@ -162,7 +161,7 @@ final class UserService
         $inputs = collect([
             ...$request->only(['name', 'password']),
             ...($photoPath ? ['photo' => $photoPath] : []),
-        ])->filter(fn ($val, $key) => $val !== $user->$key);
+        ])->filter(fn($val, $key) => $val !== $user->$key);
 
         $newPhone = new PhoneValue($request->validated('phone'));
         if (! $newPhone->equals($user->phone)) {
@@ -187,7 +186,7 @@ final class UserService
     {
         $query = User::whereIn('id', $request->validated('remotion'));
         $forceDelete = $qs->contains(
-            fn ($value, $key) => $key === 'trashed' && $value === '1'
+            fn($value, $key) => $key === 'trashed' && $value === '1'
         );
         if ($forceDelete) {
             $query->forceDelete();
