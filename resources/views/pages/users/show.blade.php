@@ -28,13 +28,13 @@
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >
                 <legend class="field-legend bg-light">Dados</legend>
-                <div class="data-box">
+                <div class="data-box" style="--second-column-size: 1fr">
                     <div class="label">Nome:</div>
-                    <div>{{ $user->name }}</div>
+                    <div class="ellipsis">{{ $user->name }}</div>
                     <div class="label">E-mail:</div>
-                    <div>{{ $user->email ?? 'N/A' }}</div>
+                    <div class="ellipsis">{{ $user->email ?? 'N/A' }}</div>
                     <div class="label">Telefone:</div>
-                    <div>{{ $user->phone ?? 'N/A' }}</div>
+                    <div class="ellipsis">{{ $user->phone ?? 'N/A' }}</div>
                 </div>
             </fieldset>
             <fieldset
