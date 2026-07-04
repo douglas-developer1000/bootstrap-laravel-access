@@ -2,12 +2,6 @@
     @vite ([
         'resources/css/pages/generic/default.css',
         'resources/css/pages/generic/create.css',
-        'resources/css/pages/users/create.css',
-    ])
-@endpush
-@push ('ecmascript-bottom')
-    @vite ([
-        'resources/js/pages/users/create.ts',
     ])
 @endpush
 
@@ -54,7 +48,13 @@
                     value="{{ old('password', '') }}"
                     autocomplete="no"
                 />
-                <div
+                <x-packs.plan-license-fields
+                    :plans="$plans"
+                    :additionalRoles="$additionalRoles"
+                    :required="true"
+                />
+
+                {{-- <div
                     class="d-flex align-items-top column-gap-3 justify-content-start"
                 >
                     <x-molecules.select-field
@@ -124,7 +124,7 @@
                             </li>
                         @endforelse
                     </ul>
-                @endforeach
+                @endforeach --}}
                 <x-atoms.submit-btn class="btn-primary create-btn">
                     Criar
                 </x-atoms.submit-btn>

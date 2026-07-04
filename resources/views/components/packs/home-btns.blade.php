@@ -18,7 +18,7 @@
     </div>
     <div class="p-2">
         <a
-            href="{{ route('register.orders.create') }}"
+            href="{{ route('guest.users.create') }}"
             role="button"
             class="btn btn-outline-primary rounded-3 w-100 d-flex justify-content-center align-items-center gap-2"
         >

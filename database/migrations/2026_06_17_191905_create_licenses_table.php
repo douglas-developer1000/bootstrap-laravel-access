@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Libraries\Enums\LicenseStatusEnum;
-use App\Models\License;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -25,7 +24,6 @@ return new class() extends Migration
         Schema::create('licenses', function (Blueprint $table) {
             $table->id();
 
-            $table->jsonb('additionals')->nullable();
             $table->foreignId('plan_id')->constrained()->onDelete('cascade');
             $table->numericMorphs('licensable');
             $table->index('licensable_type');
@@ -40,6 +38,13 @@ return new class() extends Migration
 
             $table->timestamp('starts_at')->nullable();
             $table->timestamp('expires_at')->nullable();
+            $table->timestamp('cancelled_at')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('license_role', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('license_id')->constrained()->onDelete('cascade');
+            $table->foreignId('role_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -49,6 +54,11 @@ return new class() extends Migration
      */
     public function down(): void
     {
+        Schema::table('license_role', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('license_id');
+            $table->dropConstrainedForeignId('role_id');
+        });
+        Schema::dropIfExists('license_role');
         Schema::table('licenses', function (Blueprint $table) {
             $table->dropConstrainedForeignId('plan_id');
         });

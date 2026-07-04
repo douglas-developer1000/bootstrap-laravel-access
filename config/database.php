@@ -151,7 +151,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
@@ -245,13 +245,6 @@ return [
                 'name' => env('USER_NAME_COLUMN_SIZE', 250),
                 'email' => env('USER_EMAIL_COLUMN_SIZE', 250),
                 'password' => env('USER_PASSWORD_COLUMN_SIZE', 255),
-            ],
-            'register-order' => [
-                'email' => env('REGISTER_ORDER_EMAIL_COLUMN_SIZE', 250),
-            ],
-            'register-approval' => [
-                'email' => env('REGISTER_APPROVAL_EMAIL_COLUMN_SIZE', 250),
-                'token' => env('REGISTER_APPROVAL_TOKEN_COLUMN_SIZE', 40),
             ],
             'exchange-exit' => [
                 'person' => [

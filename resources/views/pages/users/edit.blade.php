@@ -27,6 +27,12 @@
                     required
                     value="{{ old('name', $user->name) }}"
                 />
+                <x-packs.plan-license-fields
+                    label="Novo plano:"
+                    :plans="$plans"
+                    :additionalRoles="$additionalRoles"
+                    :phrase="$activeLicense ? 'Selecione um novo plano para trocar' : NULL"
+                />
                 <x-atoms.submit-btn class="btn-primary create-btn">
                     Salvar
                 </x-atoms.submit-btn>

@@ -13,5 +13,8 @@
             justify-content: center;
             transform: none;
         }
+        @media screen and (min-width: 1024px) {
+            padding-top: var(--container-top-space, 0);
+        }
     }
 }

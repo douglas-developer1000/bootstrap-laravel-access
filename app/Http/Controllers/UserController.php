@@ -8,21 +8,25 @@ use App\Events\PlanAssigned;
 use App\Http\Requests\User\UserRequest;
 use App\Models\Plan;
 use App\Models\User;
-use App\Services\ChecklistService;
 use App\Services\LicenseService;
 use App\Services\PlanService;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Number;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 final class UserController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(protected UserService $userSvc)
-    {
+    public function __construct(
+        protected UserService $userSvc,
+        protected PlanService $planSvc,
+        protected LicenseService $licenseSvc,
+    ) {
         // ...
     }
 
@@ -41,14 +45,14 @@ final class UserController extends Controller
      */
     public function show(User $user)
     {
-        $permissions = $user->roles->map(fn ($role) => $role->permissions)->flatten();
+        $permissions = $user->roles->map(fn($role) => $role->permissions)->flatten();
 
         return view('pages.users.show', [
             'user' => $user,
             'roles' => $user->roles,
             'permissions' => $permissions,
             'dPermissions' => $user->getDirectPermissions(),
-            'parsePrice' => fn (float|int $value) => (
+            'parsePrice' => fn(float|int $value) => (
                 Number::currency(
                     number: $value,
                     in: 'BRL',
@@ -60,19 +64,32 @@ final class UserController extends Controller
     }
 
     /**
+     * @return array{
+     *      plans: EloquentCollection<Plan>,
+     *      additionalRoles: Collection<string, EloquentCollection>,
+     * }
+     */
+    protected function pullPlanAndAdditionals(Plan|null $plan = NULL): array
+    {
+        $plans = Plan::when(
+            $plan,
+            fn(Builder $query, Plan $plan) => $query->whereNot('slug', $plan->slug)
+        )->get();
+        return [
+            'plans' => $plans,
+            'additionalRoles' => $plans->mapWithKeys(fn(Plan $plan) => [
+                $plan->slug => $plan->roles()->wherePivot('additional', 1)->get(),
+            ]),
+        ];
+    }
+
+    /**
      * Show the view for user creation (used by super-admin)
      */
-    public function create(ChecklistService $checkSvc)
+    public function create()
     {
-        $plans = Plan::all();
-        $additionalRoles = $plans->mapWithKeys(fn (Plan $plan) => [
-            $plan->slug => $plan->roles()->wherePivot('additional', 1)->get(),
-        ]);
-
         return view('pages.users.create', [
-            'plans' => $plans,
-            'additionalRoles' => $additionalRoles,
-            'boxChecked' => $checkSvc->boxChecked(...),
+            ...$this->pullPlanAndAdditionals(),
         ]);
     }
 
@@ -81,23 +98,48 @@ final class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('pages.users.edit', ['user' => $user]);
+        $activeLicense = $user->activeLicense;
+        return view('pages.users.edit', [
+            'user' => $user,
+            'activeLicense' => $activeLicense,
+            ...$this->pullPlanAndAdditionals($activeLicense?->plan),
+
+            // 'plans' => $data['plans'],
+            // 'additionalRoles' => $data['additionalRoles'],
+
+            // 'plan' => $license?->plan,
+            // 'additionals' => $license?->additionals()->pluck('name'),
+            // 'recurring' => $license?->is_recurring ?? false
+        ]);
     }
 
     /**
      * Show the view for external user creation
+     * TO-DO: remover
      */
-    public function createSigned()
+    public function createByUser()
     {
-        return view('pages.users.create-signed');
+        return view('pages.signup');
     }
 
     /**
      * Update the user by super-admin access
      */
-    public function update(UserRequest $request, int $id)
+    public function update(UserRequest $request, PlanService $planSvc, User $user)
     {
-        $this->userSvc->updateUser($id, $request->validated('name'));
+        $this->userSvc->updateUser($user, $request->validated('name'));
+        if ($request->has('plan')) {
+            $plan = $planSvc->parsePlan($request->input('plan'));
+
+            $license = $this->licenseSvc->bindPlan(
+                $plan,
+                $user,
+                $request->boolean('recurring'),
+                $request->input('additionals', []),
+            );
+
+            PlanAssigned::dispatch($user, $plan, $license);
+        }
 
         return redirect()->route('users.index')->with([
             'toastShow' => true,
@@ -108,31 +150,9 @@ final class UserController extends Controller
     /**
      * Store an user during an internal creation
      */
-    public function store(UserRequest $request, PlanService $planSvc, LicenseService $licenseSvc)
+    public function store(UserRequest $request)
     {
-        /** @var array{name: string, email: string, password: string, recurring: bool } $inputs */
-        $inputs = $this->userSvc->extractParams(
-            $request,
-            ['name', 'email', 'password'],
-            ['recurring']
-        );
-        $plan = $planSvc->parsePlan($request->input('plan'));
-
-        DB::transaction(function () use ($plan, $inputs, $licenseSvc) {
-            $user = $this->userSvc->createInternalUser(
-                $inputs['name'],
-                $inputs['email'],
-                $inputs['password']
-            );
-
-            $license = $licenseSvc->bindPlan(
-                $plan,
-                $user,
-                $inputs['recurring']
-            );
-
-            PlanAssigned::dispatch($user, $plan, $license);
-        });
+        $this->userSvc->createInternalUser($request);
 
         return redirect()->route('users.create')->with([
             'toastShow' => true,
@@ -141,25 +161,15 @@ final class UserController extends Controller
     }
 
     /**
-     * Store an user by the newly authenticated user themselves
+     * Store a new account empty by guest
      */
-    public function storeSigned(UserRequest $request)
+    public function storeByUser(UserRequest $request)
     {
-        /** @var array{ name: string, email: string, password: string, phone: string|null } $inputs */
-        $inputs = $this->userSvc->extractParams(
-            $request,
-            ['name', 'email', 'password', 'phone']
-        );
-        $this->userSvc->createExternalUser(
-            $inputs['name'],
-            $inputs['email'],
-            $inputs['password'],
-            $inputs['phone'],
-        );
+        $this->userSvc->createExternalUser($request);
 
         return redirect()->route('login')->with([
             'toastShow' => true,
-            'toastMsg' => 'Conta criada com sucesso! Autenticação liberada!',
+            'toastMsg' => 'Verifique seu e-mail para confirmar o cadastro!',
         ]);
     }
 
@@ -169,7 +179,7 @@ final class UserController extends Controller
     public function destroy(User $user)
     {
         $this->authorize('remove-user', $user);
-        $this->userSvc->removeUser(id: \intval($user->id));
+        $this->userSvc->removeUser($user);
 
         return redirect()->route(
             'users.index',
@@ -185,7 +195,7 @@ final class UserController extends Controller
      */
     public function destroyTrashed(int $id)
     {
-        $this->userSvc->removeUser(id: $id, trashed: true);
+        $this->userSvc->removeUser(User::onlyTrashed()->findOrFail($id), trashed: true);
 
         return redirect()->route(
             'users.index',

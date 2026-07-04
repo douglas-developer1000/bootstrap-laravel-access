@@ -6,7 +6,8 @@
     'id' => uniqid('el_'),
     'checked' => false,
     'errorMsgId' => NULL,
-    'onchange' => NULL
+    'onchange' => NULL,
+    'disabled' => false,
 ])
 
 <input
@@ -28,6 +29,9 @@
     @endif
     @if (!empty($onchange))
         onchange="{{ $onchange }}"
+    @endif
+    @if (!empty($disabled))
+        @disabled($disabled)
     @endif
 />
 <label

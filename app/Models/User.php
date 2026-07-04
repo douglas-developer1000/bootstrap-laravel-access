@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Casts\PhoneCast;
+use App\Libraries\Enums\LicenseStatusEnum;
 use App\Libraries\Values\PhoneValue;
-use App\Models\Contracts\BillingContactable;
-use App\Models\Contracts\HasLicenseHandling;
-use App\Models\Contracts\HasRoleHandling;
+use App\Models\Contracts\Licensable;
 use App\Notifications\PreResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
 use Carbon\Carbon;
@@ -40,10 +39,12 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon $updated_at
  * @property Carbon $created_at
  * @property-read Collection<ProductCategory> $productCategories
+ * @property-read null|License $activeLicense
+ * @property-read null|License $pendingLicense
  */
 #[Fillable(['name', 'email', 'password', 'phone', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
-final class User extends Authenticatable implements BillingContactable, HasLicenseHandling, HasRoleHandling, MustVerifyEmail
+final class User extends Authenticatable implements Licensable, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, SoftDeletes;
@@ -90,9 +91,16 @@ final class User extends Authenticatable implements BillingContactable, HasLicen
     public function activeLicense(): MorphOne
     {
         return $this->morphOne(License::class, 'licensable')
-            ->where('status', 'active')
+            ->where('status', LicenseStatusEnum::ACTIVE->value)
             ->where('starts_at', '<=', now())
             ->where('expires_at', '>=', now())
+            ->latest();
+    }
+
+    public function pendingLicense(): MorphOne
+    {
+        return $this->morphOne(License::class, 'licensable')
+            ->where('status', LicenseStatusEnum::PENDING->value)
             ->latest();
     }
 
@@ -103,9 +111,9 @@ final class User extends Authenticatable implements BillingContactable, HasLicen
     }
 
     #[Override]
-    protected static function booted()
+    protected static function booted(): void
     {
-        self::deleting(function (User $user) {
+        self::deleting(function (User $user): void {
             if ($user->isForceDeleting()) {
                 $user->licenses()->delete();
             }

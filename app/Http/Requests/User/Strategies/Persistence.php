@@ -15,16 +15,13 @@ use App\Rules\Password\Handlers\{
     QtyUppercase
 };
 use App\Rules\Password\PasswordValid;
-use App\Rules\RegisterApprovalValid;
-use App\Services\Registration\RegisterApprovalService;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Libraries\Values\PhoneValue;
 
 final class Persistence implements Checker
 {
     protected int $nameMaxSize;
     protected int $emailMaxSize;
-    protected int $tokenMaxSize;
-    protected RegisterApprovalService $svc;
 
     public function __construct(protected FormRequest $formRequest)
     {
@@ -34,10 +31,6 @@ final class Persistence implements Checker
         $this->emailMaxSize = \intval(
             config('database.schema.sizes.user.email')
         );
-        $this->tokenMaxSize = \intval(
-            config('database.schema.sizes.register-approval.token')
-        );
-        $this->svc = app(RegisterApprovalService::class);
     }
 
 
@@ -53,7 +46,6 @@ final class Persistence implements Checker
                 'required',
                 'email',
                 "max:{$this->emailMaxSize}",
-                'unique:App\Models\User,email',
             ],
             'password' => [
                 'bail',
@@ -71,16 +63,10 @@ final class Persistence implements Checker
                     )),
                 )
             ],
-            'token' => [
-                'bail',
-                'required',
-                "max:{$this->tokenMaxSize}",
-                new RegisterApprovalValid(
-                    $this->svc->findByEmail(
-                        $this->formRequest->input('email')
-                    ),
-                )
-            ]
+            'phone' => [
+                'nullable',
+                PhoneValue::rule()
+            ],
         ];
     }
 
@@ -94,13 +80,9 @@ final class Persistence implements Checker
             'email.required' => 'Campo obrigatório',
             'email.email' => 'Campo inválido',
             'email.max' => "Tamanho máximo excedido ($this->emailMaxSize)",
-            'email.unique' => 'Campo inválido',
 
             'password.required' => 'Campo obrigatório',
             'password.confirmed' => 'Senha e confirmação são diferentes',
-
-            'token.required' => 'Requisição inválida',
-            'token.max' => 'Requisição inválida',
         ];
     }
 }

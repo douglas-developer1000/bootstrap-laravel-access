@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Events\PlanAssigned;
+use App\Facades\TimingProtection;
 use App\Libraries\Traits\PicRequestHandleTrait;
 use App\Libraries\Values\PhoneValue;
-use App\Models\RegisterApproval;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use App\Services\Contracts\ImgStoragerInterface;
@@ -15,6 +16,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Override;
 
@@ -22,8 +24,10 @@ final class UserService
 {
     use PicRequestHandleTrait;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected PlanService $planSvc,
+        protected LicenseService $licenseSvc,
+    ) {
         // ...
     }
 
@@ -45,11 +49,11 @@ final class UserService
                 return User::getQuery()
                     ->when(
                         $trashed,
-                        fn (Builder $query) => $query->whereNotNull('deleted_at')
+                        fn(Builder $query) => $query->whereNotNull('deleted_at')
                     )
                     ->when(
                         ! $trashed,
-                        fn (Builder $query) => $query->whereNull('deleted_at')
+                        fn(Builder $query) => $query->whereNull('deleted_at')
                     );
             }
 
@@ -86,67 +90,68 @@ final class UserService
         ))->storageProfileImg($request);
     }
 
-    /**
-     * Remove the register approval from database and return the user's phone
-     *
-     * @param  string  $email  The request's email
-     * @param  PhoneValue  $phone  The request's phone used as default phone value
-     * @return PhoneValue The phone from the stored register approval or request
-     */
-    protected function deleteRegisterApproval(string $email, PhoneValue $phone): PhoneValue
+    public function createInternalUser(Request $request): bool
     {
-        /** @var RegisterApproval $registerApproval */
-        $registerApproval = RegisterApproval::where(['email' => $email])->first(['id', 'phone']);
-        $registerApproval->delete();
-        if ($registerApproval->phone->getValue() !== null) {
-            return $registerApproval->phone;
+        try {
+            DB::transaction(function () use ($request) {
+                $plan = $this->planSvc->parsePlan($request->input('plan'));
+
+                $user = User::create([
+                    ...$request->only(['name', 'email']),
+                    'password' => Hash::make($request->input('password')),
+                    'email_verified_at' => now(),
+                ]);
+
+                $license = $this->licenseSvc->bindPlan(
+                    $plan,
+                    $user,
+                    $request->boolean('recurring'),
+                    $request->input('additionals', []),
+                );
+
+                PlanAssigned::dispatch($user, $plan, $license);
+            });
+
+            return true;
+        } catch (\Throwable $th) {
+            return false;
         }
-
-        return $phone;
     }
 
-    /**
-     * @param  string[]  $inputs
-     * @param  string[]  $booleans
-     * @return array<string, string>
-     */
-    public function extractParams(Request $request, array $inputs, array $booleans = []): array
+    public function createExternalUser(Request $request): bool
     {
-        return collect($request->only($inputs))->merge(collect($booleans)->mapWithKeys(fn (string $key) => [
-            $key => $request->boolean($key),
-        ]))->all();
+        return TimingProtection::execWithProtection(function () use ($request) {
+            $user = User::firstWhere('email', $request->input('email'));
+
+            if ($user) {
+                if ($user->hasVerifiedEmail()) {
+                    TimingProtection::fakePasswordVerification($request->input('password'));
+
+                    return false;
+                }
+
+                TimingProtection::gaussianDelay(400, 150);
+                $user->sendEmailVerificationNotification();
+
+                return false;
+            }
+
+            $user = User::create([
+                ...$request->only(['name', 'email', 'password']),
+                'phone' => new PhoneValue($request->input('phone')),
+            ]);
+
+            TimingProtection::gaussianDelay(400, 150);
+
+            event(new Registered($user));
+
+            return true;
+        });
     }
 
-    public function createInternalUser(string $name, string $email, string $password): User
+    public function updateUser(User $user, string $name): void
     {
-        return User::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => Hash::make($password),
-            'email_verified_at' => now(),
-        ]);
-    }
-
-    public function createExternalUser(string $name, string $email, string $password, ?string $phone): User
-    {
-        $user = User::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => $password,
-            'phone' => $this->deleteRegisterApproval(
-                $email,
-                new PhoneValue($phone)
-            ),
-        ]);
-
-        event(new Registered($user));
-
-        return $user;
-    }
-
-    public function updateUser(int $id, string $name)
-    {
-        User::where(['id' => $id])->update(['name' => $name]);
+        $user->update(['name' => $name]);
     }
 
     public function updateUserByOwner(Request $request, User $user)
@@ -156,7 +161,7 @@ final class UserService
         $inputs = collect([
             ...$request->only(['name', 'password']),
             ...($photoPath ? ['photo' => $photoPath] : []),
-        ])->filter(fn ($val, $key) => $val !== $user->$key);
+        ])->filter(fn($val, $key) => $val !== $user->$key);
 
         $newPhone = new PhoneValue($request->validated('phone'));
         if (! $newPhone->equals($user->phone)) {
@@ -168,26 +173,28 @@ final class UserService
         }
     }
 
-    public function removeUser(int $id, bool $trashed = false)
+    public function removeUser(User $user, bool $trashed = false)
     {
         if ($trashed) {
-            User::onlyTrashed()->where(['id' => $id])->forceDelete();
+            $user->forceDelete();
         } else {
-            User::where(['id' => $id])->delete();
+            $user->delete();
         }
     }
 
     public function removeUserList(Request $request, Collection $qs)
     {
-        $query = User::whereIn('id', $request->validated('remotion'));
         $forceDelete = $qs->contains(
-            fn ($value, $key) => $key === 'trashed' && $value === '1'
+            fn($value, $key) => $key === 'trashed' && $value === '1'
         );
-        if ($forceDelete) {
-            $query->forceDelete();
-        } else {
-            $query->delete();
-        }
+
+        when(
+            $forceDelete,
+            fn() => User::onlyTrashed(),
+            fn() => User::query()
+        )->findMany($request->validated('remotion'))->each(
+            fn(User $user) => $this->removeUser($user, $forceDelete)
+        );
     }
 
     public function restore(int $id): void

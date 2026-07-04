@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Services\Contracts\ImgStoragerInterface;
-use App\Services\Contracts\RegistrationInterface;
-use App\Services\Registration\RegistrationService;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Dropbox\TokenProvider;
 use App\Services\Contracts\ImgConverterInterface;
@@ -18,7 +16,6 @@ use App\Services\ImgHandling\DropboxImgStoragerService;
 final class ServiceServiceProvider extends ServiceProvider
 {
     public array $bindings = [
-        RegistrationInterface::class => RegistrationService::class,
         TokenProvider::class => DropboxTokenProviderService::class,
         ImgConverterInterface::class => InterventionImgConverterService::class
     ];

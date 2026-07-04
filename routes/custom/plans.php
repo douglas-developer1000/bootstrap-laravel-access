@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\SettingsPlanController;
 use App\Models\User;
 use App\View\Components\Molecules\SuperuserMenuItems;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,9 @@ Route::get('/', [PlanController::class, 'index'])
      */
     ->name('plans.index')
     ->can('beSuperAdmin', User::class);
+
+Route::get('view', [SettingsPlanController::class, 'index'])
+    ->name('plans.view.index');
 
 Route::get('/create', [PlanController::class, 'create'])
     /**

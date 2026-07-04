@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 Route::post('/signout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
-Route::view('/dashboard', 'pages.dashboard')
+Route::get('/dashboard', [AuthController::class, 'dashboard'])
     ->name('dashboard')
     ->middleware(['auth', 'verified']);
 Route::get('/storage/app/{folder}/{filename}', [ImageController::class, 'find'])

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\RegisterOrderController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\UserController;
 
@@ -19,9 +18,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'reset'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'update'])->name('password.update')->middleware('throttle:10,1');
 
-    Route::get('/register-order', [RegisterOrderController::class, 'create'])->name('register.orders.create');
-    Route::post('/register-order', [RegisterOrderController::class, 'store'])->name('register.orders.store')->middleware('throttle:10,1');
+    Route::get('/signup', [UserController::class, 'createByUser'])->name('guest.users.create');
+    Route::post('/signup', [UserController::class, 'storeByUser'])->name('guest.users.store')->middleware('throttle:10,1');
 });
-
-Route::get('/signup', [UserController::class, 'createSigned'])->name('guest.users.create')->middleware(['signed', 'guest']);
-Route::post('/signup', [UserController::class, 'storeSigned'])->name('guest.users.store')->middleware('guest')->middleware('throttle:10,1');

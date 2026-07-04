@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\Contracts;
+
+interface LicenseStatusStateInterface
+{
+    public function changePlan(): void;
+    public function activateLicense(): void;
+    public function expireLicense(): void;
+    public function cancelLicense(): void;
+    public function abandonLicense(): void;
+}

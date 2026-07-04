@@ -9,8 +9,11 @@ use App\Events\LicenseCanceled;
 use App\Events\LicenseChanged;
 use App\Libraries\Enums\LicenseStatusEnum;
 use App\Models\Contracts\HasLicenseHandling;
+use App\Models\Contracts\Licensable;
+use App\Models\Credit;
 use App\Models\License;
 use App\Models\Plan;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Contracts\Database\Query\Expression;
@@ -44,7 +47,7 @@ final class LicenseService
                 return DB::raw(
                     Str::of('(CASE licenses.licensable_type ')->append(
                         $tables->map(
-                            fn (string $table, string $class) => "WHEN \"{$class}\" THEN (SELECT `{$table}`.name FROM `{$table}` WHERE `{$table}`.id = licenses.licensable_id LIMIT 1)"
+                            fn(string $table, string $class) => "WHEN \"{$class}\" THEN (SELECT `{$table}`.name FROM `{$table}` WHERE `{$table}`.id = licenses.licensable_id LIMIT 1)"
                         )->implode(' ')
                     )->append(' END) as licensableName')->toString()
                 );
@@ -52,9 +55,9 @@ final class LicenseService
 
             protected function getTableReferences(Collection $classes): Collection
             {
-                return $classes->mapWithKeys(fn (string $class) => [
+                return $classes->mapWithKeys(fn(string $class) => [
                     Str::of($class)->replace('\\', '\\\\')->toString() => new $class(),
-                ])->map(fn (Model $instance) => $instance->getTable());
+                ])->map(fn(Model $instance) => $instance->getTable());
             }
 
             /**
@@ -70,8 +73,8 @@ final class LicenseService
                 $qs = collect($request->query());
 
                 return collect(LicenseStatusEnum::cases())->map(
-                    fn (LicenseStatusEnum $status) => $status->value
-                )->mapWithKeys(fn (string $enumKey) => [
+                    fn(LicenseStatusEnum $status) => $status->value
+                )->mapWithKeys(fn(string $enumKey) => [
                     $enumKey => ! $qs->has($enumKey) || $request->boolean($enumKey),
                 ]);
             }
@@ -80,7 +83,7 @@ final class LicenseService
             public function attachQuery(Request $request, Builder $query): Builder
             {
                 $lossTypes = $this->pickLicenseFilters($request)->filter(
-                    fn (bool $presence) => $presence === true
+                    fn(bool $presence) => $presence === true
                 )->keys();
 
                 return parent::attachQuery(
@@ -108,7 +111,7 @@ final class LicenseService
      */
     public function defineLicenseStatusFilter(): array
     {
-        return collect(LicenseStatusEnum::cases())->mapWithKeys(fn (LicenseStatusEnum $status) => [
+        return collect(LicenseStatusEnum::cases())->mapWithKeys(fn(LicenseStatusEnum $status) => [
             $status->value => $status->toString(),
         ])->all();
     }
@@ -118,103 +121,100 @@ final class LicenseService
         return License::hydrate($licenses);
     }
 
-    public function bindPlan(Plan $plan, User $user, bool $isRecurring = false): License
-    {
-        $discount = $this->changeActiveLicense($user);
-
-        return License::create([
-            'plan_id' => $plan->id,
-            'price_paid' => $plan->price - $discount,
-            'licensable_id' => $user->id,
-            'licensable_type' => $user->getMorphClass(),
-            'starts_at' => now(),
-            'expires_at' => $plan->billing_period->advance(now()),
-            'status' => LicenseStatusEnum::PENDING,
-            'is_recurring' => $isRecurring,
-        ]);
-    }
-
     /**
-     * Summary of changeActiveLicense
+     * @todo Enviar e-mail quando o preço da license for zerada ("Sua licença
+     * foi renovada utilizando seus créditos!") ou no envio do boleto/pix avisando
+     * que créditos foram utilizados, quando houver prorata.
      */
-    protected function changeActiveLicense(User $user): float
+    public function bindPlan(Plan $plan, Licensable $licensable, bool $isRecurring = false, array $additionalRoles = []): License
     {
-        /** @var null|License $activeLicense */
-        $activeLicense = $user->activeLicense;
+        $activeLicense = $licensable->activeLicense;
+        /** @var float */
+        $prorata = $activeLicense?->prorata ?? 0.0;
+        $licensable->pendingLicense?->abandonLicense();
 
-        if (! $activeLicense) {
-            return 0.0;
+        if ($prorata >= $plan->price) {
+            $activeLicense?->changePlan();
+
+            $license = License::create([
+                'plan_id' => $plan->id,
+                'price_paid' => 0,
+                'licensable_id' => $licensable->getKey(),
+                'licensable_type' => $licensable->getMorphClass(),
+                'starts_at' => now(),
+                'expires_at' => $plan->billing_period->advance(now()),
+                'status' => LicenseStatusEnum::ACTIVE,
+                'is_recurring' => $isRecurring,
+            ]);
+
+            Credit::create([
+                'licensable_type' => get_class($licensable),
+                'licensable_id' => $licensable->getKey(),
+                'amount' => $prorata - $plan->price,
+                'description' => 'Sobra de prorata na troca de plano'
+            ]);
+            // TO-DO: Enviar um e-mail dizendo: 
+            // "Sua licença foi renovada utilizando seus créditos!"
+
+        } else {
+            $license = License::create([
+                'plan_id' => $plan->id,
+                'price_paid' => $plan->price - $prorata,
+                'licensable_id' => $licensable->getKey(),
+                'licensable_type' => $licensable->getMorphClass(),
+                'starts_at' => now(),
+                'expires_at' => $plan->billing_period->advance(now()),
+                'status' => LicenseStatusEnum::PENDING,
+                'is_recurring' => $isRecurring,
+            ]);
+            if ($prorata > 0) {
+                Credit::create([
+                    'licensable_type' => get_class($licensable),
+                    'licensable_id' => $licensable->getKey(),
+                    'amount' => -$prorata,
+                    'description' => 'Desconto final de prorata finalizando os créditos'
+                ]);
+            }
         }
-        $activeLicense->update([
-            'status' => LicenseStatusEnum::CHANGED,
-        ]);
 
-        return $this->calcLicenseProrata($activeLicense);
-    }
+        $additionals = Role::whereIn('name', $additionalRoles)->pluck('id')->all();
 
-    protected function calcLicenseProrata(License $license): float
-    {
-        $remainDays = $this->calcRemainDays($license);
+        $license->additionals()->sync($additionals);
 
-        return ($remainDays * (1000 * $this->calcPriceByDay($license))) / 1000;
-    }
-
-    protected function calcPriceByDay(License $license): float
-    {
-        $days = $this->calcCompleteUsableDays($license) ?: 1;
-
-        return (($license->price_paid * 1000) / $days) / 1000;
-    }
-
-    protected function calcRemainDays(License $license): int
-    {
-        $usableDays = $this->calcCompleteUsableDays($license);
-        $usedDays = \intval($license->starts_at->diffInDays(now()));
-
-        return $usableDays - $usedDays;
-    }
-
-    protected function calcCompleteUsableDays(License $license): int
-    {
-        return \intval($license->starts_at->diffInDays($license->expires_at));
+        return $license;
     }
 
     public function cancelLicense(License $license): void
     {
         DB::transaction(function () use ($license) {
-            $license->update(['status' => LicenseStatusEnum::CANCELED]);
+            $license->cancelLicense();
 
             LicenseCanceled::dispatch($license->licensable, $license->plan, $license);
         });
     }
 
+    /**
+     * License possible status:
+     * - Pending from:
+     *     + first license
+     *     + plan switch (with active license)
+     * - active with previous cancelling
+     */
     public function activateLicense(License $license): void
     {
         DB::transaction(function () use ($license) {
+            $oldLicense = NULL;
             $licensable = $license->licensable;
-            $oldLicense = $this->deactivateLicense($licensable);
-            $license->update([
-                'status' => LicenseStatusEnum::ACTIVE,
-            ]);
+            if ($license->status === LicenseStatusEnum::PENDING) {
+                $oldLicense = $licensable->activeLicense;
+                $oldLicense?->changePlan();
+            }
+            $license->activateLicense();
 
             if ($oldLicense) {
                 LicenseChanged::dispatch($licensable, $oldLicense->plan, $oldLicense);
             }
             LicenseActivated::dispatch($licensable, $license->plan, $license);
         });
-    }
-
-    protected function deactivateLicense(HasLicenseHandling $licensable): ?License
-    {
-        $activeLicense = $licensable->activeLicense;
-
-        if ($activeLicense) {
-            $activeLicense->update([
-                'status' => LicenseStatusEnum::CHANGED,
-                'expires_at' => now(),
-            ]);
-        }
-
-        return $activeLicense;
     }
 }

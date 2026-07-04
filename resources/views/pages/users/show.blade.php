@@ -83,6 +83,20 @@
                                 <th scope="row" class="text-end align-middle">Recorrente:</th>
                                 <td class="text-start align-middle">{{$license->is_recurring ? 'Sim' : 'Não'}}</td>
                             </tr>
+                            <tr>
+                                <th scope="row" class="text-end align-top pt-4">Recursos Adicionais:</th>
+                                <td class="text-start align-middle">
+                                    <ul class="list-group">
+                                        @forelse ($license->additionals ?? [] as $additional)
+                                            <li class="list-group-item">
+                                                {{ $additional->name }}
+                                            </li>
+                                        @empty
+                                            <li class="list-group-item text-danger">Sem Adicionais</li>
+                                        @endforelse
+                                    </ul>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 @empty

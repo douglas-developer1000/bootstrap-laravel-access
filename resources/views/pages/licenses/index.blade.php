@@ -111,11 +111,11 @@
                                     @php /** @see App\View\Components\Organisms\ConfirmCancelBtn::class */ @endphp
                                     <x-organisms.confirm-cancel-btn
                                         :routeParams="['license' => $license->id]"
-                                        route="plans.cancel"
+                                        route="licenses.cancel"
                                         heading="Cancelar esta licença?"
                                         positiveText="Cancelar licença"
                                         title="Cancelar licença"
-                                        :disabled="!$allowCancel($license)"
+                                        :disabled="!$license->isPreCancellable && !$license->isPostCancellable"
                                     >
                                         Essa licença mudará seu status de 
                                         "{{
@@ -126,12 +126,12 @@
                                     </x-organisms.confirm-cancel-btn>
                                     <x-organisms.confirm-activate-btn
                                         :routeParams="['license' => $license->id]"
-                                        route="plans.activate"
+                                        route="licenses.activate"
                                         heading="Ativar esta licença?"
                                         positiveText="Ativar licença"
                                         negativeText="Ainda não"
                                         title="Ativar licença"
-                                        :disabled="!$allowActivation($license)"
+                                        :disabled="!$license->isActivatable && !$license->isReactivatable"
                                     >
                                         Essa licença mudará seu status de 
                                         "{{

@@ -20,8 +20,6 @@ final class SuperuserMenuItems extends MenuItem
             'Planos' => route('plans.index'),
             'Papéis' => route('roles.index'),
             'Permissões' => route('permissions.index'),
-            'Pedidos' => route('register.orders.index'),
-            'Aprovações' => route('register.approvals.index'),
         ]);
     }
 

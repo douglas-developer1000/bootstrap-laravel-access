@@ -11,10 +11,9 @@ use App\Http\Requests\User\Strategies\AttachRoles;
 use App\Http\Requests\User\Strategies\Destroy;
 use App\Http\Requests\User\Strategies\DetachPermissions;
 use App\Http\Requests\User\Strategies\DetachRoles;
-use App\Http\Requests\User\Strategies\FastPersistence;
+use App\Http\Requests\User\Strategies\AdminPersistence;
 use App\Http\Requests\User\Strategies\Persistence;
 use App\Http\Requests\User\Strategies\Restore;
-use App\Http\Requests\User\Strategies\Update;
 use Exception;
 
 final class UserRequest extends CustomFormRequest
@@ -24,9 +23,9 @@ final class UserRequest extends CustomFormRequest
         $url = url()->current();
         switch ($url) {
             case route('users.update', $this->route('user', 0)):
-                return new Update($this);
+                return new AdminPersistence($this, $this->route('user', 0));
             case route('users.store'):
-                return new FastPersistence($this);
+                return new AdminPersistence($this);
             case route('guest.users.store'):
                 return new Persistence($this);
             case route('users.group.destroy'):

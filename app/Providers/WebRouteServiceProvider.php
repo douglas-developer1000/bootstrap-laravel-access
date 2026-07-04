@@ -43,8 +43,6 @@ final class WebRouteServiceProvider extends ServiceProvider
             collect([
                 ['customers', 'customers.php'],
                 ['settings', 'settings.php'],
-                ['register-approvals', 'register-approvals.php'],
-                ['register-orders', 'register-orders.php'],
                 ['users', 'users.php'],
                 ['roles', 'roles.php'],
                 ['permissions', 'permissions.php'],

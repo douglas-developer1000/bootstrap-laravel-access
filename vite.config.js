@@ -10,6 +10,8 @@ export default defineConfig({
                 'resources/js/bootstrap.ts',
                 'resources/js/components/packs/toast.ts',
                 'resources/js/components/packs/add-details-field.ts',
+                'resources/js/components/packs/plan-license-fields.ts',
+
                 'resources/js/pages/generic/multiselection.ts',
                 'resources/js/pages/generic/poli-multiselection.ts',
                 'resources/js/pages/generic/masks.ts',
@@ -21,7 +23,6 @@ export default defineConfig({
 
                 'resources/css/pages/signup.css',
                 'resources/css/pages/signin.css',
-                'resources/css/pages/register-order.css',
                 'resources/css/pages/settings/user/edit.css',
                 'resources/css/pages/generic/create.css',
                 'resources/css/pages/generic/default.css',
@@ -34,7 +35,7 @@ export default defineConfig({
                 'resources/css/pages/products/categories/show.css',
                 'resources/css/pages/stocks/exit.css',
                 'resources/css/pages/stocks/exit-cards.css',
-                
+
                 'resources/css/components/atoms/create-button.css',
                 'resources/css/components/atoms/form-field-error.css',
                 'resources/css/components/atoms/gate/card.css',
@@ -43,10 +44,11 @@ export default defineConfig({
                 'resources/css/components/atoms/gate/logo.css',
                 'resources/css/components/molecules/accordion-menu.css',
                 'resources/css/components/organisms/extract-btn.css',
+                'resources/css/components/packs/add-details-field.css',
                 'resources/css/components/packs/gate-back-img.css',
                 'resources/css/components/packs/header.css',
                 'resources/css/components/packs/page-heading-row.css',
-                'resources/css/components/packs/add-details-field.css',
+                'resources/css/components/packs/plan-license-fields.blade.css',
                 'resources/css/pages/generic/show.css',
                 'resources/css/pages/stocks/show.css',
                 'resources/css/pages/sales/index.css',
