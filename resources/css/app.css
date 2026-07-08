@@ -54,6 +54,15 @@ ul.dropdown-menu.show:not(:has(li)) {
     top: 50%;
     transform: translateX(-50%) translateY(-50%);
 }
+.indent-1 {
+    text-indent: 1em;
+}
+.indent-2 {
+    text-indent: 2em;
+}
+.translate-three-quarter-y {
+    transform: translateY(-75%);
+}
 
 @view-transition {
     navigation: auto;

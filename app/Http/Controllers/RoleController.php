@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Role\RoleRequest;
+use App\Models\Role;
 use App\Services\ListSelectorService;
 use App\Services\PaginatorService;
 use App\Services\RoleService;
@@ -12,7 +13,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 final class RoleController extends Controller
 {
@@ -28,7 +28,7 @@ final class RoleController extends Controller
     {
         return view('pages.roles.index', [
             'list' => $this->svc->prepareIndex($request),
-            'models' => fn (LengthAwarePaginator $pagination) => (
+            'models' => fn(LengthAwarePaginator $pagination) => (
                 $this->svc->hydrateRole($pagination->all())
             ),
             'filterVisibility' => [
@@ -58,12 +58,23 @@ final class RoleController extends Controller
 
     public function create()
     {
-        return view('pages.roles.create');
+        return view('pages.roles.persistence', [
+            'descriptions' => []
+        ]);
     }
 
     public function edit(Role $role)
     {
-        return view('pages.roles.edit', ['role' => $role]);
+        return view('pages.roles.persistence', [
+            'title' => 'Editar papel',
+            'action' => route('roles.update', $role->id),
+            'method' => 'PUT',
+            'old' => [
+                'name' => $role->name,
+                'summary' => $role->summary,
+            ],
+            'descriptions' => $role->roleDescriptions()->pluck('description')->all()
+        ]);
     }
 
     public function attach(Request $request, Role $role)
@@ -79,7 +90,13 @@ final class RoleController extends Controller
 
     public function store(RoleRequest $request)
     {
-        $this->svc->createRole($request->validated('name'));
+        $this->svc->bindDescriptions(
+            $this->svc->createRole(
+                name: $request->input('name'),
+                summary: $request->input('summary')
+            ),
+            $request->input('descriptions', []),
+        );
 
         return redirect()->route('roles.index')->with([
             'toastShow' => true,
@@ -87,9 +104,17 @@ final class RoleController extends Controller
         ]);
     }
 
-    public function update(RoleRequest $request)
+    public function update(RoleRequest $request, Role $role)
     {
-        $this->svc->updateRole($request->route('role'), $request->validated('name'));
+        $this->svc->bindDescriptions(
+            role: $this->svc->updateRole(
+                role: $role,
+                name: $request->input('name'),
+                summary: $request->input('summary')
+            ),
+            descriptions: $request->input('descriptions', []),
+            clear: true
+        );
 
         return redirect()->route('roles.index')->with([
             'toastShow' => true,

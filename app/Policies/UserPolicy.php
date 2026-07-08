@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Libraries\Enums\PermissionNameEnum;
+use App\Libraries\Enums\RoleNameEnum;
 use App\Models\User;
 // use Illuminate\Auth\Access\Response;
 
@@ -12,7 +13,7 @@ final class UserPolicy
 {
     public function beSuperAdmin(User $user): bool
     {
-        return $user->hasRole('super-admin');
+        return $user->hasRole(RoleNameEnum::SUPER_ADMIN);
     }
 
     /**

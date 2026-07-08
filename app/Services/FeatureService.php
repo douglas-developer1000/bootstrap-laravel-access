@@ -9,6 +9,8 @@ use App\Libraries\Enums\PermissionNameEnum;
 use App\Libraries\Enums\PlanNameEnum;
 use App\Libraries\Enums\RoleNameEnum;
 use App\Models\Plan;
+use App\Models\Role;
+use App\Models\RoleDescription;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -18,7 +20,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Override;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 final class FeatureService
 {
@@ -134,7 +135,7 @@ final class FeatureService
         $this->plans = collect([
             PlanNameEnum::MODULE_A->value => collect()
                 ->push([
-                    'description' => null,
+                    'description' => PlanNameEnum::MODULE_A->description(),
                     'price' => 5.0,
                     'billing_period' => BillingPeriodEnum::MONTHLY,
                     'roles' => [
@@ -146,7 +147,7 @@ final class FeatureService
             PlanNameEnum::MODULE_B->value => collect()
                 ->push(
                     [
-                        'description' => 'supplier (YES/NO), discount (YES/NO)',
+                        'description' => PlanNameEnum::MODULE_B->description(),
                         'price' => 7.5,
                         'billing_period' => BillingPeriodEnum::MONTHLY,
                         'roles' => [
@@ -164,7 +165,7 @@ final class FeatureService
                 ->all(),
             PlanNameEnum::MODULE_C->value => collect()
                 ->push([
-                    'description' => 'Supplier (YES/NO), DISCOUNT (YES/NO), CUSTOMER(YES/NO)',
+                    'description' => PlanNameEnum::MODULE_C->description(),
                     'price' => 9.0,
                     'billing_period' => BillingPeriodEnum::MONTHLY,
                     'roles' => [
@@ -182,7 +183,7 @@ final class FeatureService
                 ->all(),
             PlanNameEnum::MODULE_D->value => collect()
                 ->push([
-                    'description' => 'Supplier (YES/NO), DISCOUNT (YES/NO), CUSTOMER(YES/NO), PAYMENTCARD (YES/NO), PAYMENTCARD_DISCOUNT (YES/NO), EXCHANGE (YES/NO), GARBAGE (YES/NO), PERSONAL_USE (YES/NO), DEMONSTRATION (YES/NO), LOSS (YES/NO)',
+                    'description' => PlanNameEnum::MODULE_D->description(),
                     'price' => 10.0,
                     'billing_period' => BillingPeriodEnum::MONTHLY,
                     'roles' => [
@@ -225,7 +226,7 @@ final class FeatureService
             {
                 $roles = $this->features->keys();
 
-                return Permission::whereDoesntHave('roles', fn (EloquentBuilder $query) => (
+                return Permission::whereDoesntHave('roles', fn(EloquentBuilder $query) => (
                     $query->whereIn('id', Role::whereIn('name', $roles->all())->get('id')->pluck('id')->all())
                 ))->select()->getQuery();
             }
@@ -244,22 +245,54 @@ final class FeatureService
         );
     }
 
+    protected function syncRoleDescriptions(Role $role): void
+    {
+        $roleEnum = RoleNameEnum::from($role->name);
+        $enumDescs = collect($roleEnum->descriptions());
+
+        /** @var Collection $dbDescriptions */
+        $dbDescriptions = $role->roleDescriptions()->get(['id', 'description']);
+
+        // remove the deprecated from database
+        RoleDescription::whereIn(
+            'id',
+            $dbDescriptions->filter(
+                fn(RoleDescription $roleDesc) => !$enumDescs->contains(
+                    fn(string $enumDesc) => $enumDesc === $roleDesc->description
+                )
+            )->pluck('id')
+        )->delete();
+
+        // insert the new descriptions from Enum
+        $role->roleDescriptions()->createMany(
+            $enumDescs->filter(
+                fn(string $enumDesc) => !$dbDescriptions->contains(
+                    fn(RoleDescription $roleDesc) => $roleDesc->description === $enumDesc
+                )
+            )->map(fn(string $desc) => ['description' => $desc])->all()
+        );
+    }
+
     public function update()
     {
         $this->features->each(function (array $permissions, string $roleName) {
             /** @var Role $role */
             $role = Role::firstOrCreate([
                 'name' => $roleName,
+            ], [
+                'summary' => RoleNameEnum::from($roleName)->summary()
             ]);
+            $this->syncRoleDescriptions($role);
+
             $role->givePermissionTo(
                 ...collect($permissions)->map(
-                    fn (string $permissionName) => Permission::firstOrCreate(
+                    fn(string $permissionName) => Permission::firstOrCreate(
                         [
                             'name' => $permissionName,
                         ]
                     )
                 )->filter(
-                    fn (Permission $permission) => ! $role->hasPermissionTo($permission)
+                    fn(Permission $permission) => ! $role->hasPermissionTo($permission)
                 )->all()
             );
         });
@@ -271,11 +304,11 @@ final class FeatureService
                 $billingPeriod = $planInfo->get('billing_period');
                 $slug = Str::of($planName)->append(' ')->append($billingPeriod->value)->when(
                     $planInfo->get('sub-label'),
-                    fn (Stringable $value, string $subLabel) => $value->append($subLabel)
+                    fn(Stringable $value, string $subLabel) => $value->append($subLabel)
                 )->slug()->toString();
                 $name = Str::of(PlanNameEnum::from($planName)->toString())->when(
                     $planInfo->get('sub-label'),
-                    fn (Stringable $value, string $subLabel) => $value->append($subLabel)
+                    fn(Stringable $value, string $subLabel) => $value->append($subLabel)
                 )->toString();
 
                 $plan = Plan::firstOrCreate([
@@ -299,7 +332,7 @@ final class FeatureService
                     Role::whereIn(
                         'name',
                         $additionals->all()
-                    )->pluck('id')->mapWithKeys(fn (int $id) => [
+                    )->pluck('id')->mapWithKeys(fn(int $id) => [
                         $id => ['additional' => 1],
                     ])->all()
                 );

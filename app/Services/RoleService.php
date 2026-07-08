@@ -60,7 +60,7 @@ final class RoleService
             {
                 return $query->when(
                     $request->boolean('no-user'),
-                    fn (Builder $query) => $query->joinSub(
+                    fn(Builder $query) => $query->joinSub(
                         Role::whereDoesntHave('users')->select('id'),
                         'roles_no_user',
                         'roles.id',
@@ -74,7 +74,7 @@ final class RoleService
             {
                 return $query->when(
                     $request->boolean('no-plan'),
-                    fn (Builder $query) => $query->joinSub(
+                    fn(Builder $query) => $query->joinSub(
                         Role::whereDoesntHave('plans')
                             ->whereNot('name', RoleNameEnum::SUPER_ADMIN->value)
                             ->select('id'),
@@ -90,7 +90,7 @@ final class RoleService
             {
                 return $query->when(
                     $request->boolean('for-plan'),
-                    fn (Builder $query) => $query->whereIn(
+                    fn(Builder $query) => $query->whereIn(
                         'name',
                         $this->listSelector->getList('rolesToPlan')
                     )
@@ -151,16 +151,27 @@ final class RoleService
         );
     }
 
-    public function createRole(string $name)
+    public function createRole(string $name, string $summary): Role
     {
-        Role::create(['name' => $name]);
+        return Role::create(['name' => $name, 'summary' => $summary]);
     }
 
-    public function updateRole(string|int $id, string $name): void
+    public function bindDescriptions(Role $role, array $descriptions, bool $clear = FALSE): void
     {
-        /** @var Role $role */
-        $role = Role::findOrFail($id);
-        $role->update(['name' => $name]);
+        if ($clear) {
+            $role->roleDescriptions()->delete();
+        }
+        $role->roleDescriptions()->createMany(
+            collect($descriptions)->map(
+                fn(string $description) => ['description' => $description]
+            )->all()
+        );
+    }
+
+    public function updateRole(Role $role, string $name, string $summary): Role
+    {
+        $role->update(['name' => $name, 'summary' => $summary]);
+        return $role;
     }
 
     public function removeRole(Role $role): void
@@ -183,7 +194,7 @@ final class RoleService
         // This remotion occurs by each model, because
         // the spatie permissions package removes the roles
         // from the cache this way
-        collect($ids)->each(fn ($id) => Role::findById($id)->delete())->all();
+        collect($ids)->each(fn($id) => Role::findById($id)->delete())->all();
     }
 
     public function bindPermissionGroupToRole(array $ids, Role $role): void

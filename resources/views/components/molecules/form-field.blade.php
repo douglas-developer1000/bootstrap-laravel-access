@@ -1,7 +1,7 @@
 @props ([
     'id' => uniqid('el_'),
     'name',
-    'errorName' => $name,
+    'errorName' => $name ?? NULL,
     'type' => 'text',
     'labelText' => NULL,
     'placeholder' => NULL,
@@ -29,12 +29,12 @@
                 'form-label',
                 'px-0',
                 'fs-075',
-                'text-danger' => $errors->has($errorName)
+                'text-danger' => !empty($errorName) && $errors->has($errorName)
             ])
             >{{ $labelText }}</label
         >
     @endif
-    @php ($errorMsgId = $errors->has($errorName) ? uniqid('err_') : '')
+    @php ($errorMsgId = !empty($errorName) && $errors->has($errorName) ? uniqid('err_') : '')
     <input
         @class ([
             'form-control',
@@ -43,17 +43,19 @@
             'pe-2',
             'text-start',
             'w-auto' => $size === 'auto',
-            'is-invalid' => $errors->has($errorName),
+            'is-invalid' => !empty($errorName) && $errors->has($errorName),
         ])
         @if ($placeholder !== null)
             placeholder="{{ $placeholder }}"
         @endif
-        name="{{ $name }}"
+        @if (!empty($name))
+            name="{{ $name }}"
+        @endif
         id="{{ $id }}"
         type="{{ $type }}"
         value="{{ $value }}"
         lang="{{ $lang }}"
-        @if ($errors->has($errorName))
+        @if (!empty($errorName) && $errors->has($errorName))
             aria-describedby="{{ $errorMsgId }}"
         @endif
         @if ($required !== false)
@@ -64,9 +66,9 @@
             data-{{ $attrKey }}="{{ $attrVal }}"
         @endforeach
     />
-    @error ($errorName)
+    @if (!empty($errorName) && $errors->has($errorName))
         <x-atoms.form-field-error id="{{ $errorMsgId }}">
             {{ $message  }}
         </x-atoms.form-field-error>
-    @enderror
+    @endif
 </div>

@@ -11,7 +11,6 @@ use App\Http\Requests\Role\Strategies\Destroy;
 use App\Http\Requests\Role\Strategies\Detach;
 use App\Http\Requests\Role\Strategies\Marking;
 use App\Http\Requests\Role\Strategies\Persistence;
-use App\Http\Requests\Role\Strategies\Update;
 use Exception;
 
 final class RoleRequest extends CustomFormRequest
@@ -26,10 +25,10 @@ final class RoleRequest extends CustomFormRequest
                 return new Marking($this->route('role', 0), $this);
             case route('roles.store'):
                 return new Persistence();
+            case route('roles.update', $this->route('role', 0)):
+                return new Persistence($this->route('role', 0));
             case route('roles.group.bind', $this->route('role', 0)):
                 return new Attach();
-            case route('roles.update', $this->route('role', 0)):
-                return new Update(id: $this->route('role', 0));
             case route('roles.group.destroy'):
                 return new Destroy();
             case route('roles.group.unbind', $this->route('role', 0)):

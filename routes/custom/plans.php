@@ -19,6 +19,9 @@ Route::get('/', [PlanController::class, 'index'])
 Route::get('view', [SettingsPlanController::class, 'index'])
     ->name('plans.view.index');
 
+Route::get('view/{plan}', [SettingsPlanController::class, 'show'])
+    ->name('plans.view.show');
+
 Route::get('/create', [PlanController::class, 'create'])
     /**
      * @see view('pages.plans.index')

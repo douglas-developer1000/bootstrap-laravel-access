@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Libraries\Enums\BillingPeriodEnum;
-use App\Libraries\Traits\InputPickerTrait;
 use App\Models\Plan;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
@@ -18,8 +17,6 @@ use Spatie\Permission\Models\Role;
 
 final class PlanService
 {
-    use InputPickerTrait;
-
     public function __construct(protected ListSelectorService $listSelector)
     {
         // ...
@@ -82,16 +79,13 @@ final class PlanService
         $name = $request->input('name');
         $billingPeriod = BillingPeriodEnum::from($request->input('billing_period'));
 
-        return $this->pickInputs(
-            $request,
-            [
-                'name' => $name,
-                'slug' => $this->mountSlug($name, $billingPeriod),
-                'billing_period' => $billingPeriod,
-                'price' => $request->input('price'),
-            ],
-            'description'
-        );
+        return [
+            'name' => $name,
+            'slug' => $this->mountSlug($name, $billingPeriod),
+            'billing_period' => $billingPeriod,
+            'price' => $request->input('price'),
+            'description' => $request->input('description')
+        ];
     }
 
     /**
@@ -115,7 +109,7 @@ final class PlanService
         return Role::whereIn(
             'name',
             $roleNames
-        )->get('id')->pluck('id')->mapWithKeys(fn (int $id) => [
+        )->get('id')->pluck('id')->mapWithKeys(fn(int $id) => [
             $id => ['additional' => $additionals->contains($id)],
         ])->all();
     }

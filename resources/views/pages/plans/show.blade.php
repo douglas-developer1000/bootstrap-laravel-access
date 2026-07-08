@@ -54,7 +54,7 @@
                         <i class="bi bi-wrench"></i>
                     </x-atoms.button>
                 </div>
-                <div class="data-box">
+                <div class="data-box" style="--second-column-size: 1fr">
                     <div class="label">Nome:</div>
                     <div>{{ $plan->name }}</div>
                     <div class="label">Descrição:</div>

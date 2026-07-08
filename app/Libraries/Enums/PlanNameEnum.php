@@ -16,11 +16,20 @@ enum PlanNameEnum: string
     public function toString(): string
     {
         return match ($this) {
-            self::MODULE_A => 'Módulo A',
-            self::MODULE_B => 'Módulo B',
-            self::MODULE_C => 'Módulo C',
-            self::MODULE_D => 'Módulo D',
-            default => throw new Exception('Tipo de Módulo inválido')
+            self::MODULE_A => 'Módulo Simples',
+            self::MODULE_B => 'Módulo Básico',
+            self::MODULE_C => 'Módulo Médio',
+            self::MODULE_D => 'Módulo Pro',
+        };
+    }
+
+    public function description(): string
+    {
+        return match ($this) {
+            self::MODULE_A => 'Adequado para quem quer apenas conhecer o sistema.',
+            self::MODULE_B => 'Controle básico! Nada mais...',
+            self::MODULE_C => 'Ideal para quem quer mais controle.',
+            self::MODULE_D => 'Gerencie tudo o que for possível e mais um pouco...',
         };
     }
 }

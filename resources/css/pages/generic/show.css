@@ -17,7 +17,7 @@
         grid-template-columns: max-content var(--second-column-size, max-content);
         grid-template-rows: repeat(auto-fit, max-content);
         column-gap: 1rem;
-        row-gap: 0.5rem;
+        row-gap: var(--box-row-gap, 0.5em);
 
         .label {
             text-align: right;

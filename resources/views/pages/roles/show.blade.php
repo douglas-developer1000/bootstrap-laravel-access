@@ -32,6 +32,25 @@
             <fieldset
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >
+                <legend class="field-legend bg-light">Dados:</legend>
+                <div>
+                    <div class="fw-semibold">Resumo:</div>
+                    <div class="indent-2">{{ $role->summary }}</div>
+                </div>
+            </fieldset>
+            <fieldset
+                class="border border-1 border-dark rounded-1 fieldset-tag"
+            >
+                <legend class="field-legend bg-light">Descrições:</legend>
+                <ul class="list-group">
+                    @foreach ($role->roleDescriptions()->pluck('description') as $description)
+                        <li class="list-group-item">{{ $description }}</li>
+                    @endforeach
+                </ul>
+            </fieldset>
+            <fieldset
+                class="border border-1 border-dark rounded-1 fieldset-tag"
+            >
                 <legend class="field-legend bg-light">Utilizadores</legend>
                 <table class="table tabular-data">
                     <thead>

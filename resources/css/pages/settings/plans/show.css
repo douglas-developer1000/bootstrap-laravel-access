@@ -1,0 +1,33 @@
+@scope(.main-default) {
+    .payment {
+        display: flex;
+        margin-block: 1em;
+        justify-content: center;
+        .item {
+            --border-radius: 0.75em;
+            
+            border: 1px solid;
+            padding-block: 0.25em;
+        }
+        .left {
+            border-color: currentColor;
+            border-right-width: 0;
+            border-top-left-radius: var(--border-radius);
+            border-bottom-left-radius: var(--border-radius);
+            padding-left: 0.5em;
+            padding-right: 0.25em;
+        }
+        .right {
+            border-left-width: 0;
+            padding-right: 0.5em;
+            border-color: currentColor;
+        }
+        .price {
+            padding-left: 0.25em;
+            border-left-width: 0;
+            border-top-right-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            padding-right: 0.5em;
+        }
+    }
+}

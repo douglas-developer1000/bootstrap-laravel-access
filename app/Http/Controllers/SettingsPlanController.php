@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Plan;
+use App\Models\Role;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Number;
-use Spatie\Permission\Models\Role;
 
 final class SettingsPlanController extends Controller
 {
@@ -30,14 +30,38 @@ final class SettingsPlanController extends Controller
             'title' => 'Planos disponíveis',
             'plans' => Plan::all(),
             'roles' => $roles,
-            'parsePrice' => fn(float|int $value) => (
-                Number::currency(
-                    number: $value,
-                    in: 'BRL',
-                    locale: 'pt_BR',
-                    precision: 2
-                )
-            )
+            'parsePrice' => $this->parsePrice(...),
         ]);
+    }
+
+    public function show(Plan $plan): View
+    {
+        [$core, $additional] = $plan->roles->partition(
+            fn(Role $role) => $role->pivot->additional === 0
+        );
+
+        return view('pages.settings.plans.show', [
+            'plan' => $plan,
+            'title' => "Visão geral",
+            'roleDescriptions' => [
+                'core' => $core->flatMap(
+                    fn(Role $role) => $role->roleDescriptions()->pluck('description')
+                ),
+                'additional' => $additional->flatMap(
+                    fn(Role $role) => $role->roleDescriptions()->pluck('description')
+                ),
+            ],
+            'parsePrice' => $this->parsePrice(...),
+        ]);
+    }
+
+    protected function parsePrice(float|int $value): string
+    {
+        return Number::currency(
+            number: $value,
+            in: 'BRL',
+            locale: 'pt_BR',
+            precision: 2
+        );
     }
 }

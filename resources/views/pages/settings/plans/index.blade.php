@@ -20,8 +20,8 @@
                         <div class="features-title">Recursos</div>
                         <ul class="list">
                             @foreach ($roles[$plan->slug]['core'] as $role)
-                                <li class="list-term">
-                                    {{ RoleNameEnum::from($role->name)->description() ?? '' }}
+                                <li class="list-item">
+                                    {{ $role->summary }}
                                 </li>
                             @endforeach
                         </ul>
@@ -30,18 +30,24 @@
                         <div class="additionals-title">Adicionais</div>
                         <ul class="list">
                             @forelse ($roles[$plan->slug]['additionals'] as $role)
-                                <li class="list-term">
-                                    {{ RoleNameEnum::from($role->name)->description() ?? '' }}
+                                <li class="list-item">
+                                    {{ $role->summary }}
                                 </li>
                             @empty
-                                <li class="list-term text-danger">
+                                <li class="list-item text-danger">
                                     Sem adicionais
                                 </li>
                             @endforelse
                         </ul>
                     </div>
                     <div class="spacer"></div>
-                    <x-atoms.button class="btn-primary">
+                    <x-atoms.button
+                        class="btn-primary"
+                        format="anchor"
+                        href="{{
+                            route('plans.view.show', ['plan' => $plan])
+                        }}"
+                    >
                         Acesse aqui
                     </x-atoms.button>
                 </article>

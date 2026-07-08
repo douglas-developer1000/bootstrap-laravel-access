@@ -60,7 +60,7 @@
                 >
                     @foreach (BillingPeriodEnum::cases() as $type)
                         <option
-                            @selected ($type->value == old('type', ''))
+                            @selected ($type->value == old('type', $plan->billing_period->value))
                             value="{{ $type->value }}"
                         >
                             {{ $type->toString() }}

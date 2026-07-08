@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Permission\Models\Role;
 
 /**
  * @property int $id
@@ -38,6 +38,11 @@ final class Plan extends Model
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'plan_role')->withPivot('additional');
+    }
+
+    public function roleDescriptions(): HasManyThrough
+    {
+        return $this->hasManyThrough(RoleDescription::class, Role::class);
     }
 
     public function licenses(): HasMany
