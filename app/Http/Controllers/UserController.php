@@ -103,13 +103,6 @@ final class UserController extends Controller
             'user' => $user,
             'activeLicense' => $activeLicense,
             ...$this->pullPlanAndAdditionals($activeLicense?->plan),
-
-            // 'plans' => $data['plans'],
-            // 'additionalRoles' => $data['additionalRoles'],
-
-            // 'plan' => $license?->plan,
-            // 'additionals' => $license?->additionals()->pluck('name'),
-            // 'recurring' => $license?->is_recurring ?? false
         ]);
     }
 
