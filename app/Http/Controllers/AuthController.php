@@ -43,7 +43,7 @@ final class AuthController extends Controller
     {
         /** @var User */
         $user = Auth::user();
-        if ($user->can('beSuperAdmin', User::class) || $user->licenses()->exists()) {
+        if ($user->can('beSuperAdmin', User::class) || $user->activeLicense()->exists()) {
             return view('pages.dashboard');
         }
         return redirect()->route('plans.view.index');
