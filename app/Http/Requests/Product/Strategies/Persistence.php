@@ -7,14 +7,23 @@ namespace App\Http\Requests\Product\Strategies;
 use App\Http\Requests\Checker;
 use App\Libraries\Traits\ImgCheckerTrait;
 use App\Libraries\Traits\OneOrManyMsgTrait;
+use App\Models\ProductCategory;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
-class Persistence implements Checker
+final class Persistence implements Checker
 {
-    use OneOrManyMsgTrait, ImgCheckerTrait;
+    use ImgCheckerTrait, OneOrManyMsgTrait;
+
     protected int $nameMaxSize;
+
     protected int $nameMinSize;
+
     protected int $obsMaxSize;
+
     protected int $detailsMaxSize;
+
+    protected User $user;
 
     public function __construct()
     {
@@ -30,7 +39,23 @@ class Persistence implements Checker
         $this->detailsMaxSize = \intval(
             config('database.schema.sizes.product.details.max')
         );
+        $this->user = Auth::user();
         $this->loadImgProps();
+    }
+
+    protected function getProductCategoryRules(): array
+    {
+        if ($this->user->cannot('viewAny', ProductCategory::class)) {
+            return [];
+        }
+
+        return [
+            'category' => [
+                'required',
+                'integer',
+                'exists:product_categories,id',
+            ],
+        ];
     }
 
     public function rules(): array
@@ -40,23 +65,31 @@ class Persistence implements Checker
                 'bail',
                 'required',
                 "min:{$this->nameMinSize}",
-                "max:{$this->nameMaxSize}"
+                "max:{$this->nameMaxSize}",
             ],
             'obs' => [
                 'nullable',
-                "max:{$this->obsMaxSize}"
+                "max:{$this->obsMaxSize}",
             ],
             'details' => [
                 'nullable',
                 'json',
-                "max:{$this->detailsMaxSize}"
+                "max:{$this->detailsMaxSize}",
             ],
-            'category' => [
-                'required',
-                'integer',
-                'exists:product_categories,id'
-            ],
+            ...$this->getProductCategoryRules(),
             ...$this->pickImgRules(required: false),
+        ];
+    }
+
+    protected function getProductCategoryMessages(): array
+    {
+        if ($this->user->cannot('viewAny', ProductCategory::class)) {
+            return [];
+        }
+
+        return [
+            'category.required' => 'Campo obrigatório',
+            'category.exists' => 'Opção inválida',
         ];
     }
 
@@ -88,9 +121,7 @@ class Persistence implements Checker
             'details.max' => 'Quantidade de detalhes excedido',
             'details.json' => 'Detalhes inválidos',
 
-            'category.required' => 'Campo obrigatório',
-            'category.exists' => 'Opção inválida',
-
+            ...$this->getProductCategoryMessages(),
             ...$this->pickImgMessages(required: false),
         ];
     }

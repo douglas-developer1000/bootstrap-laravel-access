@@ -211,22 +211,24 @@
                                             </x-organisms.confirm-restore-btn>
                                         </li>
                                     @else
-                                        <li>
-                                            <x-atoms.button
-                                                format="anchor"
-                                                class="btn btn-success"
-                                                href="{{
-                                                    route('stocks.exits.sale.create', [
-                                                        'exitType' => StockExitTypeEnum::SALE->value,
-                                                        'customer' => $customer->id
-                                                    ])
-                                                }}"
-                                                title="Vender produtos"
-                                                :disabled="!$hasAccess('createSaleExit', [StockExit::class, StockExitTypeEnum::SALE, $customer])"
-                                            >
-                                                <i class="bi bi-cash-coin"></i>
-                                            </x-atoms.button>
-                                        </li>
+                                        @can('createSaleExit', [StockExit::class, StockExitTypeEnum::SALE, $customer])
+                                            <li>
+                                                <x-atoms.button
+                                                    format="anchor"
+                                                    class="btn btn-success"
+                                                    href="{{
+                                                        route('stocks.exits.sale.create', [
+                                                            'exitType' => StockExitTypeEnum::SALE->value,
+                                                            'customer' => $customer->id
+                                                        ])
+                                                    }}"
+                                                    title="Vender produtos"
+                                                    :disabled="!$hasAccess('createSaleExit', [StockExit::class, StockExitTypeEnum::SALE, $customer])"
+                                                >
+                                                    <i class="bi bi-cash-coin"></i>
+                                                </x-atoms.button>
+                                            </li>
+                                        @endcan
                                         <li>
                                             <x-organisms.confirm-rm-btn
                                                 :routeParams="['customer' => $customer->id]"

@@ -16,6 +16,12 @@
                 <article class="plan-item">
                     <div class="plan-name">{{ $plan->name }}</div>
                     <div class="plan-price">{{ $parsePrice($plan->price) }}</div>
+                    @if ($activeLicense?->plan->slug === $plan->slug)
+                        <div class="active-plan">Plano atual</div>
+                    @endif
+                    @if ($pendingLicense?->plan->slug === $plan->slug)
+                        <div class="pending-plan">Aguardando</div>
+                    @endif
                     <div class="features">
                         <div class="features-title">Recursos</div>
                         <ul class="list">

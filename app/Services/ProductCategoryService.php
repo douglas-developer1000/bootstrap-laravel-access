@@ -8,8 +8,8 @@ use App\Models\ProductCategory;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Override;
@@ -17,10 +17,12 @@ use Override;
 final class ProductCategoryService
 {
     protected User $user;
+
     public function __construct()
     {
         $this->user = Auth::user();
     }
+
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
         return (new class($this->user) extends AbstractPaginatorIndex
@@ -29,6 +31,7 @@ final class ProductCategoryService
             {
                 parent::__construct();
             }
+
             #[Override]
             public function query(Request $request): Builder
             {
@@ -40,13 +43,14 @@ final class ProductCategoryService
             public function attachQuery(Request $request, Builder $query): Builder
             {
                 $trashed = $request->boolean('trashed');
-                $deletedColumn = (new ProductCategory)->getDeletedAtColumn();
+                $deletedColumn = (new ProductCategory())->getDeletedAtColumn();
                 if ($trashed) {
                     return parent::attachQuery(
                         $request,
                         $query->whereNotNull($deletedColumn)
                     );
                 }
+
                 return parent::attachQuery(
                     $request,
                     $query->whereNull($deletedColumn)
@@ -65,12 +69,12 @@ final class ProductCategoryService
     }
 
     /**
-     * @param Request $request
      * @return array{name: string, parent_id: int|null}
      */
     public function extractProductCategoryParams(Request $request)
     {
         $inheritance = $request->input('inheritance');
+
         return [
             'name' => $request->input('name'),
             'parent_id' => $inheritance ? \intval($inheritance) : $inheritance,
@@ -79,8 +83,8 @@ final class ProductCategoryService
 
     /**
      * Create a new ProductCategory instance.
-     * 
-     * @param array{name: string, parent_id: string|int|null} $data
+     *
+     * @param  array{name: string, parent_id: string|int|null}  $data
      */
     public function createCategory(array $data): ?ProductCategory
     {
@@ -95,8 +99,11 @@ final class ProductCategoryService
         return ProductCategory::where(['id' => $id])->update($data);
     }
 
-    public function getProductCategories(array $columns, array $except = [], ?ProductCategory $category = NULL)
+    public function getProductCategories(array $columns, array $except = [], ?ProductCategory $category = null): Collection
     {
+        if ($this->user->cannot('viewAny', ProductCategory::class)) {
+            return collect([ProductCategory::getAnonymousCategory()]);
+        }
         $query = ProductCategory::whereBelongsTo($this->user)
             ->whereNotIn('id', $except)
             ->select($columns);
@@ -109,11 +116,12 @@ final class ProductCategoryService
             if ($hasParentDeleted) {
                 $query = $query->union(
                     ProductCategory::onlyTrashed()->where([
-                        'id' => $category->parent_id
+                        'id' => $category->parent_id,
                     ])->select($columns)
                 );
             }
         }
+
         return $query->get();
     }
 
@@ -135,14 +143,15 @@ final class ProductCategoryService
         while ($category) {
             $list->prepend($category->name);
             $category = $category->parent_id ? ProductCategory::withTrashed()->where([
-                'id' => $category->parent_id
-            ])->first(['name', 'parent_id']) : NULL;
+                'id' => $category->parent_id,
+            ])->first(['name', 'parent_id']) : null;
         }
+
         return $list->all();
     }
 
     /**
-     * @param ProductCategory[] $categories
+     * @param  ProductCategory[]  $categories
      */
     public function removeProductCategoryList(array $categories): void
     {
@@ -158,6 +167,7 @@ final class ProductCategoryService
                 $this->collectChildrenIds($category->children, $ids);
             }
         }
+
         return $ids;
     }
 
@@ -173,7 +183,7 @@ final class ProductCategoryService
 
     public function restoreProductCategoryGroup(array $categories): void
     {
-        collect($categories)->each(fn($category) => $this->restoreProductCategory($category));
+        collect($categories)->each(fn ($category) => $this->restoreProductCategory($category));
     }
 
     public function hydrateProductCategory(array $productCategories): Collection

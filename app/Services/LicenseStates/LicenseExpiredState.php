@@ -34,7 +34,7 @@ final class LicenseExpiredState implements LicenseStatusStateInterface
         throw LicenseStatusModificationException::cancelation($this->license->id);
     }
 
-    public function abandonLicense(): void
+    public function abandonLicense(string $reason): void
     {
         throw LicenseStatusModificationException::abandonment($this->license->id);
     }

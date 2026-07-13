@@ -10,9 +10,12 @@ use App\Models\License;
 
 final class LicenseObserver
 {
-    protected function isRoleRemotion(License $license): bool
+    /**
+     * Define if the license is the result of a activity stoppage
+     */
+    protected function needRoleRemotion(License $license): bool
     {
-        if (! in_array($license->status, [LicenseStatusEnum::CANCELED, LicenseStatusEnum::EXPIRED])) {
+        if (! in_array($license->status, [LicenseStatusEnum::CANCELED, LicenseStatusEnum::EXPIRED, LicenseStatusEnum::CHANGED])) {
             return false;
         }
         if ($license->getOriginal('status') !== LicenseStatusEnum::ACTIVE) {
@@ -22,39 +25,19 @@ final class LicenseObserver
         return true;
     }
 
-    protected function isRoleAddition(License $license): bool
-    {
-        return $license->status === LicenseStatusEnum::ACTIVE;
-    }
-
-    protected function handleRoleRemotion(License $license): void
-    {
-        $owner = $license->licensable;
-        if ($owner instanceof HasRoleHandling) {
-            $owner->syncRoles([]);
-        }
-    }
-
-    protected function handleRoleAddition(License $license): void
-    {
-        $owner = $license->licensable;
-        if ($owner instanceof HasRoleHandling) {
-            $owner->syncRoles(...$license->plan->roles);
-        }
-    }
-
     /**
      * Handle the License "updated" event.
      */
     public function updated(License $license): void
     {
-        if (! $license->isDirty('status')) {
+        if (! $license->isDirty('status') || ! $this->needRoleRemotion($license)) {
             return;
         }
-        if ($this->isRoleRemotion($license)) {
-            $this->handleRoleRemotion($license);
-        } elseif ($this->isRoleAddition($license)) {
-            $this->handleRoleAddition($license);
+        $owner = $license->licensable;
+        if ($owner instanceof HasRoleHandling) {
+            $owner->removeRole(
+                $license->pullBoundRoleNames()
+            );
         }
     }
 }

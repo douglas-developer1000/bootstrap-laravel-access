@@ -26,14 +26,16 @@ final class LicenseController extends Controller
         return view('pages.licenses.index', [
             'title' => 'Licenças',
             'list' => $this->svc->prepareIndex($request),
-            'models' => fn(LengthAwarePaginator $pagination) => (
+            'models' => fn (LengthAwarePaginator $pagination) => (
                 $this->svc->hydrateLicense($pagination->all())
             ),
-            'parseStatus' => fn(LicenseStatusEnum $status) => (
+            'parseStatus' => fn (LicenseStatusEnum $status) => (
                 Str::of($status->toString())->ucfirst()
             ),
             'checkboxesData' => $this->svc->defineLicenseStatusFilter(),
             'qs' => collect($request->query->all()),
+
+            'licensableRoute' => $this->svc->defineLicensableRoute(...),
         ]);
     }
 
@@ -41,7 +43,8 @@ final class LicenseController extends Controller
     {
         return view('pages.licenses.show', [
             'license' => $license->load(['plan', 'licensable']),
-            'parsePrice' => fn(float|int $value) => (
+            'licensableRoute' => $this->svc->defineLicensableRoute(...),
+            'parsePrice' => fn (float|int $value) => (
                 Number::currency(
                     number: $value,
                     in: 'BRL',

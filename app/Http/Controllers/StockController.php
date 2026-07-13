@@ -29,6 +29,8 @@ final class StockController extends Controller
 
     public function index(ListSelectorService $listSelectorSvc, Request $request)
     {
+        $trashed = $request->boolean('trashed');
+
         return view('pages.stocks.index', [
             'list' => $this->svc->prepareIndex($request),
 
@@ -36,7 +38,12 @@ final class StockController extends Controller
                 $this->svc->hydrateStocks($pagination->all())
             ),
             'hasAccess' => $this->user->can(...),
-            'productsToExitEmpty' => collect($listSelectorSvc->getList('productsToExit'))->isEmpty(),
+            'productsToExitEmpty' => collect(
+                $listSelectorSvc->getList('productsToExit')
+            )->isEmpty(),
+
+            'trashed' => $trashed,
+            'subject' => $trashed ? 'Produtos removidos' : 'Estoque',
         ]);
     }
 

@@ -8,6 +8,8 @@ use App\Exceptions\LicenseStatusModificationException;
 use App\Libraries\Enums\LicenseStatusEnum;
 use App\Models\License;
 use App\Services\Contracts\LicenseStatusStateInterface;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 final class LicensePendingState implements LicenseStatusStateInterface
 {
@@ -43,16 +45,33 @@ final class LicensePendingState implements LicenseStatusStateInterface
         throw LicenseStatusModificationException::cancelation($this->license->id);
     }
 
-    public function abandonLicense(): void
+    public function abandonLicense(string $reason): void
     {
         if (!$this->license->isAbandonable) {
             throw LicenseStatusModificationException::abandonment($this->license->id);
         }
+        $this->annullCredit($reason);
         $this->license->update([
             'status' => LicenseStatusEnum::ABANDONED
         ]);
         $this->license->setStatusState(
             LicenseStatusEnum::ABANDONED->parseStatusState($this->license)
         );
+    }
+
+    protected function annullCredit(string $reason): void
+    {
+        DB::transaction(function () use ($reason) {
+            $associatedCredits = $this->license->credits;
+
+            foreach ($associatedCredits as $credit) {
+                $this->license->credits()->create([
+                    'licensable_type' => $this->license->licensable_type,
+                    'licensable_id'   => $this->license->licensable_id,
+                    'amount'          => -$credit->amount,
+                    'description'     => "Estorno de crédito automático: {$reason}"
+                ]);
+            }
+        });
     }
 }

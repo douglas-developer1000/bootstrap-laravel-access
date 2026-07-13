@@ -6,8 +6,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StockEntry\StockEntryRequest;
 use App\Libraries\Enums\DiscountTypeEnum;
+use App\Models\Discount;
 use App\Models\Product;
 use App\Models\Supplier;
+use App\Models\User;
 use App\Services\DiscountService;
 use App\Services\StockEntryService;
 use Illuminate\Support\Facades\Auth;
@@ -18,21 +20,24 @@ final class StockEntryController extends Controller
     {
         // ...
     }
+
     public function createEntry(DiscountService $discountSvc, Product $product)
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
+        $suppliers = $user->cannot('viewAny', Supplier::class) ? [] : Supplier::all([
+            'id',
+            'name',
+        ]);
+        $discounts = $user->cannot('viewAny', Discount::class) ? [] : $discountSvc->getAllDiscounts();
 
         return view('pages.stocks.entries.create', [
             'product' => $product,
-            'discounts' => $discountSvc->getAllDiscounts(),
-            'parseDiscount' => fn(string $type, float|int $value) => (
+            'discounts' => $discounts,
+            'parseDiscount' => fn (DiscountTypeEnum $type, float|int $value) => (
                 DiscountTypeEnum::parseDiscountValue($type, $value)
             ),
-            'suppliers' => Supplier::all([
-                'id',
-                'name'
-            ]),
+            'suppliers' => $suppliers,
             'hasAccess' => $user->can(...),
         ]);
     }
@@ -45,7 +50,7 @@ final class StockEntryController extends Controller
 
         return redirect()->route('stocks.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Estoque criado com sucesso!'
+            'toastMsg' => 'Estoque criado com sucesso!',
         ]);
     }
 }

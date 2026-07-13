@@ -8,9 +8,9 @@
             
             border: 1px solid;
             padding-block: 0.25em;
+            border-color: currentColor;
         }
         .left {
-            border-color: currentColor;
             border-right-width: 0;
             border-top-left-radius: var(--border-radius);
             border-bottom-left-radius: var(--border-radius);
@@ -18,16 +18,33 @@
             padding-right: 0.25em;
         }
         .right {
-            border-left-width: 0;
-            padding-right: 0.5em;
-            border-color: currentColor;
-        }
-        .price {
             padding-left: 0.25em;
             border-left-width: 0;
             border-top-right-radius: var(--border-radius);
             border-bottom-right-radius: var(--border-radius);
             padding-right: 0.5em;
         }
+    }
+    .checkout-data-item {
+        display: flex;
+        column-gap: 0.5em;
+    }
+    .checkout-data-item-label {
+        text-align: right;
+        font-weight: 600;
+    }
+    .checkout-data-item-value {
+        text-align: left;
+    }
+    .checkout-data-item-label,
+    .checkout-data-item-value {
+        flex: 1;
+    }
+    .final-price {
+        text-align: center;
+        font-size: 1.25em;
+        color: var(--bs-success);
+        display: flex;
+        flex-flow: column;
     }
 }

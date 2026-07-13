@@ -1,3 +1,4 @@
+@use('App\Models\ProductCategory')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -5,46 +6,49 @@
     ])
 @endpush
 
-<x-layout title="Cadastrar Produto">
+<x-layout title="{{ $title ?? 'Cadastrar Produto' }}">
     <x-packs.header>
-        <x-packs.page-heading-row heading="Cadastrar Produto" />
+        <x-packs.page-heading-row heading="{{ $title ?? 'Cadastrar Produto' }}" />
     </x-packs.header>
     <main class="bg-secondary-subtle create-main main-default">
         <section class="content bg-light">
             <form
                 class="create-form"
-                action="{{ route('products.store') }}"
+                action="{{ $action ?? route('products.store') }}"
                 method="post"
                 enctype="multipart/form-data"
             >
                 @csrf
+                @method ($method ?? 'POST')
                 <x-molecules.form-field
                     name="name"
                     type="text"
                     label-text="Nome:"
                     placeholder="Insira o nome do produto"
                     required
-                    value="{{ old('name', '') }}"
+                    value="{{ old('name', $product->name ?? '') }}"
                     size="auto"
                 />
-                <x-molecules.select-field
-                    label-text="Categoria"
-                    name="category"
-                    placeholder="Selecione..."
-                    aria-label="Selecione a categoria do produto"
-                    required
-                    size="auto"
-                    :value="old('category', '')"
-                >
-                    @foreach ($categories as $cat)
-                        <option
-                            @selected ($cat->id == old('category', ''))
-                            value="{{ $cat->id }}"
-                        >
-                            {{ $cat->name }}
-                        </option>
-                    @endforeach
-                </x-molecules.select-field>
+                @can('viewAny', ProductCategory::class)
+                    <x-molecules.select-field
+                        label-text="Categoria"
+                        name="category"
+                        placeholder="Selecione..."
+                        aria-label="Selecione a categoria do produto"
+                        required
+                        size="auto"
+                        :value="old('category', $product->product_category_id ?? '')"
+                    >
+                        @foreach ($categories as $cat)
+                            <option
+                                @selected ($cat->id == old('category', $product->product_category_id ?? ''))
+                                value="{{ $cat->id }}"
+                            >
+                                {{ $cat->name }}
+                            </option>
+                        @endforeach
+                    </x-molecules.select-field>
+                @endcan
                 <x-molecules.form-field
                     name="img"
                     type="file"
@@ -57,12 +61,12 @@
                     name="obs"
                     labelText="Observação (opcional)"
                     placeholder="Digite observações sobre o produto"
-                    :value="old('obs', '')"
+                    :value="old('obs', $product->obs ?? '')"
                     rows="5"
                 />
-                <x-packs.add-details-field :details="old('details')" />
+                <x-packs.add-details-field :details="old('details', $product->details ?? NULL)" />
                 <x-atoms.submit-btn class="btn-primary create-btn">
-                    Cadastrar
+                    {{ $btnText ?? 'Cadastrar' }}
                 </x-atoms.submit-btn>
             </form>
         </section>

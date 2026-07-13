@@ -1,4 +1,6 @@
 @use ('App\Models\Product')
+@use ('App\Models\Discount')
+@use ('App\Models\Supplier')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -84,38 +86,45 @@
                     id="validity-field"
                     placeholder="Insira a validade"
                     value="{{ old('validity', '') }}"
-                    :dtAttr="['dtpicker' => '']"
+                    :dtAttr="[
+                        'dtpicker' => '',
+                        'mindate' => now()->timestamp * 1000
+                    ]"
                     size="auto"
                 />
-                <x-molecules.select-field
-                    label-text="Desconto"
-                    placeholder="Nenhum"
-                    name="discount"
-                    size="auto"
-                    :value="old('discount', '')"
-                >
-                    @foreach ($discounts as $discount)
-                        <option
-                            @selected ($discount->id == old('discount', ''))
-                            value="{{ $discount->id }}"
-                            >{{ $parseDiscount($discount->type, $discount->value) }}
-                        </option>
-                    @endforeach
-                </x-molecules.select-field>
-                <x-molecules.select-field
-                    label-text="Fornecedor:"
-                    name="supplier"
-                    placeholder="Selecione..."
-                    aria-label="Selecione o fornecedor"
-                    required
-                    size="auto"
-                >
-                    @foreach ($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">
-                            {{ $supplier->name }}
-                        </option>
-                    @endforeach
-                </x-molecules.select-field>
+                @can('viewAny', Discount::class)
+                    <x-molecules.select-field
+                        label-text="Desconto"
+                        placeholder="Nenhum"
+                        name="discount"
+                        size="auto"
+                        :value="old('discount', '')"
+                    >
+                        @foreach ($discounts as $discount)
+                            <option
+                                @selected ($discount->id == old('discount', ''))
+                                value="{{ $discount->id }}"
+                                >{{ $parseDiscount($discount->type, $discount->value) }}
+                            </option>
+                        @endforeach
+                    </x-molecules.select-field>
+                @endcan
+                @can('viewAny', Supplier::class)
+                    <x-molecules.select-field
+                        label-text="Fornecedor:"
+                        name="supplier"
+                        placeholder="Selecione..."
+                        aria-label="Selecione o fornecedor"
+                        required
+                        size="auto"
+                    >
+                        @foreach ($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}">
+                                {{ $supplier->name }}
+                            </option>
+                        @endforeach
+                    </x-molecules.select-field>
+                @endcan
                 <x-atoms.submit-btn class="btn-primary create-btn">
                     Salvar
                 </x-atoms.submit-btn>

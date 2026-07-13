@@ -79,6 +79,24 @@
                             </th>
                             <td>{{ $user->phone }}</td>
                         </tr>
+                        @if ($activeLicense)
+                            <tr>
+                                <th scope="row" style="width: 5rem">
+                                    Plano
+                                </th>
+                                <td>
+                                    {{ $activeLicense->plan->name }}
+                                </td>
+                            </tr>
+                        @endif
+                        <tr>
+                            <th scope="row" style="width: 5rem">
+                                Créditos
+                            </th>
+                            <td>
+                                {{ $creditValue }}
+                            </td>
+                        </tr>
                     </tbody>
             </fieldset>
         </section>

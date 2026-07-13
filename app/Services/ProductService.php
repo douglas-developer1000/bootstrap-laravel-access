@@ -7,6 +7,8 @@ namespace App\Services;
 use App\Libraries\Traits\InputPickerTrait;
 use App\Libraries\Traits\PicRequestHandleTrait;
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\User;
 use Closure;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -15,11 +17,20 @@ use Illuminate\Support\Facades\DB;
 
 final class ProductService
 {
-    use PicRequestHandleTrait, InputPickerTrait;
+    use InputPickerTrait, PicRequestHandleTrait;
 
-    public function extractProductParams(Request $request, ?Product $product = NULL): array
+    protected function getProdCategoryParam(Request $request, User $user): int|string
     {
-        /** @var \App\Models\User $user */
+        if ($user->cannot('viewAny', ProductCategory::class)) {
+            return ProductCategory::getAnonymousCategory()->id;
+        }
+
+        return $request->input('category');
+    }
+
+    public function extractProductParams(Request $request, ?Product $product = null): array
+    {
+        /** @var User $user */
         $user = Auth::user();
 
         return $this->attachImgInput(
@@ -27,9 +38,12 @@ final class ProductService
                 $request,
                 [
                     'name' => $request->input('name'),
-                    'product_category_id' => $request->input('category'),
+                    'product_category_id' => $this->getProdCategoryParam(
+                        $request,
+                        $user
+                    ),
                     'details' => $request->input('details'),
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ],
                 'obs',
             ),
@@ -41,8 +55,7 @@ final class ProductService
     }
 
     /**
-     * @param array{name: string, obs: ?string, img: ?string, details: ?string, product_category_id: int|string } $data
-     * 
+     * @param  array{name: string, obs: ?string, img: ?string, details: ?string, product_category_id: int|string }  $data
      */
     public function createProduct(array $data): ?Product
     {
@@ -70,7 +83,7 @@ final class ProductService
     }
 
     /**
-     * @param Product[] $products
+     * @param  Product[]  $products
      */
     public function restoreProductGroup(array $products)
     {
@@ -78,7 +91,7 @@ final class ProductService
     }
 
     /**
-     * @param Product[] $products
+     * @param  Product[]  $products
      */
     public function removeProductList(array $products): void
     {
@@ -86,9 +99,9 @@ final class ProductService
     }
 
     /**
-     * @param Closure(Builder): Builder $callback
+     * @param  Closure(Builder): Builder  $callback
      */
-    public function queryProduct(bool $deleted = false, string $alias = 'products', ?Closure $callback = NULL): Builder
+    public function queryProduct(bool $deleted = false, string $alias = 'products', ?Closure $callback = null): Builder
     {
         $column = (new Product())->getDeletedAtColumn();
 
@@ -99,11 +112,11 @@ final class ProductService
             )
             ->when(
                 $deleted,
-                fn(Builder $query) => $query->whereNotNull("{$alias}.{$column}")
+                fn (Builder $query) => $query->whereNotNull("{$alias}.{$column}")
             )
             ->when(
-                !$deleted,
-                fn(Builder $query) => $query->whereNull("{$alias}.{$column}")
+                ! $deleted,
+                fn (Builder $query) => $query->whereNull("{$alias}.{$column}")
             );
     }
 }

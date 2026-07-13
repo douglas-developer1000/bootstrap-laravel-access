@@ -1,3 +1,4 @@
+@use ('App\Libraries\Enums\LicenseStatusEnum')
 @use ('App\Libraries\Utils\DatetimeFormatter')
 @push ('styling')
     @vite ([
@@ -33,72 +34,131 @@
                     <div class="ellipsis">{{ $user->name }}</div>
                     <div class="label">E-mail:</div>
                     <div class="ellipsis">{{ $user->email ?? 'N/A' }}</div>
+                    <div class="label">WhatsApp:</div>
+                    <div>
+                        @if ($user->phone->getValue())
+                            <a href="{{ 'https://wa.me/55' . $user->phone->getValue() }}" class="text-truncate text-decoration-none text-info border-0 ps-0">
+                                {{ $user->phone }}
+                            </a>
+                        @else
+                            {{ $user->phone }}
+                        @endif
+                    </div>
                     <div class="label">Telefone:</div>
-                    <div class="ellipsis">{{ $user->phone ?? 'N/A' }}</div>
+                    <div class="ellipsis">
+                        @if ($user->phone->getValue())
+                            <a href="{{ 'tel:+55' . $user->phone->getValue() }}" class="text-truncate text-decoration-none text-info border-0 ps-0">
+                                {{ $user->phone }}
+                            </a>
+                        @else
+                            {{ $user->phone }}
+                        @endif
+                    </div>
                 </div>
             </fieldset>
             <fieldset
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >
                 <legend class="field-legend bg-light">Licenças</legend>
-                @forelse ($user->licenses as $license)
-                    <table class="table tabular-data">
-                        <tbody>
-                            <tr>
-                                <th scope="row" class="text-end align-middle">Plano:</th>
-                                <td class="text-start align-middle">
-                                    <a
-                                        href="{{
-                                            route('plans.show', [
-                                                'plan' => $license->plan->slug
-                                            ])
-                                        }}"
-                                        class="text-truncate text-decoration-none text-info border-0 ps-0"
-                                    >
-                                        {{$license->plan->name}}
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="text-end align-middle">Status:</th>
-                                <td class="text-start align-middle">{{$license->status->toString()}}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="text-end align-middle">Faturamento:</th>
-                                <td class="text-start align-middle">{{$license->plan->billing_period->toString()}}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="text-end align-middle">Preço pago:</th>
-                                <td class="text-start align-middle">{{$parsePrice($license->price_paid)}}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="text-end align-middle">Data de início:</th>
-                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->starts_at)}}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="text-end align-middle">Data de expiração:</th>
-                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->expires_at)}}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="text-end align-middle">Recorrente:</th>
-                                <td class="text-start align-middle">{{$license->is_recurring ? 'Sim' : 'Não'}}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row" class="text-end align-top pt-4">Recursos Adicionais:</th>
-                                <td class="text-start align-middle">
-                                    <ul class="list-group">
-                                        @forelse ($license->additionals ?? [] as $additional)
-                                            <li class="list-group-item">
-                                                {{ $additional->name }}
-                                            </li>
-                                        @empty
-                                            <li class="list-group-item text-danger">Sem Adicionais</li>
-                                        @endforelse
-                                    </ul>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                @forelse ($licenses as $license)
+                    <div class="accordion accordion-flush" id="accordion-licenses">
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse-license-{{ $license->id }}" aria-expanded="false" aria-controls="flush-collapse-license-{{ $license->id }}">
+                                    {{ $license->plan->name }}
+                                    @if ($license->status === LicenseStatusEnum::ACTIVE)
+                                        <span class="ms-1 text-success">(ativo)</span>
+                                    @endif
+                                    @if ($license->status === LicenseStatusEnum::PENDING)
+                                        <span class="ms-1 text-danger">(pendente)</span>
+                                    @endif
+                                </button>
+                            </div>
+                            <div id="flush-collapse-license-{{ $license->id }}" class="accordion-collapse collapse" data-bs-parent="#accordion-licenses">
+                                <div class="accordion-body">
+                                    <table class="table tabular-data">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" class="text-end align-middle">Status:</th>
+                                                <td class="text-start align-middle">{{$license->status->toString()}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="text-end align-middle">Faturamento:</th>
+                                                <td class="text-start align-middle">{{$license->plan->billing_period->toString()}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="text-end align-middle">Preço pago:</th>
+                                                <td class="text-start align-middle">{{$parsePrice($license->price_paid)}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="text-end align-middle">Inicia em:</th>
+                                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->starts_at)}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="text-end align-middle">Expira em:</th>
+                                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->expires_at)}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="text-end align-middle">Recorrente:</th>
+                                                <td class="text-start align-middle">{{$license->is_recurring ? 'Sim' : 'Não'}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="text-end align-top pt-4">Recursos Adicionais:</th>
+                                                <td class="text-start align-middle">
+                                                    <ul class="list-group">
+                                                        @forelse ($license->additionals ?? [] as $additional)
+                                                            <li class="list-group-item">
+                                                                {{ $additional->name }}
+                                                            </li>
+                                                        @empty
+                                                            <li class="list-group-item text-danger">Sem Adicionais</li>
+                                                        @endforelse
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row" class="text-end align-top pt-4">Ações:</th>
+                                                <td class="text-start align-middle no-values">
+                                                    <x-organisms.confirm-cancel-btn
+                                                        :routeParams="['license' => $license->id]"
+                                                        route="licenses.cancel"
+                                                        heading="Cancelar esta licença?"
+                                                        positiveText="Cancelar licença"
+                                                        title="Cancelar licença"
+                                                        :disabled="!$license->isPreCancellable && !$license->isPostCancellable"
+                                                    >
+                                                        Essa licença mudará seu status de 
+                                                        "{{
+                                                            $license->status->toString()
+                                                        }}" para "{{
+                                                            LicenseStatusEnum::CANCELED->toString()
+                                                        }}".
+                                                    </x-organisms.confirm-cancel-btn>
+                                                    <x-organisms.confirm-activate-btn
+                                                        :routeParams="['license' => $license->id]"
+                                                        route="licenses.activate"
+                                                        heading="Ativar esta licença?"
+                                                        positiveText="Ativar licença"
+                                                        negativeText="Ainda não"
+                                                        title="Ativar licença"
+                                                        :disabled="!$license->isActivatable && !$license->isReactivatable"
+                                                    >
+                                                        Essa licença mudará seu status de 
+                                                        "{{
+                                                            $license->status->toString()
+                                                        }}" para "{{
+                                                            LicenseStatusEnum::ACTIVE->toString()
+                                                        }}".
+                                                    </x-organisms.confirm-activate-btn>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
                 @empty
                     <ul class="list-group">
                         <li class="list-group-item text-danger">Nenhuma licença</li>

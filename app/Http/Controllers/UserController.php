@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Events\LicenseAbandoned;
 use App\Events\PlanAssigned;
 use App\Http\Requests\User\UserRequest;
 use App\Models\Plan;
@@ -11,12 +12,13 @@ use App\Models\User;
 use App\Services\LicenseService;
 use App\Services\PlanService;
 use App\Services\UserService;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Number;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Number;
 
 final class UserController extends Controller
 {
@@ -45,14 +47,15 @@ final class UserController extends Controller
      */
     public function show(User $user)
     {
-        $permissions = $user->roles->map(fn($role) => $role->permissions)->flatten();
+        $permissions = $user->roles->map(fn ($role) => $role->permissions)->flatten();
 
         return view('pages.users.show', [
             'user' => $user,
             'roles' => $user->roles,
+            'licenses' => $user->licenses()->orderBy('created_at', 'desc')->get(),
             'permissions' => $permissions,
             'dPermissions' => $user->getDirectPermissions(),
-            'parsePrice' => fn(float|int $value) => (
+            'parsePrice' => fn (float|int $value) => (
                 Number::currency(
                     number: $value,
                     in: 'BRL',
@@ -69,15 +72,16 @@ final class UserController extends Controller
      *      additionalRoles: Collection<string, EloquentCollection>,
      * }
      */
-    protected function pullPlanAndAdditionals(Plan|null $plan = NULL): array
+    protected function pullPlanAndAdditionals(?Plan $plan = null): array
     {
         $plans = Plan::when(
             $plan,
-            fn(Builder $query, Plan $plan) => $query->whereNot('slug', $plan->slug)
+            fn (Builder $query, Plan $plan) => $query->whereNot('slug', $plan->slug)
         )->get();
+
         return [
             'plans' => $plans,
-            'additionalRoles' => $plans->mapWithKeys(fn(Plan $plan) => [
+            'additionalRoles' => $plans->mapWithKeys(fn (Plan $plan) => [
                 $plan->slug => $plan->roles()->wherePivot('additional', 1)->get(),
             ]),
         ];
@@ -99,6 +103,7 @@ final class UserController extends Controller
     public function edit(User $user)
     {
         $activeLicense = $user->activeLicense;
+
         return view('pages.users.edit', [
             'user' => $user,
             'activeLicense' => $activeLicense,
@@ -118,21 +123,29 @@ final class UserController extends Controller
     /**
      * Update the user by super-admin access
      */
-    public function update(UserRequest $request, PlanService $planSvc, User $user)
+    public function update(UserRequest $request, User $user)
     {
-        $this->userSvc->updateUser($user, $request->validated('name'));
-        if ($request->has('plan')) {
-            $plan = $planSvc->parsePlan($request->input('plan'));
+        DB::transaction(function () use ($request, $user) {
+            $this->userSvc->updateUser($user, $request->validated('name'));
+            if ($request->has('plan')) {
+                $plan = $this->planSvc->parsePlan($request->input('plan'));
 
-            $license = $this->licenseSvc->bindPlan(
-                $plan,
-                $user,
-                $request->boolean('recurring'),
-                $request->input('additionals', []),
-            );
+                $pendingLicense = $user->pendingLicense;
+                $pendingLicense?->abandonLicense("Substituição de checkout (Plano {$plan->name})");
 
-            PlanAssigned::dispatch($user, $plan, $license);
-        }
+                $license = $this->licenseSvc->bindPlan(
+                    $plan,
+                    $user,
+                    $request->boolean('recurring'),
+                    $request->input('additionals', []),
+                );
+
+                PlanAssigned::dispatch($user, $plan, $license);
+                if ($pendingLicense) {
+                    LicenseAbandoned::dispatch($user, $pendingLicense->plan, $pendingLicense);
+                }
+            }
+        });
 
         return redirect()->route('users.index')->with([
             'toastShow' => true,

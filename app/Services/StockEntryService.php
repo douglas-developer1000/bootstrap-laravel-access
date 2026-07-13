@@ -8,21 +8,24 @@ use App\Libraries\Enums\DiscountTypeEnum;
 use App\Libraries\Traits\InputPickerTrait;
 use App\Libraries\Traits\OneOrManyMsgTrait;
 use App\Libraries\Utils\DatetimeFormatter;
+use App\Models\Discount;
 use App\Models\Product;
 use App\Models\StockEntry;
+use App\Models\Supplier;
+use App\Models\User;
+use Closure;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Number;
-use Illuminate\Support\Collection;
-use Closure;
 
 final class StockEntryService
 {
     use InputPickerTrait, OneOrManyMsgTrait;
 
-    protected int|string $userId;
+    protected User $user;
 
     /**
      * Create a new class instance.
@@ -31,20 +34,29 @@ final class StockEntryService
         protected ProductService $prodSvc,
         protected SupplierService $supplierSvc,
     ) {
-        $this->userId = Auth::id();
+        $this->user = Auth::user();
     }
 
     public function extractStockEntryParams(Request $request, Product $product)
     {
+        $supplier_id = $this->user->can(
+            'viewAny',
+            Supplier::class
+        ) ? $request->input('supplier') : Supplier::getAnonymousSupplier()->id;
+        $discount_id = $this->user->can(
+            'viewAny',
+            Discount::class
+        ) ? $request->input('discount') : null;
+
         return $this->pickInputs(
             $request,
             [
                 'cost' => $request->input('cost'),
                 'qty' => $request->input('qty'),
-                'supplier_id' => $request->input('supplier'),
+                'supplier_id' => $supplier_id,
                 'product_id' => $product->id,
-                'user_id' => $this->userId,
-                'discount_id' => $request->input('discount'),
+                'user_id' => $this->user->id,
+                'discount_id' => $discount_id,
             ],
             'validity',
         );
@@ -61,12 +73,12 @@ final class StockEntryService
             query: $this->prodSvc->queryProduct(
                 deleted: false,
                 alias: 'p',
-                callback: fn($query) => $query->where(
-                    ['p.user_id' => $this->userId]
+                callback: fn ($query) => $query->where(
+                    ['p.user_id' => $this->user->id]
                 )
             ),
             productTableName: 'p',
-            callback: fn(Builder $query) => $query->addSelect([
+            callback: fn (Builder $query) => $query->addSelect([
                 'stock_entries.id as stockEntryId',
                 'stock_entries.validity',
                 'stock_entries.created_at',
@@ -94,6 +106,7 @@ final class StockEntryService
             ])->map(function ($entry) {
                 $entry->validity = DatetimeFormatter::formatToDate($entry->validity) ?? 'N/A';
                 $entry->sizeView = $this->makeSizeMsg(\intval($entry->qtyRemain), 'item', 'items');
+
                 return $entry;
             });
     }
@@ -121,13 +134,13 @@ final class StockEntryService
                         DB::raw('COALESCE(SUM(stock_exits.qty), 0) as uses'),
                     ])
                     ->groupBy('stock_entries.product_id')
-                    ->where('stock_entries.user_id', '=', $this->userId),
+                    ->where('stock_entries.user_id', '=', $this->user->id),
                 'tb_uses',
                 function ($join) {
                     $join->on('stock_entries.product_id', '=', 'tb_uses.product_id');
                 }
             )
-            ->where('stock_entries.user_id', '=', $this->userId);
+            ->where('stock_entries.user_id', '=', $this->user->id);
 
         return $query
             ->addSelect([
@@ -145,14 +158,15 @@ final class StockEntryService
     }
 
     /**
-     * @param Closure(Builder): Builder $callback
+     * @param  Closure(Builder): Builder  $callback
      */
-    public function joinStockEntries(Builder $query, string $productTableName = 'products', ?Closure $callback = NULL): Builder
+    public function joinStockEntries(Builder $query, string $productTableName = 'products', ?Closure $callback = null): Builder
     {
         $subQuery = $this->makeAvailableStockEntriesQuery()->when(
             \is_callable($callback),
             $callback(...)
         );
+
         return $query->leftJoinSub(
             $subQuery,
             'sub',
@@ -169,7 +183,6 @@ final class StockEntryService
      * - 'product_id'
      * - 'stock_entries.qty'
      * - 'remain'
-     *
      */
     protected function makeAvailableStockEntriesQuery(): Builder
     {
@@ -187,7 +200,7 @@ final class StockEntryService
             ->groupBy('stock_entries.qty')
             ->havingRaw('remain > 0')
 
-            ->where('stock_entries.user_id', '=', $this->userId);
+            ->where('stock_entries.user_id', '=', $this->user->id);
     }
 
     /**
@@ -199,12 +212,12 @@ final class StockEntryService
             query: $this->prodSvc->queryProduct(
                 deleted: $deleted,
                 alias: 'p',
-                callback: fn($query) => $query->where(
-                    ['p.user_id' => $this->userId]
+                callback: fn ($query) => $query->where(
+                    ['p.user_id' => $this->user->id]
                 )
             ),
             productTableName: 'p',
-            callback: fn(Builder $query) => $this->supplierSvc->joinSuppliers($query)
+            callback: fn (Builder $query) => $this->supplierSvc->joinSuppliers($query)
                 ->addSelect([
                     'stock_entries.id as stockEntryId',
                     'stock_entries.cost',
@@ -254,16 +267,18 @@ final class StockEntryService
                 $item->created_at = DatetimeFormatter::formatToDate($item->created_at);
                 $item->cost = $this->parseCurrencyValue(\floatval($item->cost));
                 $item->discountValue = $this->parseDiscount($item->discountType, $item->discountValue);
+
                 return $item;
-            })
+            }),
         ];
     }
 
-    protected function parseDiscount(string|null $type, string|null $value): string
+    protected function parseDiscount(?string $type, ?string $value): string
     {
-        if ($type === NULL) {
+        if ($type === null) {
             return 'N/A';
         }
+
         return DiscountTypeEnum::parseDiscountValue(
             type: $type,
             value: \floatval($value ?? 0)
@@ -280,12 +295,13 @@ final class StockEntryService
         );
     }
 
-    protected function columnNullZerable(string $column, ?string $alias = NULL)
+    protected function columnNullZerable(string $column, ?string $alias = null)
     {
         $statement = "CASE WHEN {$column} IS NULL THEN 0 ELSE {$column} END";
-        if ($alias !== NULL) {
-            return DB::raw(\sprintf("($statement) AS {$alias}"));
+        if ($alias !== null) {
+            return DB::raw(\sprintf("({$statement}) AS {$alias}"));
         }
+
         return DB::raw($statement);
     }
 }

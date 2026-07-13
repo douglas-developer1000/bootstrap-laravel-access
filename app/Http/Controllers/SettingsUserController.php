@@ -10,6 +10,7 @@ use App\Services\UserService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Number;
 
 final class SettingsUserController extends Controller
 {
@@ -22,7 +23,16 @@ final class SettingsUserController extends Controller
 
     public function show(): View
     {
-        return view('pages.settings.user.show', ['user' => $this->user]);
+        return view('pages.settings.user.show', [
+            'user' => $this->user,
+            'activeLicense' => $this->user->activeLicense,
+            'creditValue' => Number::currency(
+                number: \floatval($this->user->credits()->sum('amount') ?? 0),
+                in: 'BRL',
+                locale: 'pt_BR',
+                precision: 2
+            ),
+        ]);
     }
 
     public function edit(User $user): View
@@ -39,7 +49,7 @@ final class SettingsUserController extends Controller
 
         return redirect()->route('settings.user.show')->with([
             'toastShow' => true,
-            'toastMsg' => 'Dados da conta editados com sucesso!'
+            'toastMsg' => 'Dados da conta editados com sucesso!',
         ]);
     }
 }

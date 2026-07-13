@@ -7,14 +7,15 @@ namespace App\Policies;
 use App\Libraries\Enums\PermissionNameEnum;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\View\Components\Molecules\UserMenuItems;
 
 final class ProductPolicy
 {
     /**
      * Determine whether the user can view any models.
+     *
      * @see ../../routes/custom/stocks.php
-     * @see \App\View\Components\Molecules\UserMenuItems::__construct()
+     * @see UserMenuItems::__construct()
      */
     public function viewAny(User $user): bool
     {
@@ -23,10 +24,9 @@ final class ProductPolicy
 
     public function show(User $user, Product $product): bool
     {
-        return (
+        return
             $user->isModelMine($product) &&
-            $user->can(PermissionNameEnum::PRODUCT_SHOW)
-        );
+            $user->can(PermissionNameEnum::PRODUCT_SHOW);
     }
 
     /**
@@ -34,26 +34,24 @@ final class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return (
-            $user->can(PermissionNameEnum::PRODUCT_CREATE) &&
-            $user->can(PermissionNameEnum::PRODUCT_CATEGORY_INDEX)
-        );
+        return $user->can(PermissionNameEnum::PRODUCT_CREATE);
     }
 
     /**
      * Determine whether the user can edit the model.
+     *
      * @see ../../routes/custom/products.php
      */
     public function edit(User $user, Product $product): bool
     {
-        return (
+        return
             $user->isModelMine($product) &&
-            $user->can(PermissionNameEnum::PRODUCT_EDIT)
-        );
+            $user->can(PermissionNameEnum::PRODUCT_EDIT);
     }
 
     /**
      * Determine whether the user can store a model.
+     *
      * @see ../../routes/custom/products.php
      */
     public function store(User $user): bool
@@ -63,41 +61,44 @@ final class ProductPolicy
 
     /**
      * Determine whether the user can update the model.
+     *
      * @see ../../routes/custom/products.php
      */
     public function update(User $user, Product $product): bool
     {
-        return (
+        return
             $user->isModelMine($product) &&
-            $user->can(PermissionNameEnum::PRODUCT_UPDATE)
-        );
+            $user->can(PermissionNameEnum::PRODUCT_UPDATE);
     }
 
     /**
      * Determine whether the user can delete the model.
+     *
      * @see ../../routes/custom/products.php
      */
     public function delete(User $user, Product $product): bool
     {
         return (
-            !$product->deleted_at &&
+            ! $product->deleted_at &&
             $user->isModelMine($product)
         ) && $user->can(PermissionNameEnum::PRODUCT_DESTROY);
     }
 
     /**
      * Determine whether the user can delete the model.
+     *
      * @see ../../routes/custom/products.php
      */
     public function deleteList(User $user, array $productList): bool
     {
-        return collect($productList)->every(fn(Product $product) => (
+        return collect($productList)->every(fn (Product $product) => (
             $this->delete($user, $product)
         ));
     }
 
     /**
      * Determine whether the user can restore the model.
+     *
      * @see ../../routes/custom/products.php
      */
     public function restore(User $user, Product $productDeleted): bool
@@ -110,13 +111,14 @@ final class ProductPolicy
 
     /**
      * Determine whether the user can restore the model list.
-     * 
-     * @param Product[] $productList
+     *
+     * @param  Product[]  $productList
+     *
      * @see ../../routes/custom/products.php
      */
     public function restoreList(User $user, array $productList): bool
     {
-        return collect($productList)->every(fn(Product $product) => (
+        return collect($productList)->every(fn (Product $product) => (
             $this->restore($user, $product)
         ));
     }

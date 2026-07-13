@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Casts\PhoneCast;
 use App\Libraries\Enums\LicenseStatusEnum;
+use App\Libraries\Enums\RoleNameEnum;
 use App\Libraries\Values\PhoneValue;
 use App\Models\Contracts\Licensable;
 use App\Notifications\PreResetPasswordNotification;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -88,6 +90,11 @@ final class User extends Authenticatable implements Licensable, MustVerifyEmail
         return $this->morphMany(License::class, 'licensable');
     }
 
+    public function credits(): MorphMany
+    {
+        return $this->morphMany(Credit::class, 'licensable');
+    }
+
     public function activeLicense(): MorphOne
     {
         return $this->morphOne(License::class, 'licensable')
@@ -108,6 +115,13 @@ final class User extends Authenticatable implements Licensable, MustVerifyEmail
     public function getBillingEmail(): string
     {
         return $this->email;
+    }
+
+    public static function getSuperAdmins(): BelongsToMany
+    {
+        return Role::whereName(
+            RoleNameEnum::SUPER_ADMIN->value
+        )->first()->users();
     }
 
     #[Override]

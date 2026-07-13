@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-final class PlanAssigned
+final class LicenseExpired
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -25,17 +25,15 @@ final class PlanAssigned
         public readonly Plan $plan,
         public readonly License $license,
     ) {
-        $linkLicense = route('licenses.show', ['license' => $license->id], true);
-        $linkPlan = route('plans.show', $plan->slug);
+        $link = route('licenses.show', ['license' => $license->id], true);
         $email = $licensable->getBillingEmail();
 
         Log::channel('slack')->info(
             Str::of(
-                "Atribuição de plano\n"
+                "Licensa expirada: {$link}\n"
             )
                 ->append(
-                    "- Licensa pendente: {$linkLicense}\n",
-                    "- Novo plano: {$linkPlan}\n",
+                    "- Plano: {$plan->name}\n",
                     "- Email: {$email}"
                 )
         );

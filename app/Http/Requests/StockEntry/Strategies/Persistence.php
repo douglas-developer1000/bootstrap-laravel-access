@@ -5,25 +5,29 @@ declare(strict_types=1);
 namespace App\Http\Requests\StockEntry\Strategies;
 
 use App\Http\Requests\Checker;
+use App\Models\Discount;
 use App\Models\Product;
+use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 final class Persistence implements Checker
 {
-    protected int|string $userId;
+    protected User $user;
+
     protected int $costMinSize;
+
     protected int $costMaxSize;
+
     protected int $qtyMinSize;
+
     protected int $qtyMaxSize;
 
     public function __construct(protected Product $product)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $this->userId = $user->id;
+        $this->user = Auth::user();
 
         $this->costMinSize = \intval(
             config('database.schema.sizes.generic.decimal.min')
@@ -39,6 +43,45 @@ final class Persistence implements Checker
         );
     }
 
+    protected function getDiscountRules(): array
+    {
+        if ($this->user->cannot('viewAny', Discount::class)) {
+            return [];
+        }
+
+        return [
+            'discount' => [
+                'bail',
+                'nullable',
+                'integer',
+                Rule::exists('discounts', 'id')->where(function (Builder $query) {
+                    $query
+                        ->where('user_id', $this->user->id)
+                        ->orWhere(['native' => 1]);
+                }),
+            ],
+        ];
+    }
+
+    protected function getSupplierRules(): array
+    {
+        if ($this->user->cannot('viewAny', Supplier::class)) {
+            return [];
+        }
+
+        return [
+            'supplier' => [
+                'required',
+                'integer',
+                Rule::exists('suppliers', 'id')->where(function (Builder $query) {
+                    $query
+                        ->where('user_id', $this->user->id)
+                        ->orWhere(['native' => 1]);
+                }),
+            ],
+        ];
+    }
+
     public function rules(): array
     {
         return [
@@ -46,7 +89,7 @@ final class Persistence implements Checker
                 'required',
                 'decimal:0,2',
                 "min:{$this->costMinSize}",
-                "max:{$this->costMaxSize}"
+                "max:{$this->costMaxSize}",
             ],
             'qty' => [
                 'required',
@@ -59,27 +102,35 @@ final class Persistence implements Checker
                 'nullable',
                 'date',
                 Rule::date()->format('Y-m-d'),
-                Rule::date()->after(now())
+                Rule::date()->after(now()),
             ],
-            'discount' => [
-                'bail',
-                'nullable',
-                'integer',
-                Rule::exists('discounts', 'id')->where(function (Builder $query) {
-                    $query
-                        ->where('user_id', $this->userId)
-                        ->orWhere(['native' => 1]);
-                }),
-            ],
-            'supplier' => [
-                'required',
-                'integer',
-                Rule::exists('suppliers', 'id')->where(function (Builder $query) {
-                    $query
-                        ->where('user_id', $this->userId)
-                        ->orWhere(['native' => 1]);
-                }),
-            ],
+            ...$this->getDiscountRules(),
+            ...$this->getSupplierRules(),
+        ];
+    }
+
+    protected function getDiscountMessages(): array
+    {
+        if ($this->user->cannot('viewAny', Discount::class)) {
+            return [];
+        }
+
+        return [
+            'discount.integer' => 'Campo inválido',
+            'discount.exists' => 'Campo inválido',
+        ];
+    }
+
+    protected function getSupplierMessages(): array
+    {
+        if ($this->user->cannot('viewAny', Supplier::class)) {
+            return [];
+        }
+
+        return [
+            'supplier.required' => 'Campo obrigatório',
+            'supplier.integer' => 'Campo inválido',
+            'supplier.exists' => 'Campo inválido',
         ];
     }
 
@@ -100,12 +151,8 @@ final class Persistence implements Checker
             'validity.date_format' => 'Formato inválido',
             'validity.after' => 'Validade inválida',
 
-            'discount.integer' => 'Campo inválido',
-            'discount.exists' => 'Campo inválido',
-
-            'supplier.required' => 'Campo obrigatório',
-            'supplier.integer' => 'Campo inválido',
-            'supplier.exists' => 'Campo inválido',
+            ...$this->getDiscountMessages(),
+            ...$this->getSupplierMessages(),
         ];
     }
 }

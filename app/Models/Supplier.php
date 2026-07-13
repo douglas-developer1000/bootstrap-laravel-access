@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Casts\CnpjCast;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Database\Factories\SupplierFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Override;
 
 /**
@@ -22,10 +23,9 @@ use Override;
  * @property null|string $obs
  * @property bool $native
  * @property int $user_id
- * @property null|\Illuminate\Support\Carbon $deleted_at
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * 
+ * @property null|Carbon $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 #[Fillable(['name', 'cnpj', 'img', 'color', 'obs', 'native', 'user_id'])]
 final class Supplier extends Model
@@ -42,7 +42,7 @@ final class Supplier extends Model
     protected function casts()
     {
         return [
-            'cnpj' => CnpjCast::class
+            'cnpj' => CnpjCast::class,
         ];
     }
 
@@ -54,5 +54,14 @@ final class Supplier extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public static function getAnonymousSupplier(): self
+    {
+        return self::firstOrCreate([
+            'native' => true,
+            'name' => 'anonymous',
+            'user_id' => User::getSuperAdmins()->first(['id'])->id,
+        ]);
     }
 }

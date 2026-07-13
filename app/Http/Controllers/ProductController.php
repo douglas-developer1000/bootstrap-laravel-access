@@ -8,6 +8,7 @@ use App\Http\Requests\Product\ProductRequest;
 use App\Models\Product;
 use App\Services\ProductCategoryService;
 use App\Services\ProductService;
+use Illuminate\Http\RedirectResponse;
 
 final class ProductController extends Controller
 {
@@ -17,6 +18,7 @@ final class ProductController extends Controller
     ) {
         // ...
     }
+
     public function create()
     {
         $categories = $this->catSvc->getProductCategories(['id', 'name']);
@@ -25,6 +27,7 @@ final class ProductController extends Controller
                 'product-categories.create'
             )->with('emptyCategories', true);
         }
+
         return view('pages.products.create', [
             'categories' => $categories,
         ]);
@@ -32,12 +35,13 @@ final class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('pages.products.edit', [
+        return view('pages.products.create', [
             'product' => $product,
-            'categories' => $this->catSvc->getProductCategories([
-                'id',
-                'name'
-            ])
+            'categories' => $this->catSvc->getProductCategories(['id', 'name']),
+            'title' => 'Editar Produto',
+            'action' => route('products.update', $product->id),
+            'method' => 'PUT',
+            'btnText' => 'Editar',
         ]);
     }
 
@@ -50,7 +54,7 @@ final class ProductController extends Controller
 
         return redirect()->route('stocks.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Produto atualizado com sucesso!'
+            'toastMsg' => 'Produto atualizado com sucesso!',
         ]);
     }
 
@@ -62,7 +66,7 @@ final class ProductController extends Controller
 
         return redirect()->route('stocks.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Produto cadastrado com sucesso!'
+            'toastMsg' => 'Produto cadastrado com sucesso!',
         ]);
     }
 
@@ -72,12 +76,12 @@ final class ProductController extends Controller
 
         return redirect()->route('stocks.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Produto removido com sucesso!'
+            'toastMsg' => 'Produto removido com sucesso!',
         ]);
     }
 
     /**
-     * @param Product[] $productList
+     * @param  Product[]  $productList
      */
     public function removeGroup(ProductRequest $request, string $key, array $productList)
     {
@@ -85,7 +89,7 @@ final class ProductController extends Controller
 
         return redirect()->route('stocks.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Produtos removidos com sucesso!'
+            'toastMsg' => 'Produtos removidos com sucesso!',
         ]);
     }
 
@@ -94,28 +98,28 @@ final class ProductController extends Controller
         $this->svc->restoreProduct($productDeleted);
 
         return redirect()->route('stocks.index', [
-            'trashed' => 1
+            'trashed' => 1,
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Produtos restaurados com sucesso!'
+            'toastMsg' => 'Produtos restaurados com sucesso!',
         ]);
     }
 
     /**
      * Restore a soft-deleted product list
      *
-     * @param Product[] $productList
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Product[]  $productList
+     * @return RedirectResponse
      */
     public function restoreGroup(ProductRequest $request, string $key, array $productList)
     {
         $this->svc->restoreProductGroup($productList);
 
         return redirect()->route('stocks.index', [
-            'trashed' => '1'
+            'trashed' => '1',
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Produtos restaurados com sucesso!'
+            'toastMsg' => 'Produtos restaurados com sucesso!',
         ]);
     }
 }

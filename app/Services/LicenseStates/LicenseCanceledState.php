@@ -17,7 +17,16 @@ final class LicenseCanceledState implements LicenseStatusStateInterface
     }
     public function changePlan(): void
     {
-        throw LicenseStatusModificationException::planModification($this->license->id);
+        if (!$this->license->isReactivatable) {
+            throw LicenseStatusModificationException::planModification($this->license->id);
+        }
+        $this->license->update([
+            'status' => LicenseStatusEnum::CHANGED,
+            'cancelled_at' => NULL,
+        ]);
+        $this->license->setStatusState(
+            LicenseStatusEnum::CHANGED->parseStatusState($this->license)
+        );
     }
 
     public function activateLicense(): void
@@ -36,6 +45,9 @@ final class LicenseCanceledState implements LicenseStatusStateInterface
         throw LicenseStatusModificationException::expiration($this->license->id);
     }
 
+    /**
+     * This method only can be called by job, not by user
+     */
     public function cancelLicense(): void
     {
         if (!$this->license->isPostCancellable) {
@@ -46,7 +58,7 @@ final class LicenseCanceledState implements LicenseStatusStateInterface
         ]);
     }
 
-    public function abandonLicense(): void
+    public function abandonLicense(string $reason): void
     {
         throw LicenseStatusModificationException::abandonment($this->license->id);
     }

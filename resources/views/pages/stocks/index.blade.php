@@ -8,11 +8,6 @@
     ])
 @endpush
 
-@php
-    $trashed = request()->boolean('trashed');
-    $subject = $trashed ? 'Produtos removidos' : 'Estoque';
-@endphp
-
 @push ('ecmascript-bottom')
     @vite ([
         'resources/js/pages/generic/multiselection.ts',
@@ -57,28 +52,32 @@
                         </x-atoms.button>
                     </li>
                     @if (!$trashed)
-                        <li>
-                            <x-atoms.button
-                                class="dropdown-item d-flex gap-2"
-                                format="anchor"
-                                href="{{ route('product-categories.index') }}"
-                                :disabled="!$hasAccess('viewAny', ProductCategory::class)"
-                            >
-                                <i class="bi bi-ui-checks-grid"></i>
-                                <span>Categorias</span>
-                            </x-atoms.button>
-                        </li>
-                        <li>
-                            <x-atoms.button
-                                class="dropdown-item"
-                                format="anchor"
-                                href="{{ route('suppliers.index') }}"
-                                :disabled="!$hasAccess('viewAny', Supplier::class)"
-                            >
-                                <i class="bi bi-box-seam"></i>
-                                <span>Fornecedores</span>
-                            </x-atoms.button>
-                        </li>
+                        @can('viewAny', ProductCategory::class)
+                            <li>
+                                <x-atoms.button
+                                    class="dropdown-item d-flex gap-2"
+                                    format="anchor"
+                                    href="{{ route('product-categories.index') }}"
+                                    :disabled="!$hasAccess('viewAny', ProductCategory::class)"
+                                >
+                                    <i class="bi bi-ui-checks-grid"></i>
+                                    <span>Categorias</span>
+                                </x-atoms.button>
+                            </li>
+                        @endcan
+                        @can('viewAny', Supplier::class)
+                            <li>
+                                <x-atoms.button
+                                    class="dropdown-item"
+                                    format="anchor"
+                                    href="{{ route('suppliers.index') }}"
+                                    :disabled="!$hasAccess('viewAny', Supplier::class)"
+                                >
+                                    <i class="bi bi-box-seam"></i>
+                                    <span>Fornecedores</span>
+                                </x-atoms.button>
+                            </li>
+                        @endcan
                         <li>
                             <x-atoms.button
                                 class="dropdown-item"
@@ -162,7 +161,10 @@
                         class="col-remain-qty"
                         style="visibility: visible; width: auto"
                     />
-                    <col class="col-remain-category" />
+                    
+                    @can('viewAny', ProductCategory::class)
+                        <col class="col-remain-category" />
+                    @endcan
                 </x-slot:cols>
                 <thead>
                     <tr>
@@ -181,13 +183,15 @@
                         >
                             Qtd</x-atoms.table-head
                         >
-                        <x-atoms.table-head
-                            default
-                            colRemain
-                            sort="catName"
-                        >
-                            Categoria</x-atoms.table-head
-                        >
+                        @can('viewAny', ProductCategory::class)
+                            <x-atoms.table-head
+                                default
+                                colRemain
+                                sort="catName"
+                            >
+                                Categoria</x-atoms.table-head
+                            >
+                        @endcan
                         <th
                             scope="col"
                             class="last-thdata"
@@ -223,15 +227,17 @@
                                 </x-atoms.button>
                             </td>
                             <td>{{ $prod->qtyRemain }}</td>
-                            <td>
-                                <a
-                                    class="text-truncate text-decoration-none text-info"
-                                    href="{{ route('product-categories.show', ['category' => $prod->catId]) }}"
-                                    title="Visualizar categoria"
-                                >
-                                    {{ $prod->catName }}
-                                </a>
-                            </td>
+                            @can('viewAny', ProductCategory::class)
+                                <td>
+                                    <a
+                                        class="text-truncate text-decoration-none text-info"
+                                        href="{{ route('product-categories.show', ['category' => $prod->catId]) }}"
+                                        title="Visualizar categoria"
+                                    >
+                                        {{ $prod->catName }}
+                                    </a>
+                                </td>
+                            @endcan
                             <td class="dropdown dropstart">
                                 <x-atoms.button
                                     class="btn-secondary dropdown-toggle"
@@ -281,7 +287,7 @@
                                                     <x-atoms.button
                                                         class="btn-secondary position-relative"
                                                         type="submit"
-                                                        title="Adicionar venda"
+                                                        title="Adicionar saída"
                                                         :disabled="\intval($prod->qtyRemain) === 0"
                                                     >
                                                         <i
@@ -343,7 +349,11 @@
                     @empty
                         <tr>
                             <td
-                                colspan="5"
+                                colspan="{{ 
+                                    $hasAccess(
+                                        'viewAny', ProductCategory::class
+                                    ) ? '5' : '4'
+                                }}"
                                 class="no-values"
                             >
                                 Sem produtos para o filtro atual

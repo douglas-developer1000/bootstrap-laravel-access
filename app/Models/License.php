@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Libraries\Enums\LicenseStatusEnum;
+use App\Models\Contracts\HasRoleHandling;
 use App\Models\Contracts\Licensable;
 use App\Services\Contracts\LicenseStatusStateInterface;
+use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * @property int $id
@@ -39,7 +44,10 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property-read bool $allowPlanChanging
  * @property-read bool $isAbandonable
  * @property-read Plan $plan
+ * @property-read Collection<Role> $additionals
  * @property-read LicenseStatusStateInterface $statusState
+ * @property-read float $priceAdditionals
+ * @property-read Collection<Credit> $credits
  */
 #[Fillable([
     'plan_id',
@@ -54,13 +62,15 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 ])]
 final class License extends Model
 {
+    public const float PRICE_ADDITIONAL = 0.5;
+
     protected LicenseStatusStateInterface $statusState;
 
     protected $casts = [
         'status' => LicenseStatusEnum::class,
         'starts_at' => 'datetime',
         'expires_at' => 'datetime',
-        'is_recurring' => 'bool',
+        'is_recurring' => 'boolean',
     ];
 
     public function licensable(): MorphTo
@@ -86,6 +96,7 @@ final class License extends Model
         if ($this->starts_at->greaterThanOrEqualTo(now())) {
             return 0;
         }
+
         return \intval($this->starts_at->diffInDays(now()));
     }
 
@@ -97,6 +108,7 @@ final class License extends Model
         if ($this->starts_at->greaterThanOrEqualTo(now())) {
             return $this->usableDays();
         }
+
         return \intval(now()->diffInDays($this->expires_at));
     }
 
@@ -109,34 +121,58 @@ final class License extends Model
     {
         $days = $this->usableDays() ?: 1;
 
-        return (($this->price_paid * 1000) / $days) / 1000;
+        return BigDecimal::of("{$this->price_paid}")
+            ->dividedBy($days, 3, RoundingMode::Floor)
+            ->toFloat();
+    }
+
+    protected function priceAdditionals(): Attribute
+    {
+        return Attribute::make(
+            get: function (mixed $value) {
+                $additionalQty = $this->additionals()->count();
+                $additionalPrice = License::PRICE_ADDITIONAL;
+
+                return BigDecimal::of("{$additionalQty}")
+                    ->multipliedBy("{$additionalPrice}")
+                    ->toFloat();
+            }
+        )->withoutObjectCaching();
     }
 
     protected function prorata(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => ($this->remainDays() * (1000 * $this->priceByDay())) / 1000
+            get: function (mixed $value) {
+                $priceByDay = $this->priceByDay();
+
+                return BigDecimal::of($this->remainDays())
+                    ->multipliedBy(
+                        BigDecimal::of("{$priceByDay}")
+                    )
+                    ->plus("{$this->priceAdditionals}")->toFloat();
+            }
         )->withoutObjectCaching();
     }
 
     protected function inTime(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => now()->greaterThanOrEqualTo($this->starts_at) && now()->lessThanOrEqualTo($this->expires_at)
+            get: fn (mixed $value) => now()->greaterThanOrEqualTo($this->starts_at) && now()->lessThanOrEqualTo($this->expires_at)
         )->withoutObjectCaching();
     }
 
     protected function isActivatable(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => $this->status === LicenseStatusEnum::PENDING
+            get: fn (mixed $value) => $this->status === LicenseStatusEnum::PENDING
         )->withoutObjectCaching();
     }
 
     protected function isReactivatable(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => (
+            get: fn (mixed $value) => (
                 $this->status === LicenseStatusEnum::ACTIVE &&
                 $this->cancelled_at &&
                 $this->inTime
@@ -147,7 +183,7 @@ final class License extends Model
     protected function isPreCancellable(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => (
+            get: fn (mixed $value) => (
                 $this->status === LicenseStatusEnum::ACTIVE &&
                 ! $this->cancelled_at &&
                 $this->inTime
@@ -158,10 +194,10 @@ final class License extends Model
     protected function isPostCancellable(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => (
+            get: fn (mixed $value) => (
                 $this->status === LicenseStatusEnum::ACTIVE &&
                 $this->cancelled_at &&
-                !$this->inTime
+                ! $this->inTime
             )
         )->withoutObjectCaching();
     }
@@ -169,10 +205,10 @@ final class License extends Model
     protected function isExpirable(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => (
+            get: fn (mixed $value) => (
                 $this->status === LicenseStatusEnum::ACTIVE &&
-                !$this->cancelled_at &&
-                !$this->inTime
+                ! $this->cancelled_at &&
+                ! $this->inTime
             )
         )->withoutObjectCaching();
     }
@@ -180,7 +216,7 @@ final class License extends Model
     protected function allowPlanChanging(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => (
+            get: fn (mixed $value) => (
                 $this->status === LicenseStatusEnum::ACTIVE &&
                 $this->inTime
             )
@@ -190,13 +226,14 @@ final class License extends Model
     protected function isAbandonable(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => $this->status === LicenseStatusEnum::PENDING
+            get: fn (mixed $value) => $this->status === LicenseStatusEnum::PENDING
         )->withoutObjectCaching();
     }
 
     public function setStatusState(LicenseStatusStateInterface $statusState): self
     {
         $this->statusState = $statusState;
+
         return $this;
     }
 
@@ -220,9 +257,42 @@ final class License extends Model
         $this->statusState->cancelLicense();
     }
 
-    public function abandonLicense(): void
+    public function abandonLicense(string $reason = 'Abandono de checkout'): void
     {
-        $this->statusState->abandonLicense();
+        $this->statusState->abandonLicense($reason);
+    }
+
+    public function credits(): HasMany
+    {
+        return $this->hasMany(Credit::class);
+    }
+
+    /**
+     * Pull the rule names list bound to license
+     *
+     * @return array<int, string>
+     */
+    public function pullBoundRoleNames(): array
+    {
+        return [
+            ...$this->plan->roles()->wherePivot(
+                'additional',
+                0
+            )->get()->pluck('name'),
+            ...$this->additionals->pluck('name'),
+        ];
+    }
+
+    public function releaseLicensable(): self
+    {
+        $licensable = $this->licensable;
+        if ($licensable instanceof HasRoleHandling) {
+            $licensable->assignRole(
+                $this->pullBoundRoleNames()
+            );
+        }
+
+        return $this;
     }
 
     protected static function booted(): void

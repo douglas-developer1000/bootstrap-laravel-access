@@ -26,7 +26,7 @@ Route::post('/', [ProductController::class, 'store'])
 
 Route::put('/{product}', [ProductController::class, 'update'])
     /**
-     * @see view('pages.products.edit')
+     * @see view('pages.products.create')
      */
     ->name('products.update')
     ->can('update,product');

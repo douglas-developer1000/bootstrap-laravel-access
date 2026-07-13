@@ -22,6 +22,9 @@ Route::get('view', [SettingsPlanController::class, 'index'])
 Route::get('view/{plan}', [SettingsPlanController::class, 'show'])
     ->name('plans.view.show');
 
+Route::post('/view/{plan:slug}/handle', [SettingsPlanController::class, 'handlePlan'])
+    ->name('plans.view.handle');
+
 Route::get('/create', [PlanController::class, 'create'])
     /**
      * @see view('pages.plans.index')

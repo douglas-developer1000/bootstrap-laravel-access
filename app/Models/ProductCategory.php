@@ -4,28 +4,39 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Database\Factories\ProductCategoryFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Override;
 
 /**
  * @property int $id
  * @property string $name
  * @property int $parent_id
  * @property int $user_id
- * @property null|\Illuminate\Support\Carbon $deleted_at
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property bool $native
+ * @property null|Carbon $deleted_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
-#[Fillable(['name', 'parent_id', 'user_id'])]
+#[Fillable(['name', 'parent_id', 'user_id', 'native'])]
 final class ProductCategory extends Model
 {
     /** @use HasFactory<ProductCategoryFactory> */
     use HasFactory, SoftDeletes;
+
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'native' => 'boolean',
+        ];
+    }
 
     public function allChildren()
     {
@@ -41,6 +52,7 @@ final class ProductCategory extends Model
             }
             $parent = $parent->parent;
         }
+
         return false;
     }
 
@@ -62,5 +74,14 @@ final class ProductCategory extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public static function getAnonymousCategory(): self
+    {
+        return self::firstOrCreate([
+            'native' => true,
+            'name' => 'anonymous',
+            'user_id' => User::getSuperAdmins()->first(['id'])->id,
+        ]);
     }
 }

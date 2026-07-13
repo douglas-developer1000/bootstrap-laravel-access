@@ -8,6 +8,7 @@
     'errorMsgId' => NULL,
     'onchange' => NULL,
     'disabled' => false,
+    'value' => NULL
 ])
 
 <input
@@ -20,7 +21,7 @@
     ])
     @checked ($checked ?? false)
     type="checkbox"
-    value="1"
+    value="{{ $value ?? '1' }}"
     @if (!empty($name))
         name="{{ $name }}"
     @endif

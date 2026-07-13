@@ -61,7 +61,7 @@ final class LicenseActiveState implements LicenseStatusStateInterface
         );
     }
 
-    public function abandonLicense(): void
+    public function abandonLicense(string $reason): void
     {
         throw LicenseStatusModificationException::abandonment($this->license->id);
     }

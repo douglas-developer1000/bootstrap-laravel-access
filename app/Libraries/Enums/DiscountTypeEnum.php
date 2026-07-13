@@ -17,19 +17,20 @@ enum DiscountTypeEnum: string
         return match ($this) {
             self::PERCENTAGE => 'Porcentagem',
             self::RAW => 'Valor bruto',
-            default => throw new \Exception("Tipo de desconto inválido", 1)
+            default => throw new \Exception('Tipo de desconto inválido', 1)
         };
     }
 
-    public static function parseDiscountValue(string $type, float|int $value)
+    public static function parseDiscountValue(self|string $type, float|int $value)
     {
-        if (self::tryFrom($type) === self::PERCENTAGE) {
+        if ($type === self::PERCENTAGE || self::tryFrom($type) === self::PERCENTAGE) {
             return Number::percentage(
                 number: $value,
                 maxPrecision: 2,
                 locale: 'pt_BR'
             );
         }
+
         return Number::currency(
             number: $value,
             in: 'BRL',

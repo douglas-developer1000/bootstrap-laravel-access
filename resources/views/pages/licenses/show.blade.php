@@ -55,6 +55,21 @@
             <fieldset
                 class="border border-1 border-dark rounded-1 fieldset-tag"
             >
+                <legend class="field-legend bg-light">Adicionais</legend>
+                <ul class="list-group">
+                    @forelse ($license->additionals as $additional)
+                        <li class="list-group-item">
+                            {{ $loop->iteration }}.
+                            {{ $additional->summary }}
+                        </li>
+                    @empty
+                        <li class="list-group-item text-danger">Sem Adicionais</li>
+                    @endforelse
+                </ul>
+            </fieldset>
+            <fieldset
+                class="border border-1 border-dark rounded-1 fieldset-tag"
+            >
                 <legend class="field-legend bg-light">Plano</legend>
                 <div class="data-box">
                     <div class="label">Nome:</div>
@@ -74,9 +89,7 @@
                     <div>
                         <a
                             href="{{
-                                route('users.show', [
-                                    'user' => $license->licensable->getKey()
-                                ])
+                                $licensableRoute($license->licensable)
                             }}"
                             class="text-truncate text-decoration-none text-info border-0 ps-0"
                         >
@@ -85,8 +98,6 @@
                     </div>
                     <div class="label">E-mail:</div>
                     <div>{{ $license->licensable?->getBillingEmail() ?? 'N/A' }}</div>
-                    <div class="label">Telefone:</div>
-                    <div>{{ $license->licensable?->phone ?? 'N/A' }}</div>
                 </div>
             </fieldset>
         </section>

@@ -76,6 +76,10 @@ final readonly class PhoneValue
 
     public function getValue()
     {
+        if ($this->value && \strlen(\strval($this->value)) === 9) {
+            $withDDD = '51' . \strval($this->value);
+            return \intval($withDDD);
+        }
         return $this->value;
     }
 

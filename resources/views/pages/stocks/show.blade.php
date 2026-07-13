@@ -7,6 +7,7 @@
 
 @use ('App\Models\StockEntry')
 @use ('App\Models\StockExit')
+@use ('App\Models\ProductCategory')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -89,13 +90,15 @@
                             <div>Sem detalhes</div>
                         @endforelse
                     </div>
-                    <div class="label">Categorias</div>
-                    <div class="categories">
-                        <br />
-                        @foreach ($categories as $cat)
-                            <div>{{ $cat }}</div>
-                        @endforeach
-                    </div>
+                    @can('viewAny', ProductCategory::class)
+                        <div class="label">Categorias</div>
+                        <div class="categories">
+                            <br />
+                            @foreach ($categories as $cat)
+                                <div>{{ $cat }}</div>
+                            @endforeach
+                        </div>
+                    @endcan
                 </div>
             </fieldset>
             <fieldset

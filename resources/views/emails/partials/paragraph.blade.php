@@ -11,4 +11,10 @@
         margin-top: 0;
         text-align: left;
     "
->{{ $slot }}</p>
+>
+    @if (\is_array($slot) && ($slot['raw'] ?? false))
+        {!! $slot['content'] ?? '' !!}
+    @else
+        {{ $slot }}
+    @endif
+</p>

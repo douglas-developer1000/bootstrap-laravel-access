@@ -91,16 +91,25 @@
                             <td>
                                 <a
                                     href="{{
-                                        route('licenses.show', [
-                                            'license' => $license->id
-                                        ])
+                                        $licensableRoute($license->licensable)
                                     }}"
                                     class="text-truncate text-decoration-none text-info border-0 ps-0"
                                 >
                                     {{ $license->licensable->name }}
                                 </a>
                             </td>
-                            <td>{{ $parseStatus($license->status) }}</td>
+                            <td>
+                                <a
+                                    href="{{
+                                        route('licenses.show', [
+                                            'license' => $license->id
+                                        ])
+                                    }}"
+                                    class="text-truncate text-decoration-none text-info border-0 ps-0"
+                                >
+                                    {{ $parseStatus($license->status) }}
+                                </a>
+                            </td>
                             <td>
                                 {{ DatetimeFormatter::formatToDate($license->created_at) }}
                             </td>
