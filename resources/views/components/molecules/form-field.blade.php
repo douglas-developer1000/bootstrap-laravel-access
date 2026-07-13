@@ -68,7 +68,7 @@
     />
     @if (!empty($errorName) && $errors->has($errorName))
         <x-atoms.form-field-error id="{{ $errorMsgId }}">
-            {{ $message  }}
+            {{ $errors->first($errorName) }}
         </x-atoms.form-field-error>
     @endif
 </div>
