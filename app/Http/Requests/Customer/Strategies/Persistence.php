@@ -5,19 +5,24 @@ declare(strict_types=1);
 namespace App\Http\Requests\Customer\Strategies;
 
 use App\Http\Requests\Checker;
-use Illuminate\Validation\Rule;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use App\Libraries\Values\PhoneValue;
+use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
 
-class Persistence implements Checker
+final class Persistence implements Checker
 {
     protected int $nameMaxSize;
+
     protected int $emailMaxSize;
+
     protected int $hostessMaxSize;
 
-    public function __construct()
+    public function __construct(protected ?Customer $customer = null)
     {
         $this->nameMaxSize = \intval(
             config('database.schema.sizes.customer.name')
@@ -37,19 +42,38 @@ class Persistence implements Checker
             'nullable',
             PhoneValue::rule(),
         ];
+
         return collect([
             CustomerPhoneTypeEnum::CELULAR->value,
             CustomerPhoneTypeEnum::RESIDENTIAL->value,
-            CustomerPhoneTypeEnum::COMMERCIAL->value
+            CustomerPhoneTypeEnum::COMMERCIAL->value,
         ])->reduce(function (array $acc, string $key) use (&$phoneRule) {
             $acc["phone.{$key}"] = $phoneRule;
+
             return $acc;
         }, []);
     }
 
+    protected function makeCustomerUniqueRule(): Unique
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        return when(
+            $this->customer,
+            fn (Customer $customer) => (
+                Rule::unique('customers', 'email')->ignore($customer->id, 'id')
+            ),
+            Rule::unique('customers', 'email')
+        )->where(fn (Builder $query) => (
+            $query
+                ->where('user_id', $user->id)
+        ));
+    }
+
     public function rules(): array
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         return [
@@ -59,9 +83,8 @@ class Persistence implements Checker
                 'nullable',
                 'email',
                 "max:{$this->emailMaxSize}",
-                Rule::unique('customers', 'email')->where(fn(Builder $query) => (
-                    $query->where('user_id', $user->id)
-                ))
+
+                $this->makeCustomerUniqueRule(),
             ],
             'hostess' => "bail|nullable|min:2|max:{$this->hostessMaxSize}",
             'birthdate' => [
@@ -69,7 +92,7 @@ class Persistence implements Checker
                 'nullable',
                 'date',
                 Rule::date()->format('Y-m-d'),
-                Rule::date()->before(now())
+                Rule::date()->before(now()),
             ],
             ...$this->makePhoneRules(),
         ];
