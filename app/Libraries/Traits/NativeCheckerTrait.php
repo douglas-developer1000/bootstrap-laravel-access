@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Libraries\Traits;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
@@ -11,20 +12,24 @@ trait NativeCheckerTrait
 {
     protected function pickNativeRules(): array
     {
-        /**
-         * @var \App\Models\User $user
-         */
+        /** @var User */
         $user = Auth::user();
 
-        $rules = [
-            'native' => ['required']
-        ];
-        if ($user->hasRole('super-admin')) {
-            $rules['native'][] = Rule::in([0, 1]);
-        } else {
-            $rules['native'][] = Rule::in([0]);
+        if ($user->can('beSuperAdmin', User::class)) {
+            return [
+                'native' => [
+                    'required',
+                    Rule::in([0, 1]),
+                ],
+            ];
         }
-        return $rules;
+
+        return [
+            'native' => [
+                'required',
+                Rule::in([0]),
+            ],
+        ];
     }
 
     protected function pickNativeMessages(): array
