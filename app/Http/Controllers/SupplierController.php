@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 final class SupplierController extends Controller
 {
     protected User $user;
+
     public function __construct(protected SupplierService $svc)
     {
         /** @var User $user */
@@ -25,7 +26,7 @@ final class SupplierController extends Controller
     {
         return view('pages.suppliers.index', [
             'list' => $this->svc->prepareIndex($request),
-            'models' => fn(LengthAwarePaginator $pagination) => (
+            'models' => fn (LengthAwarePaginator $pagination) => (
                 $this->svc->hydrateSupplier($pagination->all())
             ),
             'hasAccess' => $this->user->can(...),
@@ -54,7 +55,7 @@ final class SupplierController extends Controller
 
         return redirect()->route('suppliers.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Fornecedor criado com sucesso!'
+            'toastMsg' => 'Fornecedor criado com sucesso!',
         ]);
     }
 
@@ -64,15 +65,19 @@ final class SupplierController extends Controller
 
         return redirect()->route('suppliers.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Fornecedor removido com sucesso!'
+            'toastMsg' => 'Fornecedor removido com sucesso!',
         ]);
     }
 
     public function edit(Supplier $supplier)
     {
-        return view('pages.suppliers.edit', [
+        return view('pages.suppliers.create', [
             'supplier' => $supplier,
             'hasAccess' => $this->user->can(...),
+
+            'title' => 'Editar Fornecedor',
+            'action' => route('suppliers.update', $supplier->id),
+            'method' => 'PUT',
         ]);
     }
 
@@ -83,12 +88,12 @@ final class SupplierController extends Controller
 
         return redirect()->route('suppliers.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Fornecedor atualizado com sucesso!'
+            'toastMsg' => 'Fornecedor atualizado com sucesso!',
         ]);
     }
 
     /**
-     * @param Supplier[] $supplierList
+     * @param  Supplier[]  $supplierList
      */
     public function removeGroup(SupplierRequest $request, string $key, array $supplierList)
     {
@@ -96,7 +101,7 @@ final class SupplierController extends Controller
 
         return redirect()->route('suppliers.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Fornecedores removidos com sucesso!'
+            'toastMsg' => 'Fornecedores removidos com sucesso!',
         ]);
     }
 
@@ -109,12 +114,12 @@ final class SupplierController extends Controller
             ['trashed' => 1]
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Fornecedor restaurado com sucesso!'
+            'toastMsg' => 'Fornecedor restaurado com sucesso!',
         ]);
     }
 
     /**
-     * @param Supplier[] $supplierList
+     * @param  Supplier[]  $supplierList
      */
     public function restoreGroup(SupplierRequest $request, string $key, array $supplierList)
     {
@@ -125,7 +130,7 @@ final class SupplierController extends Controller
             ['trashed' => 1]
         )->with([
             'toastShow' => true,
-            'toastMsg' => 'Fornecedores restaurados com sucesso!'
+            'toastMsg' => 'Fornecedores restaurados com sucesso!',
         ]);
     }
 }

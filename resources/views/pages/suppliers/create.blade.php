@@ -1,4 +1,5 @@
 @use ('App\Models\Supplier')
+@use ('App\Models\User')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -10,13 +11,9 @@
     @vite ('resources/js/pages/generic/masks.ts')
 @endpush
 
-@php
-    $isSuperAdmin = auth()->user()->hasRole('super-admin');
-@endphp
-
-<x-layout title="Cadastrar Fornecedor">
+<x-layout title="{{ $title ?? 'Cadastrar Fornecedor' }}">
     <x-packs.header>
-        <x-packs.page-heading-row heading="Cadastrar Fornecedor">
+        <x-packs.page-heading-row heading="{{ $title ?? 'Cadastrar Fornecedor' }}">
             <div class="dropdown top-right-item">
                 <x-atoms.button
                     class="btn-secondary dropdown-toggle"
@@ -45,13 +42,14 @@
         <section class="content bg-light">
             <form
                 class="create-form"
-                action="{{ route('suppliers.store') }}"
+                action="{{ $action ?? route('suppliers.store') }}"
                 method="post"
-                @if ($isSuperAdmin)
+                @can('beSuperAdmin', User::class)
                     enctype="multipart/form-data"
-                @endif
+                @endcan
             >
                 @csrf
+                @method($method ?? 'POST')
                 <x-molecules.form-field
                     name="name"
                     type="text"
@@ -59,7 +57,7 @@
                     id="name-field"
                     placeholder="Insira o nome"
                     required
-                    value="{{ old('name', '') }}"
+                    value="{{ old('name', $supplier?->name ?? '') }}"
                 />
                 <x-molecules.form-field
                     name="cnpj"
@@ -67,32 +65,37 @@
                     label-text="CNPJ (opcional):"
                     id="cnpj-field"
                     placeholder="Insira o cnpj"
-                    value="{{ old('cnpj', '') }}"
+                    value="{{ old('cnpj', $supplier?->cnpj ?? '') }}"
                     :dtAttr="['mask' => 'cnpj']"
                 />
-                @if ($isSuperAdmin)
+                @can('beSuperAdmin', User::class)
                     <x-molecules.form-field
                         name="img"
                         type="file"
                         label-text="Foto:"
                         placeholder="Insira a foto do fornecedor"
-                        value="{{ old('img', '') }}"
                     />
-                @else
-                    <x-packs.supplier-color-field />
-                @endif
+                @endcan
+                @cannot('beSuperAdmin', User::class)
+                    <x-packs.supplier-color-field :default="$supplier?->color ?? null" />
+                @endcannot
 
                 <x-molecules.textarea-field
                     name="obs"
                     labelText="Observação (opcional)"
                     placeholder="Digite observações sobre o fornecedor"
-                    :value="old('obs', '')"
+                    :value="old('obs', $supplier?->obs ?? '')"
                     rows="5"
                 />
                 <input
                     type="hidden"
                     name="native"
-                    value="{{ $isSuperAdmin ? 1 : 0 }}"
+                    @can('beSuperAdmin', User::class)
+                        value="{{ \intval($supplier?->native ?? true)  }}"
+                    @endcan
+                    @cannot('beSuperAdmin', User::class)
+                        value="{{ \intval($supplier?->native ?? false)  }}"
+                    @endcannot
                 />
                 <x-atoms.submit-btn class="btn-primary create-btn">
                     Salvar
