@@ -17,6 +17,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Unique;
 
 final class Persistence implements Checker
 {
@@ -82,6 +83,21 @@ final class Persistence implements Checker
         ];
     }
 
+    protected function makeSupplierUniqueRule(): Unique
+    {
+        return when(
+            $this->supplier,
+            fn (Supplier $supplier) => (
+                Rule::unique('suppliers', 'name')->ignore($supplier->id, 'id')
+            ),
+            Rule::unique('suppliers', 'name')
+        )->where(fn (Builder $query) => (
+            $query
+                ->where('user_id', $this->userId)
+                ->orWhere('native', 1)
+        ));
+    }
+
     public function rules(): array
     {
         return [
@@ -89,18 +105,9 @@ final class Persistence implements Checker
                 'required',
                 "min:{$this->nameMinSize}",
                 "max:{$this->nameMaxSize}",
-                Rule::unique('suppliers', 'name')->where(fn (Builder $query) => (
-                    $query
-                        ->where('user_id', $this->userId)
-                        ->orWhere('native', 1)
-                        ->when(
-                            $this->supplier,
-                            fn (Builder $query, Supplier $supplier) => $query->ignore(
-                                $supplier->id,
-                                'id'
-                            )
-                        )
-                )),
+
+                $this->makeSupplierUniqueRule(),
+
                 Str::of('different:')->append(Supplier::getAnonymousName())->toString(),
             ],
             'cnpj' => [
