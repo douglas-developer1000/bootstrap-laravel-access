@@ -28,10 +28,10 @@ final class DiscountController extends Controller
         return view('pages.discounts.index', [
             'list' => $this->svc->prepareIndex($request),
 
-            'models' => fn(LengthAwarePaginator $pagination) => (
+            'models' => fn (LengthAwarePaginator $pagination) => (
                 $this->svc->hydrateDiscount($pagination->all())
             ),
-            'parseDiscountEnum' => fn(string $type, float|int $value) => (
+            'parseDiscountEnum' => fn (string $type, float|int $value) => (
                 DiscountTypeEnum::parseDiscountValue($type, $value)
             ),
             'hasAccess' => $this->user->can(...),
@@ -47,9 +47,12 @@ final class DiscountController extends Controller
 
     public function edit(Discount $discount)
     {
-        return view('pages.discounts.edit', [
-            'discount' => $discount,
+        return view('pages.discounts.create', [
             'hasAccess' => $this->user->can(...),
+            'discount' => $discount,
+            'title' => 'Editar desconto',
+            'action' => route('discounts.update', ['discount' => $discount->id]),
+            'method' => 'PUT',
         ]);
     }
 
@@ -61,7 +64,7 @@ final class DiscountController extends Controller
 
         return redirect()->route('discounts.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Desconto criado com sucesso!'
+            'toastMsg' => 'Desconto criado com sucesso!',
         ]);
     }
 
@@ -74,7 +77,7 @@ final class DiscountController extends Controller
 
         return redirect()->route('discounts.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Desconto atualizado com sucesso!'
+            'toastMsg' => 'Desconto atualizado com sucesso!',
         ]);
     }
 
@@ -84,12 +87,12 @@ final class DiscountController extends Controller
 
         return redirect()->route('discounts.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Desconto removido com sucesso!'
+            'toastMsg' => 'Desconto removido com sucesso!',
         ]);
     }
 
     /**
-     * @param Discount[] $discountList
+     * @param  Discount[]  $discountList
      */
     public function removeGroup(DiscountRequest $request, string $key, array $discountList)
     {
@@ -97,7 +100,7 @@ final class DiscountController extends Controller
 
         return redirect()->route('discounts.index')->with([
             'toastShow' => true,
-            'toastMsg' => 'Descontos removidos com sucesso!'
+            'toastMsg' => 'Descontos removidos com sucesso!',
         ]);
     }
 
@@ -106,27 +109,27 @@ final class DiscountController extends Controller
         $this->svc->restoreDiscount($discountDeleted);
 
         return redirect()->route('discounts.index', [
-            'trashed' => '1'
+            'trashed' => '1',
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Desconto restaurado com sucesso!'
+            'toastMsg' => 'Desconto restaurado com sucesso!',
         ]);
     }
 
     /**
      * Restore a soft-deleted product list
      *
-     * @param Discount[] $discountList
+     * @param  Discount[]  $discountList
      */
     public function restoreGroup(DiscountRequest $request, string $key, array $discountList)
     {
         $this->svc->restoreGroup($discountList);
 
         return redirect()->route('discounts.index', [
-            'trashed' => '1'
+            'trashed' => '1',
         ])->with([
             'toastShow' => true,
-            'toastMsg' => 'Descontos restaurados com sucesso!'
+            'toastMsg' => 'Descontos restaurados com sucesso!',
         ]);
     }
 
@@ -141,8 +144,8 @@ final class DiscountController extends Controller
             30,
             35,
             40,
-            50
-        ])->map(fn(int $val) => [
+            50,
+        ])->map(fn (int $val) => [
             'type' => DiscountTypeEnum::PERCENTAGE->value,
             'value' => $val,
             'native' => 1,
@@ -150,7 +153,7 @@ final class DiscountController extends Controller
             'created_at' => $now,
         ])->each(function (array $data) {
             if (
-                !Discount::where([
+                ! Discount::where([
                     'type' => $data['type'],
                     'value' => $data['value'],
                     'native' => $data['native'],
@@ -162,7 +165,7 @@ final class DiscountController extends Controller
 
         return redirect()->back()->with([
             'toastShow' => true,
-            'toastMsg' => 'Descontos atualizados com sucesso!'
+            'toastMsg' => 'Descontos atualizados com sucesso!',
         ]);
     }
 }

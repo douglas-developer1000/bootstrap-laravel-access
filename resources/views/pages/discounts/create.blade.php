@@ -10,9 +10,9 @@
     @vite ('resources/js/pages/generic/masks.ts')
 @endpush
 
-<x-layout title="Cadastrar Desconto">
+<x-layout title="{{ $title ?? 'Cadastrar Desconto' }}">
     <x-packs.header>
-        <x-packs.page-heading-row heading="Cadastrar Desconto">
+        <x-packs.page-heading-row heading="{{ $title ?? 'Cadastrar Desconto' }}">
             <div class="dropdown top-right-item">
                 <x-atoms.button
                     class="btn-secondary dropdown-toggle"
@@ -41,11 +41,11 @@
         <section class="content bg-light">
             <form
                 class="create-form"
-                action="{{ route('discounts.store') }}"
+                action="{{ $action ?? route('discounts.store') }}"
                 method="post"
             >
                 @csrf
-
+                @method ($method ?? 'POST')
                 <x-molecules.select-field
                     label-text="Tipo"
                     name="type"
@@ -53,11 +53,11 @@
                     aria-label="Selecione um tipo de desconto"
                     required
                     size="auto"
-                    :value="old('type', '')"
+                    :value="old('type', $discount->type->value ?? '')"
                 >
                     @foreach (DiscountTypeEnum::cases() as $type)
                         <option
-                            @selected ($type->value == old('type', ''))
+                            @selected ($type->value == old('type', $discount->type->value ?? ''))
                             value="{{ $type->value }}"
                         >
                             {{ $type->toString() }}
@@ -69,7 +69,7 @@
                     label-text="Valor:"
                     placeholder="Insira o valor do desconto"
                     required
-                    value="{{ old('value', 0) }}"
+                    value="{{ old('value', $discount->value ?? 0) }}"
                     lang="pt"
                     size="auto"
                     :dtAttr="['mask' => 'float-positive']"

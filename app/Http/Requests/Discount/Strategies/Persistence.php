@@ -6,19 +6,21 @@ namespace App\Http\Requests\Discount\Strategies;
 
 use App\Http\Requests\Checker;
 use App\Http\Requests\LateValidationInterface;
-use Illuminate\Validation\Rule;
 use App\Libraries\Enums\DiscountTypeEnum;
 use App\Models\Discount;
+use App\Models\User;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
-class Persistence implements Checker
+final class Persistence implements Checker
 {
     protected int $valueMinSize;
+
     protected int $valueMaxSize;
 
-    public function __construct(LateValidationInterface $late, ?Discount $discount = NULL)
+    public function __construct(LateValidationInterface $late, ?Discount $discount = null)
     {
         $this->valueMinSize = \intval(
             config('database.schema.sizes.generic.decimal.min')
@@ -53,7 +55,7 @@ class Persistence implements Checker
                 'decimal:0,2',
                 "gt:{$this->valueMinSize}",
                 "max:{$this->valueMaxSize}",
-            ]
+            ],
         ];
     }
 
@@ -72,32 +74,34 @@ class Persistence implements Checker
 
     protected function isDiscountIntoDatabase(string $type, string $value, ?Discount $except, int $native = 0): bool
     {
-        return Discount::where([
+        $query = Discount::where([
             'type' => $type,
             'value' => $value,
             'native' => $native,
-        ])
+        ])->getQuery();
+
+        return $query
             ->when(
                 $native === 0,
                 function (Builder $query) {
-                    /** @var \App\Models\User $user */
+                    /** @var User $user */
                     $user = Auth::user();
 
                     return $query->where([
-                        'user_id' => $user->id
+                        'user_id' => $user->id,
                     ]);
                 },
             )
             ->when(
-                $except !== NULL,
-                fn(Builder $query) => $query->whereNot([
-                    'id' => $except->id
+                $except !== null,
+                fn (Builder $query) => $query->whereNot([
+                    'id' => $except->id,
                 ])
             )
             ->exists();
     }
 
-    protected function validateValue(Validator $validator, string $type, string $value, ?Discount $except = NULL): void
+    protected function validateValue(Validator $validator, string $type, string $value, ?Discount $except = null): void
     {
         if ($this->isDiscountIntoDatabase($type, $value, $except, 1)) {
             $name = DiscountTypeEnum::tryFrom($type)->toString();
@@ -106,7 +110,7 @@ class Persistence implements Checker
                 'value',
                 "{$name} já existente"
             );
-        } else if ($this->isDiscountIntoDatabase($type, $value, $except)) {
+        } elseif ($this->isDiscountIntoDatabase($type, $value, $except)) {
             $name = DiscountTypeEnum::tryFrom($type)->toString();
 
             $validator->errors()->add(

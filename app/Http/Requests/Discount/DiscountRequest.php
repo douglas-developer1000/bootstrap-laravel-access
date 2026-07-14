@@ -6,11 +6,9 @@ namespace App\Http\Requests\Discount;
 
 use App\Http\Requests\Checker;
 use App\Http\Requests\CustomFormRequest;
-use App\Http\Requests\Discount\Strategies\Persistence;
-use App\Http\Requests\Discount\Strategies\Update;
 use App\Http\Requests\Discount\Strategies\DestroyGroup;
+use App\Http\Requests\Discount\Strategies\Persistence;
 use App\Http\Requests\Discount\Strategies\RestoreGroup;
-use Closure;
 use Exception;
 
 final class DiscountRequest extends CustomFormRequest
@@ -22,19 +20,19 @@ final class DiscountRequest extends CustomFormRequest
             case route('discounts.store'):
                 return new Persistence($this);
             case route('discounts.update', $this->route('discount', 0)):
-                return new Update($this, $this->route('discount'));
+                return new Persistence($this, $this->route('discount'));
             case route('discounts.group.destroy', [
                 'key' => $this->route('key', 'key'),
-                'discountList' => 'list'
+                'discountList' => 'list',
             ]):
                 return new DestroyGroup();
             case route('discounts.group.restore', [
                 'key' => $this->route('key', 'key'),
-                'discountList' => 'trashed'
+                'discountList' => 'trashed',
             ]):
                 return new RestoreGroup();
             default:
-                throw new Exception("Method Not Implemented", 1);
+                throw new Exception('Method Not Implemented', 1);
         }
     }
 
