@@ -179,7 +179,7 @@
                                     @else
                                         <div
                                             class="img-from-row"
-                                            style="background-color: {{ $supplier->color }};"
+                                            style="background-color: {{ $supplier->color ?? 'gray' }};"
                                         ></div>
                                     @endif
                                 </div>
