@@ -108,7 +108,7 @@ final class Persistence implements Checker
 
                 $this->makeSupplierUniqueRule(),
 
-                Str::of('different:')->append(Supplier::getAnonymousName())->toString(),
+                Str::of('different:')->append(Supplier::getAnonymousValue())->toString(),
             ],
             'cnpj' => [
                 'bail',

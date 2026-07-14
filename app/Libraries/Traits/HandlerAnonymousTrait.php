@@ -7,12 +7,8 @@ namespace App\Libraries\Traits;
 use App\Libraries\Enums\RoleNameEnum;
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-/**
- * @method static Model firstOrCreate(array $attributes = [], array $values = [])
- */
 trait HandlerAnonymousTrait
 {
     protected static function getSuperAdmins(): BelongsToMany
@@ -28,22 +24,27 @@ trait HandlerAnonymousTrait
      *
      * @return string The anonymous name used by automatic and hidden tagging context
      */
-    public static function getAnonymousName(): string
+    public static function getAnonymousValue(): string
     {
         return 'Anônimo';
     }
 
-    public static function getAnonymous(): self
+    public static function getAnonymousColumn(): string
     {
-        return static::firstOrCreate([
+        return 'name';
+    }
+
+    public static function getAnonymousFields(): array
+    {
+        return [
+            static::getAnonymousColumn() => self::getAnonymousValue(),
             'native' => true,
-            'name' => self::getAnonymousName(),
             'user_id' => self::getSuperAdmins()->first(['id'])->id,
-        ]);
+        ];
     }
 
     public function scopeNotAnonymous(Builder $query): Builder
     {
-        return $query->whereNot('name', self::getAnonymousName());
+        return $query->whereNot(static::getAnonymousColumn(), self::getAnonymousValue());
     }
 }

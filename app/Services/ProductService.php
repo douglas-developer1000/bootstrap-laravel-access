@@ -22,7 +22,7 @@ final class ProductService
     protected function getProdCategoryParam(Request $request, User $user): int|string
     {
         if ($user->cannot('viewAny', ProductCategory::class)) {
-            return ProductCategory::getAnonymous()->id;
+            return ProductCategory::firstOrCreate(ProductCategory::getAnonymousFields())->id;
         }
 
         return $request->input('category');
