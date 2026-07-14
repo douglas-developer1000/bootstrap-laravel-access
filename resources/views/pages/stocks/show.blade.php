@@ -8,6 +8,8 @@
 @use ('App\Models\StockEntry')
 @use ('App\Models\StockExit')
 @use ('App\Models\ProductCategory')
+@use ('App\Models\Supplier')
+@use ('App\Models\Discount')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -115,35 +117,43 @@
                                 <div>{{ $entry->qtyRemain }}</div>
                                 <div class="label">Custo / item:</div>
                                 <div>{{ $entry->cost }}</div>
-                                <div class="label">Desconto:</div>
-                                <div>{{ $entry->discountValue }}</div>
+
+                                @can('viewAny', Discount::class)
+                                    <div class="label">Desconto:</div>
+                                    <div>{{ $entry->discountValue }}</div>
+                                @endcan
+                                
                                 <div class="label">Validade:</div>
                                 <div>{{ $entry->validity }}</div>
                                 <div class="label">Cadastro:</div>
                                 <div>{{ $entry->created_at }}</div>
                             </div>
-                            <div class="supplier-box">
-                                <div class="supplier-info">
-                                    <div class="label supplier-label">
-                                        Fornecedor:
+
+                            @can('viewAny', Supplier::class)
+                                <div class="supplier-box">
+                                    <div class="supplier-info">
+                                        <div class="label supplier-label">
+                                            Fornecedor:
+                                        </div>
+                                        <div class="supplier-name">
+                                            {{ $entry->supplierName ?? '---' }}
+                                        </div>
+                                        @if ($entry->supplierImg)
+                                            <img
+                                                src="{{ $entry->supplierImg }}"
+                                                alt="Imagem do fornecedor"
+                                                class="img-displayed"
+                                            />
+                                        @else
+                                            <div
+                                                class="rounded-circle img-displayed supplier-color"
+                                                style="background-color: {{ $entry->supplierColor ?? 'gray' }};"
+                                            ></div>
+                                        @endif
                                     </div>
-                                    <div class="supplier-name">
-                                        {{ $entry->supplierName ?? '---' }}
-                                    </div>
-                                    @if ($entry->supplierImg)
-                                        <img
-                                            src="{{ $entry->supplierImg }}"
-                                            alt="Imagem do fornecedor"
-                                            class="img-displayed"
-                                        />
-                                    @else
-                                        <div
-                                            class="rounded-circle img-displayed supplier-color"
-                                            style="background-color: {{ $entry->supplierColor ?? 'gray' }};"
-                                        ></div>
-                                    @endif
                                 </div>
-                            </div>
+                            @endcan
+
                         @endforeach
                     @endif
                 </div>

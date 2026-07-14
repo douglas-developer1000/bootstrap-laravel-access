@@ -104,7 +104,7 @@
                             <option
                                 @selected ($discount->id == old('discount', ''))
                                 value="{{ $discount->id }}"
-                                >{{ $parseDiscount($discount->type, $discount->value) }}
+                                >{{ $discount->type->parseViewValue($discount->value) }}
                             </option>
                         @endforeach
                     </x-molecules.select-field>

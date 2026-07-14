@@ -58,7 +58,7 @@
                                 </div>
                                 <div class="checkout-data-item">
                                     <div class="checkout-data-item-label">em seu plano:</div>
-                                    <div class="checkout-data-item-value">{{ $parsePrice($checkoutData['core']['total_discount']) }}</div>
+                                    <div class="checkout-data-item-value">{{ $parsePrice($checkoutData['core']['prorata_discount']) }}</div>
                                 </div>
                             </div>
                         </div>

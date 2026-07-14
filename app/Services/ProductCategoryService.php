@@ -102,7 +102,7 @@ final class ProductCategoryService
     public function getProductCategories(array $columns, array $except = [], ?ProductCategory $category = null): Collection
     {
         if ($this->user->cannot('viewAny', ProductCategory::class)) {
-            return collect([ProductCategory::getAnonymousCategory()]);
+            return collect([ProductCategory::getAnonymous()]);
         }
         $query = ProductCategory::whereBelongsTo($this->user)
             ->whereNotIn('id', $except)

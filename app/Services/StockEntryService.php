@@ -42,7 +42,7 @@ final class StockEntryService
         $supplier_id = $this->user->can(
             'viewAny',
             Supplier::class
-        ) ? $request->input('supplier') : Supplier::getAnonymousSupplier()->id;
+        ) ? $request->input('supplier') : Supplier::getAnonymous()->id;
         $discount_id = $this->user->can(
             'viewAny',
             Discount::class

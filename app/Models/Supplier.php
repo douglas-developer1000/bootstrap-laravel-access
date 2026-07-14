@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Casts\CnpjCast;
+use App\Libraries\Traits\HandlerAnonymousTrait;
 use Database\Factories\SupplierFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,7 +32,7 @@ use Override;
 final class Supplier extends Model
 {
     /** @use HasFactory<SupplierFactory> */
-    use HasFactory, SoftDeletes;
+    use HandlerAnonymousTrait, HasFactory, SoftDeletes;
 
     /**
      * Get the attributes that should be cast.
@@ -43,6 +44,7 @@ final class Supplier extends Model
     {
         return [
             'cnpj' => CnpjCast::class,
+            'native' => 'boolean',
         ];
     }
 
@@ -54,14 +56,5 @@ final class Supplier extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public static function getAnonymousSupplier(): self
-    {
-        return self::firstOrCreate([
-            'native' => true,
-            'name' => 'anonymous',
-            'user_id' => User::getSuperAdmins()->first(['id'])->id,
-        ]);
     }
 }

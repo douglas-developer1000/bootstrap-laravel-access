@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Libraries\Traits\HandlerAnonymousTrait;
 use Database\Factories\ProductCategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,7 +29,7 @@ use Override;
 final class ProductCategory extends Model
 {
     /** @use HasFactory<ProductCategoryFactory> */
-    use HasFactory, SoftDeletes;
+    use HandlerAnonymousTrait, HasFactory, SoftDeletes;
 
     #[Override]
     protected function casts(): array
@@ -74,14 +75,5 @@ final class ProductCategory extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public static function getAnonymousCategory(): self
-    {
-        return self::firstOrCreate([
-            'native' => true,
-            'name' => 'anonymous',
-            'user_id' => User::getSuperAdmins()->first(['id'])->id,
-        ]);
     }
 }

@@ -68,7 +68,6 @@ final class StockController extends Controller
             'categories' => $this->catSvc->getAncestorCategoryNames(
                 $product->product_category_id
             ),
-
             'hasAccess' => $this->user->can(...),
         ]);
     }

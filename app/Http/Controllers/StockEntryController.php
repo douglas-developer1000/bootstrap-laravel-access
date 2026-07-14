@@ -25,7 +25,7 @@ final class StockEntryController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        $suppliers = $user->cannot('viewAny', Supplier::class) ? [] : Supplier::all([
+        $suppliers = $user->cannot('viewAny', Supplier::class) ? [] : Supplier::notAnonymous()->get([
             'id',
             'name',
         ]);

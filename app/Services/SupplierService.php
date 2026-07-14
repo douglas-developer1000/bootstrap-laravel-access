@@ -10,8 +10,8 @@ use App\Libraries\Values\CnpjValue;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
-use Illuminate\Http\Request;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +20,7 @@ use Override;
 
 final class SupplierService
 {
-    use PicRequestHandleTrait, InputPickerTrait;
+    use InputPickerTrait, PicRequestHandleTrait;
 
     protected User $user;
 
@@ -67,25 +67,26 @@ final class SupplierService
 
             protected function filterDeleted(Request $request, Builder $query): Builder
             {
-                $deletedColumn = (new Supplier)->getDeletedAtColumn();
+                $deletedColumn = (new Supplier())->getDeletedAtColumn();
                 $trashed = $request->boolean('trashed');
+
                 return $query
                     ->when(
                         $trashed,
-                        fn(Builder $query) => $query->whereNotNull($deletedColumn)
+                        fn (Builder $query) => $query->whereNotNull($deletedColumn)
                     )
                     ->when(
-                        !$trashed,
-                        fn(Builder $query) => $query->whereNull($deletedColumn)
+                        ! $trashed,
+                        fn (Builder $query) => $query->whereNull($deletedColumn)
                     );
             }
 
             protected function filterSuppliersOwnership(Request $request, Builder $query): Builder
             {
                 return $query->when(
-                    !$request->boolean('own'),
-                    fn(Builder $query) => $query->union(
-                        Supplier::where(['native' => 1])->getQuery()
+                    ! $request->boolean('own'),
+                    fn (Builder $query) => $query->union(
+                        Supplier::whereNative(1)->notAnonymous()->getQuery()
                     )
                 );
             }
@@ -96,6 +97,7 @@ final class SupplierService
                     $this->paginator->buildSearch($request->only('name'), 'name'),
                     function (Builder $query, string $nameSearch) {
                         $nameSearch = addcslashes($nameSearch, '%_');
+
                         return $query->whereLike('name', "%{$nameSearch}%");
                     }
                 );
@@ -110,12 +112,13 @@ final class SupplierService
     {
         $list = collect($base);
         if ($list->has('cnpj')) {
-            $list->offsetSet('cnpj', new CnpjValue($list->get('cnpj') ?: NULL));
+            $list->offsetSet('cnpj', new CnpjValue($list->get('cnpj') ?: null));
         }
+
         return $list->all();
     }
 
-    public function extractSupplierParams(Request $request, ?Supplier $supplier = NULL)
+    public function extractSupplierParams(Request $request, ?Supplier $supplier = null)
     {
         return $this->attachImgInput(
             $this->parseCnpj(
@@ -161,7 +164,7 @@ final class SupplierService
     public function findSupplierProducts(Supplier $supplier)
     {
         return DB::table('suppliers', 'sup')->where([
-            'sup.id' => $supplier->id
+            'sup.id' => $supplier->id,
         ])
             ->join(
                 'stock_entries',
@@ -182,20 +185,20 @@ final class SupplierService
                 'product_categories.id',
             )
             ->where([
-                'products.user_id' => $this->user->id
+                'products.user_id' => $this->user->id,
             ])
             ->groupBy([
                 'prodName',
-                'prodCatName'
+                'prodCatName',
             ])
             ->get([
                 'products.name as prodName',
-                'product_categories.name as prodCatName'
+                'product_categories.name as prodCatName',
             ]);
     }
 
     /**
-     * @param Supplier[] $suppliers
+     * @param  Supplier[]  $suppliers
      */
     public function removeSupplierGroup(array $suppliers): void
     {

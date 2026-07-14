@@ -21,6 +21,23 @@ enum DiscountTypeEnum: string
         };
     }
 
+    public function parseViewValue(float|int $value)
+    {
+        return match ($this) {
+            self::PERCENTAGE => Number::percentage(
+                number: $value,
+                maxPrecision: 2,
+                locale: 'pt_BR'
+            ),
+            default => Number::currency(
+                number: $value,
+                in: 'BRL',
+                locale: 'pt_BR',
+                precision: 2
+            )
+        };
+    }
+
     public static function parseDiscountValue(self|string $type, float|int $value)
     {
         if ($type === self::PERCENTAGE || self::tryFrom($type) === self::PERCENTAGE) {

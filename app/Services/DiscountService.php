@@ -9,11 +9,11 @@ use App\Models\Discount;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Override;
 
 final class DiscountService
@@ -21,6 +21,7 @@ final class DiscountService
     use InputPickerTrait;
 
     protected User $user;
+
     public function __construct()
     {
         $this->user = Auth::user();
@@ -34,6 +35,7 @@ final class DiscountService
             {
                 parent::__construct();
             }
+
             #[Override]
             public function query(Request $request): Builder
             {
@@ -57,8 +59,8 @@ final class DiscountService
                     $trashed
                 )
                     ->when(
-                        !$request->boolean('own'),
-                        fn(Builder $query) => $query->union(
+                        ! $request->boolean('own'),
+                        fn (Builder $query) => $query->union(
                             $this->buildNativeQuery(
                                 $deletedColumn,
                                 $trashed
@@ -72,26 +74,26 @@ final class DiscountService
                 return Discount::whereBelongsTo($this->user)->getQuery()
                     ->when(
                         $trashed,
-                        fn(Builder $query) => $query->whereNotNull($deletedColumn)
+                        fn (Builder $query) => $query->whereNotNull($deletedColumn)
                     )
                     ->when(
-                        !$trashed,
-                        fn(Builder $query) => $query->whereNull($deletedColumn)
+                        ! $trashed,
+                        fn (Builder $query) => $query->whereNull($deletedColumn)
                     );
             }
 
             protected function buildNativeQuery(string $deletedColumn, bool $trashed): Builder
             {
                 return Discount::where([
-                    'native' => 1
+                    'native' => 1,
                 ])->getQuery()
                     ->when(
                         $trashed,
-                        fn(Builder $query) => $query->whereNotNull($deletedColumn)
+                        fn (Builder $query) => $query->whereNotNull($deletedColumn)
                     )
                     ->when(
-                        !$trashed,
-                        fn(Builder $query) => $query->whereNull($deletedColumn)
+                        ! $trashed,
+                        fn (Builder $query) => $query->whereNull($deletedColumn)
                     );
             }
 
@@ -109,7 +111,7 @@ final class DiscountService
     public function getAllDiscounts()
     {
         return Discount::whereBelongsTo($this->user)->orWhere([
-            'native' => 1
+            'native' => 1,
         ])->get(['id', 'type', 'value']);
     }
 
@@ -117,7 +119,7 @@ final class DiscountService
     {
         return [
             ...$request->only(['type', 'value']),
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ];
     }
 
@@ -134,8 +136,9 @@ final class DiscountService
     public function removeDiscount(Discount $discount): void
     {
         if (
-            $discount->stockEntries()->count() > 0 ||
-            $discount->stockExits()->count() > 0
+            $discount->stockEntries()->exists() ||
+            $discount->sales()->exists() ||
+            $discount->paymentCards()->exists()
         ) {
             $discount->delete();
         } else {
@@ -144,7 +147,7 @@ final class DiscountService
     }
 
     /**
-     * @param Discount[] $discounts
+     * @param  Discount[]  $discounts
      */
     public function removeDiscountList(array $discounts): void
     {
@@ -161,7 +164,7 @@ final class DiscountService
         DB::table('discounts')
             ->whereNotNull('deleted_at')
             ->whereIn('id', $idList)
-            ->update(['deleted_at' => NULL]);
+            ->update(['deleted_at' => null]);
     }
 
     public function hydrateDiscount(array $discounts): Collection
