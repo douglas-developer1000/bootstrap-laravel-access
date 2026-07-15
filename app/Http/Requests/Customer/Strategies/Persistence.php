@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
 
@@ -77,7 +78,13 @@ final class Persistence implements Checker
         $user = Auth::user();
 
         return [
-            'name' => "bail|required|min:2|max:{$this->nameMaxSize}",
+            'name' => [
+                'bail',
+                'required',
+                'min:2',
+                "max:{$this->nameMaxSize}",
+                Str::of('different:')->append(Customer::getAnonymousValue())->toString(),
+            ],
             'email' => [
                 'bail',
                 'nullable',

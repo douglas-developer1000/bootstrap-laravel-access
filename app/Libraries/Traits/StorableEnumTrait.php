@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Libraries\Traits;
 
+use BackedEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use \BackedEnum;
 
 /**
  * @method static BackedEnum[] cases()
  */
 trait StorableEnumTrait
 {
+    use EnumExceptTrait;
+
     public static function combineEnumValues(): array
     {
         $itens = array_column(self::cases(), 'value');
@@ -39,7 +41,7 @@ trait StorableEnumTrait
     {
         return collect(
             array_column(self::cases(), 'value')
-        )->map(fn($value) => "{$key}.{$value}")->all();
+        )->map(fn ($value) => "{$key}.{$value}")->all();
     }
 
     public static function wrapRequestBooleanEnum(Request $request, string $key): string|false
@@ -47,24 +49,18 @@ trait StorableEnumTrait
         $output = implode('+', array_filter(
             collect(self::defineRequestBooleanEnumKeys($key))->map(
                 function (string $requestKey) use (&$request, $key) {
-                    if (!$request->boolean($requestKey)) {
+                    if (! $request->boolean($requestKey)) {
                         return false;
                     }
+
                     return Str::of($requestKey)->after("{$key}.")->toString();
                 }
             )->all()
         ));
-        if (!$output) {
+        if (! $output) {
             return false;
         }
-        return $output;
-    }
 
-    public static function casesExcept(BackedEnum ...$enumList)
-    {
-        $enumCollection = collect($enumList);
-        return collect(self::cases())->filter(
-            fn($item) => !$enumCollection->contains(fn($neddle) => $neddle === $item)
-        )->all();
+        return $output;
     }
 }

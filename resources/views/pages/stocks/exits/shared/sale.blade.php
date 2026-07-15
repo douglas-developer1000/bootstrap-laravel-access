@@ -1,5 +1,7 @@
 @use ('App\Libraries\Enums\StockExitTypeEnum')
-@use ('App\Libraries\Enums\PaymentTypeEnum')
+@use ('App\Models\Customer')
+@use ('App\Models\PaymentCard')
+@use ('App\Models\Discount')
 
 @push ('styling')
     @vite ([
@@ -22,22 +24,24 @@
     method="post"
 >
     @csrf
-    <x-molecules.select-field
-        label-text="Cliente:"
-        name="customer"
-        aria-label="Selecione um cliente"
-        required
-        size="auto"
-        :value="old('customer', $customer->id)"
-        readonly
-    >
-        <option
-            @selected (true)
-            value="{{ $customer->id }}"
+    @can('viewAny', Customer::class)
+        <x-molecules.select-field
+            label-text="Cliente:"
+            name="customer"
+            aria-label="Selecione um cliente"
+            required
+            size="auto"
+            :value="old('customer', $customer->id)"
+            readonly
         >
-            {{ $customer->name }}
-        </option>
-    </x-molecules.select-field>
+            <option
+                @selected (true)
+                value="{{ $customer->id }}"
+            >
+                {{ $customer->name }}
+            </option>
+        </x-molecules.select-field>
+    @endcan
     <x-molecules.select-field
         label-text="Pagamento"
         placeholder="Selecione..."
@@ -48,7 +52,7 @@
         :value="old('payment-type', '')"
         :autofocus="true"
     >
-        @foreach (PaymentTypeEnum::cases() as $payType)
+        @foreach ($payTypes as $payType)
             <option
                 @selected ($payType->value == old('payment-type', ''))
                 value="{{ $payType->value }}"
@@ -58,64 +62,71 @@
         @endforeach
     </x-molecules.select-field>
 
-    <x-molecules.select-field
-        class="card-comboboxes cards"
-        label-text="Cartão"
-        placeholder="Selecione..."
-        aria-label="Selecione o cartão utilizado"
-        name="card"
-        size="auto"
-        :value="old('card', '')"
-    >
-        @foreach ($cards as $card)
-            <option
-                @selected ($card->id == old('card', ''))
-                value="{{ $card->id }}"
-                data-pay-ways="{{
-                    $card->pay_way_list->map(
-                        fn($enum) => $enum->value
-                    )->implode('+')
-                }}"
-            >
-                {{ $card->flag }}
-            </option>
-        @endforeach
-        <x-slot:bottom>
-            <div class="pay-ways"></div>
-        </x-slot:bottom>
-    </x-molecules.select-field>
-    <x-molecules.select-field
-        class="card-comboboxes"
-        label-text="Taxa do cartão:"
-        placeholder="Nenhum"
-        name="card_fee"
-        size="auto"
-        :value="old('card_fee', '')"
-    >
-        @foreach ($discounts as $discount)
-            <option
-                @selected ($discount->id == old('card_fee', ''))
-                value="{{ $discount->id }}"
-                >{{ $parseDiscount($discount->type, $discount->value) }}
-            </option>
-        @endforeach
-    </x-molecules.select-field>
+    @can('viewAny', PaymentCard::class)
+        <x-molecules.select-field
+            class="card-comboboxes cards"
+            label-text="Cartão"
+            placeholder="Selecione..."
+            aria-label="Selecione o cartão utilizado"
+            name="card"
+            size="auto"
+            :value="old('card', '')"
+        >
+            @foreach ($cards as $card)
+                <option
+                    @selected ($card->id == old('card', ''))
+                    value="{{ $card->id }}"
+                    data-pay-ways="{{
+                        $card->pay_way_list->map(
+                            fn($enum) => $enum->value
+                        )->implode('+')
+                    }}"
+                >
+                    {{ $card->flag }}
+                </option>
+            @endforeach
+            <x-slot:bottom>
+                <div class="pay-ways"></div>
+            </x-slot:bottom>
+        </x-molecules.select-field>
+    @endcan
+    @if ($hasAccess('viewAny', PaymentCard::class) && $hasAccess('viewAny', Discount::class))
+        <x-molecules.select-field
+            class="card-comboboxes"
+            label-text="Taxa do cartão:"
+            placeholder="Nenhum"
+            name="card_fee"
+            size="auto"
+            :value="old('card_fee', '')"
+        >
+            @foreach ($discounts as $discount)
+                <option
+                    @selected ($discount->id == old('card_fee', ''))
+                    value="{{ $discount->id }}"
+                    >{{ $discount->type->parseViewValue($discount->value) }}
+                </option>
+            @endforeach
+        </x-molecules.select-field>
+    @endif
 
-    <x-molecules.select-field
-        label-text="Desconto de venda:"
-        placeholder="Nenhum"
-        name="discount"
-        size="auto"
-        :value="old('discount', '')"
-    >
-        @foreach ($discounts as $discount)
-            <option
-                @selected ($discount->id == old('discount', ''))
-                value="{{ $discount->id }}"
-                >{{ $parseDiscount($discount->type, $discount->value) }}
-            </option>
-        @endforeach
-    </x-molecules.select-field>
+    @can('viewAny', Discount::class)
+        <x-molecules.select-field
+            label-text="Desconto de venda:"
+            placeholder="Nenhum"
+            name="discount"
+            size="auto"
+            :value="old('discount', '')"
+        >
+            @foreach ($discounts as $discount)
+                <option
+                    @selected ($discount->id == old('discount', ''))
+                    value="{{ $discount->id }}"
+                    >{{ $discount->type->parseViewValue($discount->value) }}
+                </option>
+            @endforeach
+        </x-molecules.select-field>
+    @endcan
+
     @error ('prices')
         <x-molecules.block-error :keys="['prices', 'entries']" />
     @enderror

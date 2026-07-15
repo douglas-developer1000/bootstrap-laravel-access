@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Libraries\Enums\CustomerContactEnum;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use App\Libraries\Enums\DayPeriodsEnum;
@@ -14,15 +12,17 @@ use App\Models\Customer;
 use App\Models\CustomerPhone;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Override;
 
 final class CustomerService
 {
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class extends AbstractPaginatorIndex
+        return (new class() extends AbstractPaginatorIndex
         {
             #[Override]
             public function query(Request $request): Builder
@@ -32,11 +32,11 @@ final class CustomerService
                 return Customer::whereBelongsTo(Auth::user())->getQuery()
                     ->when(
                         $trashed,
-                        fn(Builder $query) => $query->whereNotNull('deleted_at')
+                        fn (Builder $query) => $query->whereNotNull('deleted_at')
                     )
                     ->when(
-                        !$trashed,
-                        fn(Builder $query) => $query->whereNull('deleted_at')
+                        ! $trashed,
+                        fn (Builder $query) => $query->whereNull('deleted_at')
                     );
             }
 
@@ -46,8 +46,9 @@ final class CustomerService
                 return parent::attachQuery($request, $query)
                     ->when(
                         $this->paginator->buildSearch($request->only('name'), 'name'),
-                        function (Builder $query, string $searchName) use ($request) {
+                        function (Builder $query, string $searchName) {
                             $searchName = addcslashes($searchName, '%_');
+
                             return $query->whereLike(
                                 'name',
                                 "%{$searchName}%"
@@ -78,12 +79,12 @@ final class CustomerService
             'contact' => CustomerContactEnum::wrapRequestBooleanEnum(
                 $request,
                 'contact'
-            ) ?: NULL,
+            ) ?: null,
             'schedule' => DayPeriodsEnum::wrapRequestBooleanEnum(
                 $request,
                 'period'
-            ) ?: NULL,
-        ])->filter(fn($value) => $value !== NULL)->all();
+            ) ?: null,
+        ])->filter(fn ($value) => $value !== null)->all();
     }
 
     public function createCustomer(array $params): ?Customer
@@ -102,17 +103,18 @@ final class CustomerService
             $request->only(
                 CustomerPhoneTypeEnum::defineRequestBooleanEnumKeys('phone')
             )['phone'] ?? []
-        )->filter(fn($value) => $value !== NULL)->map(fn($number, $key) => [
+        )->filter(fn ($value) => $value !== null)->map(fn ($number, $key) => [
             'type' => CustomerPhoneTypeEnum::tryFrom($key),
-            'number' => new PhoneValue($number)
+            'number' => new PhoneValue($number),
         ])->values();
 
         if ($phones->isEmpty()) {
             return [];
         }
+
         return $customer->phones()->saveMany(
             $phones->map(
-                fn(array $row) => new CustomerPhone([
+                fn (array $row) => new CustomerPhone([
                     'type' => $row['type'],
                     'number' => $row['number'],
                 ])
@@ -123,13 +125,14 @@ final class CustomerService
     public function updatePhones(Request $request, Customer $customer)
     {
         $customer->phones()->delete();
+
         return $this->createPhones($request, $customer);
     }
 
     public function getPhones(Customer $customer): Collection
     {
         return CustomerPhone::where([
-            'customer_id' => $customer->id
+            'customer_id' => $customer->id,
         ])->get();
     }
 
@@ -140,13 +143,13 @@ final class CustomerService
     {
         /** @var Collection<string, string> $phonesStored */
         $phonesStored = $this->getPhones($customer)->mapWithKeys(
-            fn($phone) => [$phone->type->value => $phone->number]
+            fn ($phone) => [$phone->type->value => $phone->number]
         );
 
         return collect(
             CustomerPhoneTypeEnum::casesExcept(CustomerPhoneTypeEnum::OTHER)
         )->mapWithKeys(
-            fn($enum) => [$enum->value => $phonesStored->get($enum->value, '')]
+            fn ($enum) => [$enum->value => $phonesStored->get($enum->value, '')]
         );
     }
 
@@ -160,7 +163,7 @@ final class CustomerService
     }
 
     /**
-     * @param Customer[] $customers
+     * @param  Customer[]  $customers
      */
     public function removeCustomerList(array $customers): void
     {
@@ -180,5 +183,10 @@ final class CustomerService
     public function hydrateCustomer(array $customers): Collection
     {
         return Customer::hydrate($customers);
+    }
+
+    public function anonymousCustomer(): Customer
+    {
+        return Customer::firstOrCreate(Customer::getAnonymousFields());
     }
 }

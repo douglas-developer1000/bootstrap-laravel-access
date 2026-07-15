@@ -1,4 +1,7 @@
 @use ('App\Models\Product')
+@use ('App\Models\Sale')
+@use ('App\Models\Customer')
+@use ('App\Libraries\Enums\StockExitTypeEnum')
 @use ('App\Libraries\Utils\DatetimeFormatter')
 @use ('App\Libraries\Enums\PaymentTypeEnum')
 @push ('styling')
@@ -40,6 +43,23 @@
                             <span>Estoques</span>
                         </x-atoms.button>
                     </li>
+                    @if ($hasAccess('viewAny', Sale::class) && !$hasAccess('viewAny', Customer::class))
+                        <li>
+                            <x-atoms.button
+                                class="dropdown-item"
+                                format="anchor"
+                                href="{{
+                                    $makeSaleNoCustomerRoute(
+                                        $getAnonymousCustomer()
+                                    )
+                                }}"
+                                :disabled="!$hasAccess('viewAny', Product::class)"
+                            >
+                                <i class="bi bi-plus"></i>
+                                <span>Vendas</span>
+                            </x-atoms.button>
+                        </li>
+                    @endif
                 </ul></x-packs.page-heading-row
         >
     </x-packs.header>
@@ -48,16 +68,15 @@
             <div class="d-flex flex-wrap justify-content-between row-gap-2">
                 <x-packs.filter-form-checks
                     class="gap-3 w-100 mb-3"
-                    :checkboxes="[
-                        PaymentTypeEnum::CARD->value => PaymentTypeEnum::CARD->toString(),
-                        PaymentTypeEnum::MONEY->value => PaymentTypeEnum::MONEY->toString(),
-                        PaymentTypeEnum::PIX->value => PaymentTypeEnum::PIX->toString()
-                    ]"
+                    :checkboxes="$checkboxes"
                 />
-                <x-packs.term-search
-                    label-text="Cliente:"
-                    placeholder="Insira o nome do cliente"
-                />
+                @can('viewAny', Customer::class)
+                    <x-packs.term-search
+                        label-text="Cliente:"
+                        placeholder="Insira o nome do cliente"
+                    />
+                @endcan
+
                 <div
                     class="d-flex justify-content-end flex-grow-1 column-gap-2"
                 >
@@ -75,7 +94,9 @@
             </div>
             <x-molecules.table-index :qtyBtns="1">
                 <x-slot:cols>
-                    <col class="col-remain-value" />
+                    @can('viewAny', Customer::class)
+                        <col class="col-remain-value" />
+                    @endcan
                     <col class="col-remain-created_at" />
                 </x-slot:cols>
                 <thead>
@@ -86,9 +107,11 @@
                                 class="form-check-input cursor-pointer multiselection-all"
                             />
                         </th>
-                        <x-atoms.table-head sort="customer">
-                            Cliente</x-atoms.table-head
-                        >
+                        @can('viewAny', Customer::class)
+                            <x-atoms.table-head sort="customer">
+                                Cliente</x-atoms.table-head
+                            >
+                        @endcan
                         <x-atoms.table-head
                             colRemain
                             sort="value"
@@ -121,9 +144,11 @@
                                     @disabled (!$hasAccess('delete', $sale))
                                 />
                             </td>
-                            <td>
-                                <div>{{$sale->customer}}</div>
-                            </td>
+                            @can('viewAny', Customer::class)
+                                <td>
+                                    <div>{{$sale->customer}}</div>
+                                </td>
+                            @endcan
                             <td>
                                 <x-atoms.button
                                     class="text-truncate text-decoration-none text-info border-0 ps-0"
@@ -160,7 +185,7 @@
                     @empty
                         <tr>
                             <td
-                                colspan="5"
+                                colspan="{{ $hasAccess('viewAny', Customer::class) ? 5 : 4 }}"
                                 class="no-values"
                             >
                                 Sem vendas para o filtro atual

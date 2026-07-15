@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Libraries\Enums\PaymentTypeEnum;
+use App\Models\Customer;
+use App\Models\PaymentCard;
 use App\Models\Sale;
+use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -18,22 +21,28 @@ use Override;
 
 final class SaleService
 {
+    protected User $user;
+
     public function __construct(protected StockExitService $exitSvc)
     {
-        // ...
+        $this->user = Auth::user();
     }
+
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class extends AbstractPaginatorIndex
+        return (new class($this->user, $this) extends AbstractPaginatorIndex
         {
+            public function __construct(
+                protected User $user,
+                protected SaleService $svc,
+            ) {
+                return parent::__construct();
+            }
+
             #[Override]
             public function query(Request $request): Builder
             {
-                /** @var \App\Models\User $user */
-                $user = Auth::user();
-
-                return Sale
-                    ::whereBelongsTo($user)
+                return Sale::whereBelongsTo($this->user)
                     ->join(
                         'payments',
                         'sales.id',
@@ -51,7 +60,7 @@ final class SaleService
                         'sales.created_at',
                         'sales.user_id',
                         'customers.name as customer',
-                        DB::raw('SUM(payments.value) as value')
+                        DB::raw('SUM(payments.value) as value'),
                     ])
                     ->groupBy([
                         'sales.id',
@@ -66,27 +75,35 @@ final class SaleService
             public function attachQuery(Request $request, Builder $query): Builder
             {
                 $payTypes = $this->pickPayTypeFilters($request)->filter(
-                    fn(bool $presence) => $presence === true
+                    fn (bool $presence) => $presence === true
                 )->keys();
-                return parent::attachQuery(
+                $query = parent::attachQuery(
                     $request,
                     $query->whereIn(
                         'payments.type',
                         $payTypes
                     )
                 );
+                if ($this->user->cannot('viewAny', Customer::class)) {
+                    return $query;
+                }
+
+                return $this->filterSearch(
+                    $query,
+                    $this->paginator->buildSearch($request->only('q')),
+                    'name'
+                );
             }
 
             protected function pickPayTypeFilters(Request $request): Collection
             {
                 $qs = collect($request->query());
-                return collect([
-                    PaymentTypeEnum::CARD->value,
-                    PaymentTypeEnum::MONEY->value,
-                    PaymentTypeEnum::PIX->value,
-                ])->mapWithKeys(fn(string $enumKey) => [
-                    $enumKey => !$qs->has($enumKey) || $request->boolean($enumKey)
-                ]);
+
+                return collect($this->svc->definePayTypes())
+                    ->map(fn (PaymentTypeEnum $payType) => $payType->value)
+                    ->mapWithKeys(fn (string $enumKey) => [
+                        $enumKey => ! $qs->has($enumKey) || $request->boolean($enumKey),
+                    ]);
             }
 
             #[Override]
@@ -100,16 +117,33 @@ final class SaleService
         );
     }
 
+    public function definePayTypes(): array
+    {
+        $payTypes = [
+            PaymentTypeEnum::PIX,
+            PaymentTypeEnum::MONEY,
+        ];
+        if ($this->user->can('viewAny', PaymentCard::class)) {
+            return [
+                ...$payTypes,
+                PaymentTypeEnum::CARD,
+            ];
+        }
+
+        return $payTypes;
+    }
+
     public function hydrateSales(array $sales): Collection
     {
         return Sale::hydrate($sales)->map(function (Sale $sale, int $i) use (&$sales) {
             $sale->customer = $sales[$i]->customer;
             $sale->value = Number::currency(
-                number: (float)$sales[$i]->value,
+                number: (float) $sales[$i]->value,
                 in: 'BRL',
                 locale: 'pt_BR',
                 precision: 2
             );
+
             return $sale;
         });
     }
@@ -121,7 +155,7 @@ final class SaleService
     }
 
     /**
-     * @param Sale[] $sales
+     * @param  Sale[]  $sales
      */
     public function removeSaleGroup(array $sales): void
     {

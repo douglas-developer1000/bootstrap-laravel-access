@@ -5,20 +5,23 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StockExit\StockExitRequest;
-use App\Libraries\Enums\DiscountTypeEnum;
 use App\Libraries\Enums\StockExitTypeEnum;
 use App\Models\Customer;
+use App\Models\Discount;
+use App\Models\PaymentCard;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\DiscountService;
 use App\Services\ListSelectorService;
 use App\Services\PaymentCardService;
+use App\Services\SaleService;
 use App\Services\StockEntryService;
 use App\Services\StockExitExchangeService;
 use App\Services\StockExitSaleService;
 use App\Services\StockExitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 final class StockExitController extends Controller
 {
@@ -33,18 +36,21 @@ final class StockExitController extends Controller
 
     public function storeExit(
         StockExitRequest $request,
-        StockExitSaleService $saleSvc,
+        StockExitSaleService $stockExitSaleSvc,
         StockExitExchangeService $exchangeSvc,
         ListSelectorService $listSelector,
         StockExitTypeEnum $exitType,
     ) {
-        $productExits = $this->svc->makeStockExits($this->svc->extractParams($request, $exitType));
+        DB::transaction(function () use ($request, $exitType, $stockExitSaleSvc, $exchangeSvc) {
+            $productExits = $this->svc->makeStockExits($this->svc->extractParams($request, $exitType));
 
-        if ($exitType === StockExitTypeEnum::SALE) {
-            $this->svc->handleStockExits($saleSvc, $request, $productExits);
-        } elseif ($exitType === StockExitTypeEnum::EXCHANGE) {
-            $this->svc->handleStockExits($exchangeSvc, $request, $productExits);
-        }
+            if ($exitType === StockExitTypeEnum::SALE) {
+                $this->svc->handleStockExits($stockExitSaleSvc, $request, $productExits);
+            } elseif ($exitType === StockExitTypeEnum::EXCHANGE) {
+                $this->svc->handleStockExits($exchangeSvc, $request, $productExits);
+            }
+        });
+
         $listSelector->clearList('productsToExit');
 
         return redirect()->route('stocks.index')->with([
@@ -83,22 +89,31 @@ final class StockExitController extends Controller
         ListSelectorService $svc,
         PaymentCardService $payCardSvc,
         DiscountService $discountSvc,
+        SaleService $saleSvc,
         StockExitTypeEnum $exitType,
         Customer $customer,
     ) {
         $products = Product::findMany($svc->getList('productsToExit'));
+        $cards = $this->user->can(
+            'viewAny',
+            PaymentCard::class
+        ) ? $payCardSvc->getPaymentCards() : [];
+        $discounts = $this->user->can(
+            'viewAny',
+            Discount::class
+        ) ? $discountSvc->getAllDiscounts() : [];
 
         return view('pages.stocks.exits.create', [
             'exitType' => $exitType,
             'products' => $products,
-            'cards' => $payCardSvc->getPaymentCards(),
+            'payTypes' => $saleSvc->definePayTypes(),
+
+            'cards' => $cards,
+            'discounts' => $discounts,
+
             'entries' => $products->mapWithKeys(fn (Product $product) => [
                 $product->id => $this->entrySvc->getRemainStockEntries($product),
             ]),
-            'discounts' => $discountSvc->getAllDiscounts(),
-            'parseDiscount' => fn (string $type, float|int $value) => (
-                DiscountTypeEnum::parseDiscountValue($type, $value)
-            ),
             'customer' => $customer,
             'hasAccess' => $this->user->can(...),
         ]);

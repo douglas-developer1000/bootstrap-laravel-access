@@ -129,8 +129,10 @@ final class StockExitPolicy
         return
             $productsToExit->isNotEmpty() &&
             $exitType === StockExitTypeEnum::SALE &&
-            $user->isModelMine($customer) &&
-            $user->can(PermissionNameEnum::SALE_EXIT_CREATE);
+            $user->can(PermissionNameEnum::SALE_EXIT_CREATE) && (
+                $user->isModelMine($customer) ||
+                $customer->native
+            );
     }
 
     /**
