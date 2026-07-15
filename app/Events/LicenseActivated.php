@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Events;
 
+use App\Libraries\Traits\EmailTranspHandlerTrait;
 use App\Mail\LicenseActiveMail;
 use App\Models\Contracts\Licensable;
 use App\Models\License;
@@ -17,7 +18,7 @@ use Illuminate\Support\Str;
 
 final class LicenseActivated
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, EmailTranspHandlerTrait, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
@@ -49,8 +50,10 @@ final class LicenseActivated
 
     protected function sendLicensableEmail(Licensable $licensable, License $newLicense): void
     {
-        Mail::to(
-            $licensable->getBillingEmail()
-        )->send(new LicenseActiveMail($newLicense));
+        $this->handleEmailTransport(function () use ($licensable, $newLicense) {
+            Mail::to(
+                $licensable->getBillingEmail()
+            )->send(new LicenseActiveMail($newLicense));
+        });
     }
 }
