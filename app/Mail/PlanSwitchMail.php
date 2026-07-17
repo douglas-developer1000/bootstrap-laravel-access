@@ -24,7 +24,7 @@ final class PlanSwitchMail extends Mailable
      */
     protected function pullParagraphs(string $fromEmail): array
     {
-        if ($this->newLicense->price_paid === 0.0) {
+        if ($this->newLicense->price_paid->isZero()) {
             return [
                 'O plano de sua licença atual foi modificado aproveitando seus créditos disponíveis.',
                 "A partir de agora e sem nenhum custo, sua licença passará a contemplar um novo plano de acesso chamado \"{$this->newLicense->plan->name}\", com funcionalidades diferentes das anteriores.",

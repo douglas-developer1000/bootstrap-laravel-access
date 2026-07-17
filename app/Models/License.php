@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\BigDecimalCast;
+use App\Exceptions\InvalidStatusException;
+use App\Libraries\Enums\GatewayTypeEnum;
+use App\Libraries\Enums\InvoicePaymentTypeEnum;
+use App\Libraries\Enums\InvoiceStatusEnum;
 use App\Libraries\Enums\LicenseStatusEnum;
+use App\Libraries\Enums\LocaleEnum;
 use App\Models\Contracts\HasRoleHandling;
 use App\Models\Contracts\Licensable;
 use App\Services\Contracts\LicenseStatusStateInterface;
@@ -19,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Override;
 
 /**
  * @property int $id
@@ -26,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $licensable_id
  * @property string $licensable_type
  * @property-read Licensable $licensable
- * @property float $price_paid
+ * @property BigDecimal $price_paid
  * @property Carbon $starts_at
  * @property Carbon $expires_at
  * @property LicenseStatusEnum $status
@@ -34,7 +41,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property null|Carbon $created_at
  * @property null|Carbon $updated_at
  * @property null|Carbon $cancelled_at
- * @property-read float $prorata
+ * @property int $coupon_id
+ * @property-read BigDecimal $prorata
  * @property-read bool $inTime
  * @property-read bool $isActivatable
  * @property-read bool $isReactivatable
@@ -46,7 +54,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read Plan $plan
  * @property-read Collection<Role> $additionals
  * @property-read LicenseStatusStateInterface $statusState
- * @property-read float $priceAdditionals
+ * @property-read BigDecimal $priceAdditionals
+ * @property-read BigDecimal $paidInvoicesAmount
+ * @property-read BigDecimal $pendingInvoicesAmount
  * @property-read Collection<Credit> $credits
  */
 #[Fillable([
@@ -59,6 +69,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
     'status',
     'is_recurring',
     'cancelled_at',
+    'coupon_id',
 ])]
 final class License extends Model
 {
@@ -66,12 +77,22 @@ final class License extends Model
 
     protected LicenseStatusStateInterface $statusState;
 
-    protected $casts = [
-        'status' => LicenseStatusEnum::class,
-        'starts_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'is_recurring' => 'boolean',
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    #[Override]
+    protected function casts()
+    {
+        return [
+            'status' => LicenseStatusEnum::class,
+            'starts_at' => 'datetime',
+            'expires_at' => 'datetime',
+            'is_recurring' => 'boolean',
+            'price_paid' => BigDecimalCast::class,
+        ];
+    }
 
     public function licensable(): MorphTo
     {
@@ -117,25 +138,23 @@ final class License extends Model
         return \intval($this->starts_at->diffInDays($this->expires_at));
     }
 
-    protected function priceByDay(): float
+    protected function priceByDay(): BigDecimal
     {
         $days = $this->usableDays() ?: 1;
 
-        return BigDecimal::of("{$this->price_paid}")
-            ->dividedBy($days, 3, RoundingMode::Floor)
-            ->toFloat();
+        return BigDecimal::of($this->price_paid)
+            ->dividedBy($days, 3, RoundingMode::Floor);
     }
 
     protected function priceAdditionals(): Attribute
     {
         return Attribute::make(
             get: function (mixed $value) {
-                $additionalQty = $this->additionals()->count();
                 $additionalPrice = License::PRICE_ADDITIONAL;
 
-                return BigDecimal::of("{$additionalQty}")
-                    ->multipliedBy("{$additionalPrice}")
-                    ->toFloat();
+                return BigDecimal::of("{$additionalPrice}")->multipliedBy(
+                    $this->additionals()->count()
+                );
             }
         )->withoutObjectCaching();
     }
@@ -148,9 +167,9 @@ final class License extends Model
 
                 return BigDecimal::of($this->remainDays())
                     ->multipliedBy(
-                        BigDecimal::of("{$priceByDay}")
+                        BigDecimal::of($priceByDay)
                     )
-                    ->plus("{$this->priceAdditionals}")->toFloat();
+                    ->plus($this->priceAdditionals);
             }
         )->withoutObjectCaching();
     }
@@ -257,14 +276,41 @@ final class License extends Model
         $this->statusState->cancelLicense();
     }
 
-    public function abandonLicense(string $reason = 'Abandono de checkout'): void
+    public function abandonLicense(InvoiceStatusEnum $invoiceStatus, string $reason = 'Abandono de checkout'): void
     {
-        $this->statusState->abandonLicense($reason);
+        $this->statusState->abandonLicense($reason, $invoiceStatus);
     }
 
     public function credits(): HasMany
     {
         return $this->hasMany(Credit::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function paidInvoicesAmount(): Attribute
+    {
+        return Attribute::make(
+            get: function (mixed $value) {
+                $amount = $this->invoices()->where('status', InvoiceStatusEnum::PAID)->sum('amount');
+
+                return BigDecimal::of($amount);
+            }
+        )->withoutObjectCaching();
+    }
+
+    public function pendingInvoicesAmount(): Attribute
+    {
+        return Attribute::make(
+            get: function (mixed $value) {
+                $amount = $this->invoices()->where('status', InvoiceStatusEnum::PENDING)->sum('amount');
+
+                return BigDecimal::of($amount);
+            }
+        )->withoutObjectCaching();
     }
 
     /**
@@ -285,6 +331,10 @@ final class License extends Model
 
     public function releaseLicensable(): self
     {
+        if ($this->status !== LicenseStatusEnum::ACTIVE) {
+            throw InvalidStatusException::licenseRelease($this->id);
+        }
+
         $licensable = $this->licensable;
         if ($licensable instanceof HasRoleHandling) {
             $licensable->assignRole(
@@ -293,6 +343,59 @@ final class License extends Model
         }
 
         return $this;
+    }
+
+    public function annullCredits(string $reason): void
+    {
+        $this->credits()->createMany(
+            $this->credits()->pluck('amount')->map(
+                fn (BigDecimal $amount) => [
+                    'licensable_type' => $this->licensable_type,
+                    'licensable_id' => $this->licensable_id,
+                    'amount' => $amount->negated(),
+                    'description' => "Estorno de crédito automático: {$reason}",
+                ]
+            )
+        );
+    }
+
+    /**
+     * The InvoiceStatusEnum::EXPIRED state is only used during the job used to
+     * abandon licenses (automatic change from system). Any other cases must use
+     * the InvoiceStatusEnum::VOIDED state because they symbolize an manual change.
+     */
+    public function annulInvoices(InvoiceStatusEnum $status): void
+    {
+        if (
+            ! collect([
+                InvoiceStatusEnum::VOIDED,
+                InvoiceStatusEnum::EXPIRED,
+            ])->contains($status)
+        ) {
+            throw InvalidStatusException::invoiceAnnulment($this->id);
+        }
+
+        $this->invoices()
+            ->where('invoices.status', InvoiceStatusEnum::PENDING)
+            ->update([
+                'status' => $status,
+                'voided_at' => now(LocaleEnum::BR->getTimezone()),
+            ]);
+    }
+
+    public function payInvoices(
+        ?GatewayTypeEnum $gateway = null,
+        ?InvoicePaymentTypeEnum $paymentMethod = null,
+        ?array $paymentDetails = null,
+    ): void {
+        $this->invoices()
+            ->where('invoices.status', InvoiceStatusEnum::PENDING)
+            ->update([
+                'status' => InvoiceStatusEnum::PAID,
+                'gateway' => $gateway,
+                'payment_method' => $paymentMethod,
+                'payment_details' => $paymentDetails,
+            ]);
     }
 
     protected static function booted(): void

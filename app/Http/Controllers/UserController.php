@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Events\LicenseAbandoned;
 use App\Events\PlanAssigned;
 use App\Http\Requests\User\UserRequest;
+use App\Libraries\Enums\InvoiceStatusEnum;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\LicenseService;
@@ -18,7 +19,6 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Number;
 
 final class UserController extends Controller
 {
@@ -55,14 +55,6 @@ final class UserController extends Controller
             'licenses' => $user->licenses()->orderBy('created_at', 'desc')->get(),
             'permissions' => $permissions,
             'dPermissions' => $user->getDirectPermissions(),
-            'parsePrice' => fn (float|int $value) => (
-                Number::currency(
-                    number: $value,
-                    in: 'BRL',
-                    locale: 'pt_BR',
-                    precision: 2
-                )
-            ),
         ]);
     }
 
@@ -131,7 +123,10 @@ final class UserController extends Controller
                 $plan = $this->planSvc->parsePlan($request->input('plan'));
 
                 $pendingLicense = $user->pendingLicense;
-                $pendingLicense?->abandonLicense("Substituição de checkout (Plano {$plan->name})");
+                $pendingLicense?->abandonLicense(
+                    invoiceStatus: InvoiceStatusEnum::VOIDED,
+                    reason: "Substituição de checkout (Plano {$plan->name})",
+                );
 
                 $license = $this->licenseSvc->bindPlan(
                     $plan,

@@ -65,8 +65,8 @@
                         <div class="card">
                             <div class="card-header text-center">Você pagará:</div>
                             <div class="card-body">
-                                <div class="final-price" data-plan-price="{{ $plan->price }}" data-additional-price="{{ $checkoutData['additionalPrice'] }}" data-discount="{{ $checkoutData['core']['total_discount'] }}">
-                                    @if ($checkoutData['core']['final_price'] === 0.00)
+                                <div class="final-price" data-plan-price="{{ $checkoutData['core']['new_plan_price'] }}" data-additional-price="{{ $checkoutData['additionalPrice'] }}" data-discount="{{ $checkoutData['core']['internal_credits'] }}">
+                                    @if ($checkoutData['core']['final_price']->isZero())
                                         <span>NADA!</span>
                                         <span>INICIO IMEDIATO!</span>
                                     @else
@@ -81,7 +81,7 @@
                                 Você pagou:
                             </div>
                             <div class="card-body">
-                                <div class="final-price">{{ $parsePrice($activeLicense->price_paid) }}</div>
+                                <div class="final-price">{{ $parsePrice($activeLicense->paidInvoicesAmount) }}</div>
                             </div>
                         </div>
                     @elseif ($isSamePlan($plan, $pendingLicense))
@@ -90,7 +90,7 @@
                                 Você pagará:
                             </div>
                             <div class="card-body">
-                                <div class="final-price">{{ $parsePrice($pendingLicense->price_paid) }}</div>
+                                <div class="final-price">{{ $parsePrice($pendingLicense->pendingInvoicesAmount) }}</div>
                             </div>
                         </div>
                     @endif

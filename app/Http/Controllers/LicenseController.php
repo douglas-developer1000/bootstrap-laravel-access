@@ -11,7 +11,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 
 final class LicenseController extends Controller
@@ -44,14 +43,6 @@ final class LicenseController extends Controller
         return view('pages.licenses.show', [
             'license' => $license->load(['plan', 'licensable']),
             'licensableRoute' => $this->svc->defineLicensableRoute(...),
-            'parsePrice' => fn (float|int $value) => (
-                Number::currency(
-                    number: $value,
-                    in: 'BRL',
-                    locale: 'pt_BR',
-                    precision: 2
-                )
-            ),
         ]);
     }
 

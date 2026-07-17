@@ -88,7 +88,7 @@
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="text-end align-middle">Preço pago:</th>
-                                                <td class="text-start align-middle">{{$parsePrice($license->price_paid)}}</td>
+                                                <td class="text-start align-middle">{{$parsePrice($license->price_paid->toFloat())}}</td>
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="text-end align-middle">Inicia em:</th>

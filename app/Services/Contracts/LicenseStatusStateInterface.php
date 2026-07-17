@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Contracts;
 
+use App\Libraries\Enums\InvoiceStatusEnum;
+
 interface LicenseStatusStateInterface
 {
     public function changePlan(): void;
@@ -14,5 +16,5 @@ interface LicenseStatusStateInterface
 
     public function cancelLicense(): void;
 
-    public function abandonLicense(string $reason): void;
+    public function abandonLicense(string $reason, InvoiceStatusEnum $invoiceStatus): void;
 }

@@ -8,7 +8,10 @@ use App\Libraries\Enums\RoleNameEnum;
 use App\Models\License;
 use App\Models\User;
 use App\Observers\LicenseObserver;
+use Brick\Math\BigDecimal;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -29,6 +32,24 @@ final class AppServiceProvider extends ServiceProvider
         $this->runSuperAdminAuthorization();
 
         License::observe(LicenseObserver::class);
+
+        $this->declareViewCallables();
+    }
+
+    protected function declareViewCallables(): void
+    {
+        View::composer('*', function ($view) {
+            $view->with('parsePrice', fn (BigDecimal|float|int $price): string => (
+                Number::currency(
+                    number: BigDecimal::of(
+                        \is_float($price) ? "{$price}" : $price
+                    )->toFloat(),
+                    in: 'BRL',
+                    locale: 'pt_BR',
+                    precision: 2
+                )
+            ));
+        });
     }
 
     /**

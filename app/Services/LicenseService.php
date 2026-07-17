@@ -8,9 +8,12 @@ use App\Events\LicenseActivated;
 use App\Events\LicenseCanceled;
 use App\Events\LicenseChanged;
 use App\Events\LicensePending;
+use App\Libraries\Enums\GatewayTypeEnum;
 use App\Libraries\Enums\LicenseStatusEnum;
 use App\Models\Contracts\Licensable;
+use App\Models\Coupon;
 use App\Models\Credit;
+use App\Models\Invoice;
 use App\Models\License;
 use App\Models\Plan;
 use App\Models\Role;
@@ -126,68 +129,96 @@ final class LicenseService
         return License::hydrate($licenses);
     }
 
-    protected function round(int|float $value, int $places = 3): float
+    protected function calcPlanPrice(Plan $plan, array $additionalRoles): BigDecimal
     {
-        $pow = 10 ** $places;
+        $additionalQty = \count($additionalRoles);
+        $additionalPrice = License::PRICE_ADDITIONAL;
 
-        return \intval($value * $pow) / $pow;
+        return BigDecimal::of("{$plan->price}")->plus(
+            BigDecimal::of("{$additionalPrice}")->multipliedBy($additionalQty)
+        );
+    }
+
+    protected function calcAcquiredPrice(BigDecimal $planPrice, BigDecimal $couponDiscount): BigDecimal
+    {
+        return $planPrice->minus($couponDiscount)->max(BigDecimal::zero());
+    }
+
+    protected function calcFinalPrice(BigDecimal $acquiredPrice, BigDecimal $internalCredits): BigDecimal
+    {
+        return $acquiredPrice->minus($internalCredits)->max(BigDecimal::zero());
     }
 
     /**
      * Calculate all license prices and status. NOTE: It can be used to show informations at the view
+     * Array returned:
+     * - new_plan_price: Valor nominal (exibição)
+     * - prorata_discount: Crédito gerado pela licença antiga
+     * - wallet_balance: Saldo anterior da carteira
+     * - internal_credits: Total de créditos usados como pagamento
+     * - acquired_value: Valor real de aquisição (será o price_paid final e para a próxima prorata)
+     * - coupon_discount: Desconto do cupom (exibição)
+     * - final_price: Quanto vai cobrar no cartão/Pix (gateway e exibição)
+     * - remaining_credit: Sobra que voltará para a carteira, se houver (exibição)
+     * - new_license_status: Status que a licença deve ter
      *
      * @return array{
-     *      final_price: float|int,
-     *      new_plan_price: float|int,
-     *      prorata_discount: float,
-     *      remaining_credit: float|int,
-     *      total_discount: float,
-     *      wallet_balance: float,
-     *      new_license_status: LicenseStatusEnum
+     *      new_plan_price: BigDecimal,
+     *      prorata_discount: BigDecimal,
+     *      wallet_balance: BigDecimal,
+     *      internal_credits: BigDecimal,
+     *      acquired_value: BigDecimal,
+     *      coupon_discount: BigDecimal,
+     *      final_price: BigDecimal,
+     *      remaining_credit: BigDecimal,
+     *      new_license_status: LicenseStatusEnum,
      * }
      */
-    public function prepareCheckout(Plan $plan, Licensable $licensable, array $additionalRoles = []): array
+    public function prepareCheckout(Plan $plan, Licensable $licensable, array $additionalRoles = [], ?Coupon $coupon = null): array
     {
-        $prorataDiscount = $licensable->activeLicense?->prorata ?? 0.0;
+        $prorataDiscount = $licensable->activeLicense?->prorata ?? BigDecimal::zero();
 
-        /** @var float */
-        $walletBalance = Credit::where('licensable_type', $licensable->getMorphClass())
-            ->where('licensable_id', $licensable->getKey())
-            ->sum('amount');
+        $walletBalance = Credit::calcBalance($licensable);
 
-        $totalDiscount = BigDecimal::of("{$prorataDiscount}")
-            ->plus("{$walletBalance}");
+        $newPlanPrice = $this->calcPlanPrice($plan, $additionalRoles);
 
-        $additionalQty = \count($additionalRoles);
-        $additionalPrice = License::PRICE_ADDITIONAL;
-        $newPlanPrice = BigDecimal::of("{$plan->price}")->plus(
-            BigDecimal::of("{$additionalPrice}")->multipliedBy($additionalQty)
-        );
+        $couponDiscount = $coupon?->type->defineDiscount(
+            $newPlanPrice,
+            $coupon?->discount ?? BigDecimal::zero()
+        ) ?? BigDecimal::zero();
+
+        $acquiredValue = $this->calcAcquiredPrice($newPlanPrice, $couponDiscount);
+
+        $internalCredits = $prorataDiscount->plus($walletBalance);
+
+        $finalPriceToPay = $this->calcFinalPrice($acquiredValue, $internalCredits);
 
         $data = [
-            'new_plan_price' => $newPlanPrice->toFloat(),
+            'new_plan_price' => $newPlanPrice,
+
+            'coupon_discount' => $couponDiscount,
+
+            'acquired_value' => $acquiredValue,
+
             'prorata_discount' => $prorataDiscount,
             'wallet_balance' => $walletBalance,
-            'total_discount' => $totalDiscount->toFloat(),
-            'final_price' => max(
-                0,
-                $newPlanPrice
-                    ->minus($totalDiscount)
-                    ->toFloat()
-            ),
+
+            'internal_credits' => $internalCredits,
+
+            'final_price' => $finalPriceToPay,
         ];
 
-        if ($totalDiscount->toFloat() >= $newPlanPrice->toFloat()) {
+        if ($internalCredits->isGreaterThanOrEqualTo($acquiredValue)) {
             return [
                 ...$data,
-                'remaining_credit' => $totalDiscount->minus($newPlanPrice)->toFloat(),
+                'remaining_credit' => $internalCredits->minus($acquiredValue),
                 'new_license_status' => LicenseStatusEnum::ACTIVE,
             ];
         }
 
         return [
             ...$data,
-            'remaining_credit' => 0,
+            'remaining_credit' => BigDecimal::zero(), // Sobra que voltará para a carteira (se houver)
             'new_license_status' => LicenseStatusEnum::PENDING,
         ];
     }
@@ -196,8 +227,12 @@ final class LicenseService
      * @todo Enviar email com boleto/pix (quando houver) avisando também que créditos
      * foram utilizados, quando houver prorata.
      */
-    public function bindPlan(Plan $plan, Licensable $licensable, bool $isRecurring = false, array $additionalRoles = []): License
-    {
+    public function bindPlan(
+        Plan $plan,
+        Licensable $licensable,
+        bool $isRecurring = false,
+        array $additionalRoles = []
+    ): License {
         $activeLicense = $licensable->activeLicense;
         $checkoutData = $this->prepareCheckout($plan, $licensable, $additionalRoles);
 
@@ -207,7 +242,7 @@ final class LicenseService
 
         $license = License::create([
             'plan_id' => $plan->id,
-            'price_paid' => $checkoutData['final_price'],
+            'price_paid' => $checkoutData['acquired_value'],
             'licensable_id' => $licensable->getKey(),
             'licensable_type' => $licensable->getMorphClass(),
             'starts_at' => now(),
@@ -219,16 +254,16 @@ final class LicenseService
             Role::whereIn('name', $additionalRoles)->pluck('id')->all()
         );
 
-        if ($checkoutData['wallet_balance'] > 0) {
+        if ($checkoutData['wallet_balance']->isGreaterThan(0)) {
             Credit::create([
                 'licensable_type' => $licensable->getMorphClass(),
                 'licensable_id' => $licensable->getKey(),
                 'license_id' => $license->id,
-                'amount' => -$checkoutData['wallet_balance'],
+                'amount' => $checkoutData['wallet_balance']->negated(),
                 'description' => 'Saldo de crédito utilizado na troca de plano',
             ]);
         }
-        if ($checkoutData['remaining_credit'] > 0) {
+        if ($checkoutData['remaining_credit']->isGreaterThan(0)) {
             Credit::create([
                 'licensable_type' => $licensable->getMorphClass(),
                 'licensable_id' => $licensable->getKey(),
@@ -240,6 +275,15 @@ final class LicenseService
         if ($checkoutData['new_license_status'] === LicenseStatusEnum::ACTIVE) {
             $license->releaseLicensable();
         }
+        Invoice::create([
+            'license_id' => $license->id,
+            'licensable_type' => $licensable->getMorphClass(),
+            'licensable_id' => $licensable->getKey(),
+            'amount' => $checkoutData['final_price'],
+            // 'gateway_transaction_id' => $gatewayTransactionId,
+            // 'gateway' => GatewayTypeEnum,
+            // 'status' => $invoceStatus
+        ]);
 
         if ($activeLicense) {
             LicenseChanged::dispatch($licensable, $license, $activeLicense);
@@ -277,6 +321,9 @@ final class LicenseService
             }
             $license->activateLicense();
             $license->releaseLicensable();
+            if ($license->isActivatable) {
+                $license->payInvoices();
+            }
 
             LicenseActivated::dispatch($licensable, $license->plan, $license);
         });

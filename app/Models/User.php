@@ -38,9 +38,11 @@ use Spatie\Permission\Traits\HasRoles;
  * @property null|Carbon $deleted_at
  * @property Carbon $updated_at
  * @property Carbon $created_at
- * @property-read Collection<ProductCategory> $productCategories
  * @property-read null|License $activeLicense
  * @property-read null|License $pendingLicense
+ * @property-read Collection<ProductCategory> $productCategories
+ * @property-read Collection<Credit> $credits
+ * @property-read Collection<Invoice> $invoices
  */
 #[Fillable(['name', 'email', 'password', 'phone', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
@@ -93,6 +95,11 @@ final class User extends Authenticatable implements Licensable, MustVerifyEmail
         return $this->morphMany(Credit::class, 'licensable');
     }
 
+    public function invoices(): MorphMany
+    {
+        return $this->morphMany(Invoice::class, 'licensable');
+    }
+
     public function activeLicense(): MorphOne
     {
         return $this->morphOne(License::class, 'licensable')
@@ -121,6 +128,8 @@ final class User extends Authenticatable implements Licensable, MustVerifyEmail
         self::deleting(function (User $user): void {
             if ($user->isForceDeleting()) {
                 $user->licenses()->delete();
+                $user->credits()->delete();
+                $user->invoices()->delete();
             }
         });
     }

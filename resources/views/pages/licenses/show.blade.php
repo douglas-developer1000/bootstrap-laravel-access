@@ -41,7 +41,7 @@
                 <legend class="field-legend bg-light">Licensa</legend>
                 <div class="data-box">
                     <div class="label">Preço pago:</div>
-                    <div>{{ $parsePrice($license->price_paid) }}</div>
+                    <div>{{ $parsePrice($license->price_paid->toFloat()) }}</div>
                     <div class="label">Início:</div>
                     <div>{{ DatetimeFormatter::formatToDate($license->starts_at) }}</div>
                     <div class="label">Expiração:</div>
