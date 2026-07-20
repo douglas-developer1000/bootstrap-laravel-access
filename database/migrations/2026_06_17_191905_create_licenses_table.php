@@ -15,9 +15,16 @@ return new class() extends Migration
     /**
      * Run the migrations.
      *
-     * NOTE: the fields starts_at and expires_at must be nullable because
+     * NOTE 1: the fields starts_at and expires_at must be nullable because
      * when they are both nullable, the license status is "pending" and indicates
      * the app is waiting for payment's finalization
+     *
+     * NOTE 2: the licensable_type size must not be greater than 245, because of
+     * each character has 4 bytes and the index in VARCHAR(255) would have 1020
+     * bytes (and the max is 1000 bytes).
+     *
+     * NOTE 3: the licensable_type and licensable_id declaration below is
+     * equivalent to "$table->numericMorphs('licensable')".
      */
     public function up(): void
     {
@@ -25,7 +32,11 @@ return new class() extends Migration
             $table->id();
 
             $table->foreignId('plan_id')->constrained()->onDelete('cascade');
-            $table->numericMorphs('licensable');
+
+            $table->string('licensable_type', 245);
+            $table->unsignedBigInteger('licensable_id');
+            $table->index(['licensable_type', 'licensable_id'], null);
+
             $table->index('licensable_type');
 
             $table->decimal('price_paid', 8, 2);

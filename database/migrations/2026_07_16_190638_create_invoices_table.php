@@ -17,6 +17,13 @@ return new class() extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * NOTE 1: the licensable_type size must not be greater than 245, because of
+     * each character has 4 bytes and the index in VARCHAR(255) would have 1020
+     * bytes (and the max is 1000 bytes).
+     *
+     * NOTE 2: the licensable_type and licensable_id declaration below is
+     * equivalent to "$table->numericMorphs('licensable')".
      */
     public function up(): void
     {
@@ -24,7 +31,10 @@ return new class() extends Migration
             $table->id();
             $table->foreignId('license_id')->constrained('licenses');
 
-            $table->numericMorphs('licensable');
+            $table->string('licensable_type', 245);
+            $table->unsignedBigInteger('licensable_id');
+            $table->index(['licensable_type', 'licensable_id'], null);
+
             $table->decimal('amount', 8, 2);
 
             $table->enum(
