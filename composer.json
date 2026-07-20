@@ -15,7 +15,6 @@
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "spatie/dropbox-api": "^1.24",
-        "spatie/laravel-backup": "^10.2",
         "spatie/laravel-permission": "^7.2"
     },
     "require-dev": {
