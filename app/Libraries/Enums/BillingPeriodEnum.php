@@ -19,7 +19,7 @@ enum BillingPeriodEnum: string
     {
         return match ($this) {
             self::WEEKLY => $date->copy()->addWeek(),
-            self::MONTHLY => $date->copy()->addMonthNoOverflow(),
+            self::MONTHLY => $date->copy()->addMonth(),
             self::QUARTERLY => $date->copy()->addMonths(3),
             self::YEARLY => $date->copy()->addYear(),
             default => throw new Exception('Tipo de faturamento inválido'),
