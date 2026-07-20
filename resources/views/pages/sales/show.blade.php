@@ -119,7 +119,7 @@
                                             Valor:
                                         </th>
                                         <td class="text-start w-50">
-                                            {{ $parsePaymentValue($payment->value) }}
+                                            {{ $parsePrice($payment->value) }}
                                         </td>
                                     </tr>
                                     @if ($payment->type === PaymentTypeEnum::CARD)

@@ -10,7 +10,6 @@ use App\Services\UserService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Number;
 
 final class SettingsUserController extends Controller
 {
@@ -26,12 +25,8 @@ final class SettingsUserController extends Controller
         return view('pages.settings.user.show', [
             'user' => $this->user,
             'activeLicense' => $this->user->activeLicense,
-            'creditValue' => Number::currency(
-                number: \floatval($this->user->credits()->sum('amount') ?? 0),
-                in: 'BRL',
-                locale: 'pt_BR',
-                precision: 2
-            ),
+
+            'creditValue' => $this->user->credits()->sum('amount'),
         ]);
     }
 

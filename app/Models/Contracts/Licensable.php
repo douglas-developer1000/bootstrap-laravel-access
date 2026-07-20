@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Contracts;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 interface Licensable extends HasLicenseHandling, HasRoleHandling
@@ -13,6 +14,8 @@ interface Licensable extends HasLicenseHandling, HasRoleHandling
     public function getMorphClass();
 
     public function getKey();
+
+    public function licenses(): MorphMany;
 
     public function activeLicense(): MorphOne;
 

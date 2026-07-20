@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Libraries\Enums\PermissionNameEnum;
 use App\Models\PaymentCard;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
-class PaymentCardPolicy
+final class PaymentCardPolicy
 {
     /**
      * Determine whether the user can view any models.
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function viewAny(User $user): bool
@@ -20,6 +22,7 @@ class PaymentCardPolicy
 
     /**
      * Determine whether the user can create models.
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function create(User $user): bool
@@ -29,6 +32,7 @@ class PaymentCardPolicy
 
     /**
      * Determine whether the user can view the model.
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function view(User $user, PaymentCard $card): bool
@@ -41,18 +45,19 @@ class PaymentCardPolicy
 
     /**
      * Determine whether the user can edit the model.
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function edit(User $user, PaymentCard $card): bool
     {
-        return (
+        return
             $user->isModelMine($card) &&
-            $user->can(PermissionNameEnum::PAYMENT_CARD_EDIT)
-        );
+            $user->can(PermissionNameEnum::PAYMENT_CARD_EDIT);
     }
 
     /**
      * Determine whether the user can store the model.
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function store(User $user): bool
@@ -62,35 +67,37 @@ class PaymentCardPolicy
 
     /**
      * Determine whether the user can update the model.
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function update(User $user, PaymentCard $card): bool
     {
-        return (
+        return
             $user->isModelMine($card) &&
-            $user->can(PermissionNameEnum::PAYMENT_CARD_UPDATE)
-        );
+            $user->can(PermissionNameEnum::PAYMENT_CARD_UPDATE);
     }
 
     /**
      * Determine whether the user can delete the model.
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function delete(User $user, PaymentCard $card): bool
     {
         return (
             $user->isModelMine($card) &&
-            !$card->deleted_at
+            ! $card->deleted_at
         ) && $user->can(PermissionNameEnum::PAYMENT_CARD_DESTROY);
     }
 
     /**
-     * @param PaymentCard[] $paymentCardList
+     * @param  PaymentCard[]  $paymentCardList
+     *
      * @see ../../routes/custom/payment-cards.php
      */
     public function deleteList(User $user, array $paymentCardList): bool
     {
-        return collect($paymentCardList)->every(fn(PaymentCard $card) => (
+        return collect($paymentCardList)->every(fn (PaymentCard $card) => (
             $this->delete($user, $card)
         ));
     }
@@ -105,7 +112,7 @@ class PaymentCardPolicy
 
     public function restoreList(User $user, array $paymentCardList): bool
     {
-        return collect($paymentCardList)->every(fn(PaymentCard $card) => (
+        return collect($paymentCardList)->every(fn (PaymentCard $card) => (
             $this->restore($user, $card)
         ));
     }

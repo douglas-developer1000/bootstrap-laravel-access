@@ -127,9 +127,9 @@ final class User extends Authenticatable implements Licensable, MustVerifyEmail
     {
         self::deleting(function (User $user): void {
             if ($user->isForceDeleting()) {
-                $user->licenses()->delete();
-                $user->credits()->delete();
                 $user->invoices()->delete();
+                $user->credits()->delete();
+                $user->licenses()->delete();
             }
         });
     }

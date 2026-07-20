@@ -1,0 +1,24 @@
+@scope(.fieldset-tag) {
+    .tabular-data {
+        table-layout: auto;
+        width: 100%;
+        border-color: var(--bs-border-color);
+        margin-bottom: 1em;
+
+        th:first-child {
+            width: 1%;
+            white-space: nowrap;
+        }
+        
+        th, td {
+            padding: .5em .5em;
+            color: initial;
+            background-color: var(--bs-body-bg);
+            border-bottom-width: var(--bs-border-width);
+            box-shadow: inset 0 0 0 initial;
+        }
+        td {
+            width: auto;
+        }
+    }
+}

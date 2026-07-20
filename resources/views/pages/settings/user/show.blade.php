@@ -2,7 +2,7 @@
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
-        'resources/css/pages/generic/table.css',
+        'resources/css/pages/settings/user/show.css',
     ])
 @endpush
 
@@ -39,12 +39,12 @@
                         <i class="bi bi-person-circle px-2 fs-1"></i>
                     @endif
                 </div>
-                <table class="table tabular-data">
+                <table class="tabular-data">
                     <tbody>
                         <tr>
                             <th
                                 scope="row"
-                                style="width: 5rem"
+                               class="fw-medium"
                             >
                                 Nome
                             </th>
@@ -53,7 +53,7 @@
                         <tr>
                             <th
                                 scope="row"
-                                style="width: 5rem"
+                                class="fw-medium"
                             >
                                 Email
                             </th>
@@ -62,7 +62,7 @@
                         <tr>
                             <th
                                 scope="row"
-                                style="width: 5rem"
+                                class="fw-medium"
                             >
                                 Inicio
                             </th>
@@ -73,7 +73,7 @@
                         <tr>
                             <th
                                 scope="row"
-                                style="width: 5rem"
+                                class="fw-medium"
                             >
                                 Telefone
                             </th>
@@ -81,7 +81,7 @@
                         </tr>
                         @if ($activeLicense)
                             <tr>
-                                <th scope="row" style="width: 5rem">
+                                <th scope="row" class="fw-medium">
                                     Plano
                                 </th>
                                 <td>
@@ -90,11 +90,11 @@
                             </tr>
                         @endif
                         <tr>
-                            <th scope="row" style="width: 5rem">
+                            <th scope="row" class="fw-medium">
                                 Créditos
                             </th>
                             <td>
-                                {{ $creditValue }}
+                                {{ $parsePrice($creditValue) }}
                             </td>
                         </tr>
                     </tbody>

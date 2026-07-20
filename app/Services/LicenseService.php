@@ -8,7 +8,6 @@ use App\Events\LicenseActivated;
 use App\Events\LicenseCanceled;
 use App\Events\LicenseChanged;
 use App\Events\LicensePending;
-use App\Libraries\Enums\GatewayTypeEnum;
 use App\Libraries\Enums\LicenseStatusEnum;
 use App\Models\Contracts\Licensable;
 use App\Models\Coupon;
@@ -19,7 +18,10 @@ use App\Models\Plan;
 use App\Models\Role;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Brick\Math\BigDecimal;
+use Brick\Math\BigNumber;
+use Closure;
 use Illuminate\Contracts\Database\Query\Expression;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -141,12 +143,18 @@ final class LicenseService
 
     protected function calcAcquiredPrice(BigDecimal $planPrice, BigDecimal $couponDiscount): BigDecimal
     {
-        return $planPrice->minus($couponDiscount)->max(BigDecimal::zero());
+        return BigNumber::max(
+            $planPrice->minus($couponDiscount),
+            BigDecimal::zero(),
+        );
     }
 
     protected function calcFinalPrice(BigDecimal $acquiredPrice, BigDecimal $internalCredits): BigDecimal
     {
-        return $acquiredPrice->minus($internalCredits)->max(BigDecimal::zero());
+        return BigNumber::max(
+            $acquiredPrice->minus($internalCredits),
+            BigDecimal::zero(),
+        );
     }
 
     /**
@@ -319,13 +327,28 @@ final class LicenseService
                 $oldLicense = $licensable->activeLicense;
                 $oldLicense?->changePlan();
             }
-            $license->activateLicense();
-            $license->releaseLicensable();
             if ($license->isActivatable) {
                 $license->payInvoices();
             }
+            $license->activateLicense();
+            $license->releaseLicensable();
 
             LicenseActivated::dispatch($licensable, $license->plan, $license);
         });
+    }
+
+    /**
+     * @param  null|Closure(EloquentBuilder): EloquentBuilder  $callback
+     * @return Collection<int, License>
+     */
+    public function licensesWithAggregatedInvoiceAmount(Licensable $licensable, ?Closure $callback = null)
+    {
+        return $licensable
+            ->licenses()
+            ->withSum('invoices', 'amount')
+            ->when(
+                $callback,
+                fn (EloquentBuilder $query) => $callback($query)
+            )->get();
     }
 }

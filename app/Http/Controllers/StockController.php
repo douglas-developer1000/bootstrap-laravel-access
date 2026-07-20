@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\User;
-use App\Services\ListSelectorService;
 use App\Services\ProductCategoryService;
 use App\Services\StockEntryService;
 use App\Services\StockService;
@@ -27,7 +26,7 @@ final class StockController extends Controller
         $this->user = Auth::user();
     }
 
-    public function index(ListSelectorService $listSelectorSvc, Request $request)
+    public function index(Request $request)
     {
         $trashed = $request->boolean('trashed');
 
@@ -38,9 +37,6 @@ final class StockController extends Controller
                 $this->svc->hydrateStocks($pagination->all())
             ),
             'hasAccess' => $this->user->can(...),
-            'productsToExitEmpty' => collect(
-                $listSelectorSvc->getList('productsToExit')
-            )->isEmpty(),
 
             'trashed' => $trashed,
             'subject' => $trashed ? 'Produtos removidos' : 'Estoque',

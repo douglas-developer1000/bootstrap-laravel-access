@@ -27,6 +27,7 @@ export default defineConfig({
                 'resources/css/pages/settings/plans/index.css',
                 'resources/css/pages/settings/plans/show.css',
                 'resources/css/pages/settings/user/edit.css',
+                'resources/css/pages/settings/user/show.css',
                 'resources/css/pages/generic/create.css',
                 'resources/css/pages/generic/default.css',
                 'resources/css/pages/generic/index.css',

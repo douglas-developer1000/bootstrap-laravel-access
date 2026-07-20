@@ -53,7 +53,10 @@
                                         $getAnonymousCustomer()
                                     )
                                 }}"
-                                :disabled="!$hasAccess('viewAny', Product::class)"
+                                :disabled="
+                                    !$hasAccess('viewAny', Product::class) ||
+                                    $productsToExit->isEmpty()
+                                "
                             >
                                 <i class="bi bi-plus"></i>
                                 <span>Vendas</span>

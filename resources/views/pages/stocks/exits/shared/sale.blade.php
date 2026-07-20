@@ -43,7 +43,7 @@
         </x-molecules.select-field>
     @endcan
     <x-molecules.select-field
-        label-text="Pagamento"
+        label-text="Pagamento:"
         placeholder="Selecione..."
         aria-label="Selecione um tipo de pagamento"
         name="payment-type"
@@ -65,7 +65,7 @@
     @can('viewAny', PaymentCard::class)
         <x-molecules.select-field
             class="card-comboboxes cards"
-            label-text="Cartão"
+            label-text="Bandeira:"
             placeholder="Selecione..."
             aria-label="Selecione o cartão utilizado"
             name="card"

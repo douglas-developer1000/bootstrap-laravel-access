@@ -42,6 +42,7 @@ final class LicenseController extends Controller
     {
         return view('pages.licenses.show', [
             'license' => $license->load(['plan', 'licensable']),
+            'finalPrice' => $license->invoices()->sum('amount'),
             'licensableRoute' => $this->svc->defineLicensableRoute(...),
         ]);
     }

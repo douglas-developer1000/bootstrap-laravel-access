@@ -45,14 +45,18 @@ final class UserController extends Controller
     /**
      * Show the view for user visualization (used by super-admin)
      */
-    public function show(User $user)
+    public function show(LicenseService $licenseSvc, User $user)
     {
         $permissions = $user->roles->map(fn ($role) => $role->permissions)->flatten();
+        $licenses = $licenseSvc->licensesWithAggregatedInvoiceAmount(
+            $user,
+            fn (Builder $query) => $query->orderBy('licenses.created_at', 'desc')
+        );
 
         return view('pages.users.show', [
             'user' => $user,
             'roles' => $user->roles,
-            'licenses' => $user->licenses()->orderBy('created_at', 'desc')->get(),
+            'licenses' => $licenses,
             'permissions' => $permissions,
             'dPermissions' => $user->getDirectPermissions(),
         ]);

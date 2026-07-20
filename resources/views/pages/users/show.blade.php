@@ -79,32 +79,34 @@
                                     <table class="table tabular-data">
                                         <tbody>
                                             <tr>
-                                                <th scope="row" class="text-end align-middle">Status:</th>
-                                                <td class="text-start align-middle">{{$license->status->toString()}}</td>
+                                                <th scope="row" class="text-end align-middle fs-085">Status:</th>
+                                                <td class="text-start align-middle fs-085">{{$license->status->toString()}}</td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-end align-middle">Faturamento:</th>
-                                                <td class="text-start align-middle">{{$license->plan->billing_period->toString()}}</td>
+                                                <th scope="row" class="text-end align-middle fs-085">Faturamento:</th>
+                                                <td class="text-start align-middle fs-085">{{$license->plan->billing_period->toString()}}</td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-end align-middle">Preço pago:</th>
-                                                <td class="text-start align-middle">{{$parsePrice($license->price_paid->toFloat())}}</td>
+                                                <th scope="row" class="text-end align-middle fs-085">
+                                                    Preço {{ $license->status === LicenseStatusEnum::PENDING ? 'a pagar' : 'pago' }}:
+                                                </th>
+                                                <td class="text-start align-middle fs-085">{{$parsePrice($license->invoices_sum_amount ?? 0)}}</td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-end align-middle">Inicia em:</th>
-                                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->starts_at)}}</td>
+                                                <th scope="row" class="text-end align-middle fs-085">Inicia em:</th>
+                                                <td class="text-start align-middle fs-085">{{DatetimeFormatter::formatToDate($license->starts_at)}}</td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-end align-middle">Expira em:</th>
-                                                <td class="text-start align-middle">{{DatetimeFormatter::formatToDate($license->expires_at)}}</td>
+                                                <th scope="row" class="text-end align-middle fs-085">Expira em:</th>
+                                                <td class="text-start align-middle fs-085">{{DatetimeFormatter::formatToDate($license->expires_at)}}</td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-end align-middle">Recorrente:</th>
-                                                <td class="text-start align-middle">{{$license->is_recurring ? 'Sim' : 'Não'}}</td>
+                                                <th scope="row" class="text-end align-middle fs-085">Recorrente:</th>
+                                                <td class="text-start align-middle fs-085">{{$license->is_recurring ? 'Sim' : 'Não'}}</td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-end align-top pt-4">Recursos Adicionais:</th>
-                                                <td class="text-start align-middle">
+                                                <th scope="row" class="text-end align-top pt-4 fs-085">Recursos Adicionais:</th>
+                                                <td class="text-start align-middle fs-085">
                                                     <ul class="list-group">
                                                         @forelse ($license->additionals ?? [] as $additional)
                                                             <li class="list-group-item">
@@ -117,8 +119,15 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-end align-top pt-4">Ações:</th>
+                                                <th scope="row" class="text-end align-top pt-4 fs-085">Ações:</th>
                                                 <td class="text-start align-middle no-values">
+                                                    <x-atoms.button
+                                                        class="btn btn-secondary"
+                                                        format="anchor"
+                                                        href="{{ route('licenses.show', $license->id) }}"
+                                                    >
+                                                        <i class="bi bi-sunglasses"></i>
+                                                    </x-atoms.button>
                                                     <x-organisms.confirm-cancel-btn
                                                         :routeParams="['license' => $license->id]"
                                                         route="licenses.cancel"

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Libraries\Enums\CardPayWayEnum;
+use App\Libraries\Enums\LocaleEnum;
 use App\Libraries\Enums\PaymentTypeEnum;
 use App\Libraries\Traits\InputPickerTrait;
 use App\Models\Customer;
@@ -15,8 +16,6 @@ use App\Models\Sale;
 use App\Models\StockExit;
 use App\Models\User;
 use App\Services\Contracts\StockExitHandlerInterface;
-use Carbon\CarbonInterface;
-use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -197,32 +196,6 @@ final class StockExitSaleService implements StockExitHandlerInterface
     }
 
     /**
-     * @param array{
-     *     payment_card_id: int,
-     *     pay_way: CardPayWayEnum,
-     *     fee_id?: int
-     * } $params
-     */
-    protected function bindCardPayment(Payment $payment, array $params): void
-    {
-        $args = collect($params);
-        $paymentCard = PaymentCard::find($args->get('payment_card_id'));
-        $pivotColumns = [
-            'pay_way' => $args->get('pay_way'),
-            'created_at' => $this->makeNow(),
-            'updated_at' => $this->makeNow(),
-        ];
-        if ($args->has('fee_id')) {
-            $fee = Discount::find($args->pull('fee_id'));
-            $pivotColumns = ['fee_id' => $fee->id];
-        }
-        $payment->paymentCards()->save(
-            $paymentCard,
-            $pivotColumns
-        );
-    }
-
-    /**
      * @param  Collection<int, Collection<StockExit>>  $productExits
      */
     protected function handleStockExits(Sale $sale, Collection $productExits): void
@@ -230,17 +203,19 @@ final class StockExitSaleService implements StockExitHandlerInterface
         $productExits->each(function (Collection $exits) use (&$sale) {
             $exitList = $exits->mapWithKeys(fn (StockExit $exit) => [
                 $exit->id => [
-                    'created_at' => $this->makeNow(),
-                    'updated_at' => $this->makeNow(),
+                    'created_at' => now(LocaleEnum::BR->getTimezone()),
+                    'updated_at' => now(LocaleEnum::BR->getTimezone()),
                 ],
             ]);
             $sale->stockExits()->attach($exitList);
         });
     }
 
-    protected function makeNow(): CarbonInterface
+    protected function isPaymentCardProcess(PaymentTypeEnum $paymentType): bool
     {
-        return now(new DateTimeZone('America/Sao_Paulo'));
+        return
+            $this->user->can('store', PaymentCard::class) &&
+            $paymentType === PaymentTypeEnum::CARD;
     }
 
     /**
@@ -251,9 +226,14 @@ final class StockExitSaleService implements StockExitHandlerInterface
         $saleParams = collect($this->extractParams($request, $productExits));
         $sale = $this->makeSale($saleParams->get('sale'));
         $payment = $this->makePayment($sale, $saleParams->get('payment'));
-        if ($payment->type === PaymentTypeEnum::CARD) {
-            $this->bindCardPayment($payment, $saleParams->get('card'));
+
+        if ($this->isPaymentCardProcess($payment->type)) {
+            app(PaymentCardService::class)->bindCardPayment(
+                $payment,
+                $saleParams->get('card')
+            );
         }
+
         $this->handleStockExits($sale, $productExits);
     }
 }

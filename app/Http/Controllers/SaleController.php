@@ -12,12 +12,12 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\User;
 use App\Services\CustomerService;
+use App\Services\ListSelectorService;
 use App\Services\SaleService;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Number;
 
 final class SaleController extends Controller
 {
@@ -28,7 +28,7 @@ final class SaleController extends Controller
         $this->user = Auth::user();
     }
 
-    public function index(Request $request, CustomerService $customerSvc)
+    public function index(Request $request, ListSelectorService $listSelectorSvc, CustomerService $customerSvc)
     {
         return view('pages.sales.index', [
             'list' => $this->svc->prepareIndex($request),
@@ -42,6 +42,10 @@ final class SaleController extends Controller
                 ]
             )->all(),
             'hasAccess' => $this->user->can(...),
+
+            'productsToExit' => collect(
+                $listSelectorSvc->getList('productsToExit')
+            ),
 
             'getAnonymousCustomer' => $customerSvc->anonymousCustomer(...),
             'makeSaleNoCustomerRoute' => fn (Customer $customer) => (
@@ -76,14 +80,6 @@ final class SaleController extends Controller
             'hasAccess' => $this->user->can(...),
             'exits' => $exits,
             'payments' => $payments,
-            'parsePaymentValue' => fn (float|int $value) => (
-                Number::currency(
-                    number: $value,
-                    in: 'BRL',
-                    locale: 'pt_BR',
-                    precision: 2
-                )
-            ),
         ]);
     }
 
