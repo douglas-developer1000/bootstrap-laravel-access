@@ -3,7 +3,6 @@
 use App\Libraries\Enums\StockExitTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -27,19 +26,14 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('stock_exits', function (Blueprint $table) {
-            $table->enum(
-                'type',
-                $this->removeRawCase()->map(
-                    fn(BackedEnum $enum) => $enum->value
-                )->all()
-            )->nullable(FALSE)->change();
+            $values = [
+                StockExitTypeEnum::SALE->value,
+                StockExitTypeEnum::EXCHANGE->value,
+                StockExitTypeEnum::DEMONSTRATION->value,
+                StockExitTypeEnum::PERSONAL_USE->value,
+                StockExitTypeEnum::LOSS->value,
+            ];
+            $table->enum('type', $values)->nullable(FALSE)->change();
         });
-    }
-
-    protected function removeRawCase(): Collection
-    {
-        return collect(StockExitTypeEnum::cases())->filter(
-            fn(BackedEnum $enum) => $enum !== StockExitTypeEnum::RAW
-        );
     }
 };
