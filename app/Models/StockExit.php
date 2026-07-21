@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Libraries\Enums\StockExitTypeEnum;
 use Database\Factories\StockExitFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
+use Override;
 
 /**
  * @property int $id
@@ -18,8 +20,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $qty
  * @property int $user_id
  * @property int $stock_entry_id
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 #[Fillable(['type', 'qty', 'user_id', 'stock_entry_id'])]
 final class StockExit extends Model
@@ -27,9 +29,18 @@ final class StockExit extends Model
     /** @use HasFactory<StockExitFactory> */
     use HasFactory;
 
-    protected $casts = [
-        'type' => StockExitTypeEnum::class
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    #[Override]
+    protected function casts()
+    {
+        return [
+            'type' => StockExitTypeEnum::class,
+        ];
+    }
 
     public function sales(): BelongsToMany
     {

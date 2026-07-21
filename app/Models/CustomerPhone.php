@@ -6,26 +6,37 @@ namespace App\Models;
 
 use App\Casts\PhoneCast;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
-use Illuminate\Database\Eloquent\Model;
-
+use App\Libraries\Values\PhoneValue;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Override;
 
 /**
  * @property int $id
  * @property CustomerPhoneTypeEnum $type
- * @property \App\Libraries\Values\PhoneValue $number
+ * @property PhoneValue $number
  * @property int $customer_id
- * @property \Illuminate\Support\Carbon $created_at
+ * @property Carbon $created_at
  */
 #[Fillable(['type', 'customer_id', 'number', 'created_at'])]
 final class CustomerPhone extends Model
 {
-    public const UPDATED_AT = NULL;
+    public const UPDATED_AT = null;
 
     protected $table = 'customer_phone';
 
-    protected $casts = [
-        'type' => CustomerPhoneTypeEnum::class,
-        'number' => PhoneCast::class
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    #[Override]
+    protected function casts()
+    {
+        return [
+            'type' => CustomerPhoneTypeEnum::class,
+            'number' => PhoneCast::class,
+        ];
+    }
 }

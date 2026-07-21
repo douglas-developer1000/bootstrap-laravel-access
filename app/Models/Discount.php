@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Override;
 
 /**
  * @property int $id
@@ -32,9 +33,18 @@ final class Discount extends Model
 
     use SoftDeletes;
 
-    protected $casts = [
-        'type' => DiscountTypeEnum::class,
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    #[Override]
+    protected function casts()
+    {
+        return [
+            'type' => DiscountTypeEnum::class,
+        ];
+    }
 
     public function stockEntries(): HasMany
     {

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Override;
 
 /**
  * @property int $id
@@ -31,9 +32,18 @@ final class Plan extends Model
 {
     use SoftDeletes;
 
-    protected $casts = [
-        'billing_period' => BillingPeriodEnum::class,
-    ];
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    #[Override]
+    protected function casts()
+    {
+        return [
+            'billing_period' => BillingPeriodEnum::class,
+        ];
+    }
 
     public function roles(): BelongsToMany
     {
