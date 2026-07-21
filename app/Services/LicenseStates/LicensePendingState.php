@@ -58,7 +58,7 @@ final class LicensePendingState implements LicenseStatusStateInterface
             if (! $this->license->isAbandonable) {
                 throw LicenseStatusModificationException::abandonment($this->license->id);
             }
-            $this->license->annullCredit($reason);
+            $this->license->annullCredits($reason);
             $this->license->annulInvoices($invoiceStatus);
 
             $this->license->update([
