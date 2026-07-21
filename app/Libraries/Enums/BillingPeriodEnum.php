@@ -10,7 +10,7 @@ use Exception;
 enum BillingPeriodEnum: string
 {
     case NONE = 'none';
-    case WEEKLY = 'weekly';
+    case BIWEEKLY = 'biweekly';
     case MONTHLY = 'monthly';
     case QUARTERLY = 'quarterly';
     case YEARLY = 'yearly';
@@ -18,7 +18,7 @@ enum BillingPeriodEnum: string
     public function advance(CarbonInterface $date): CarbonInterface
     {
         return match ($this) {
-            self::WEEKLY => $date->copy()->addWeek(),
+            self::BIWEEKLY => $date->copy()->addWeeks(2),
             self::MONTHLY => $date->copy()->addMonth(),
             self::QUARTERLY => $date->copy()->addMonths(3),
             self::YEARLY => $date->copy()->addYear(),
@@ -29,7 +29,7 @@ enum BillingPeriodEnum: string
     public function toString(): string
     {
         return match ($this) {
-            self::WEEKLY => 'Semanal',
+            self::BIWEEKLY => 'Quinzenal',
             self::MONTHLY => 'Mensal',
             self::QUARTERLY => 'Trimestral',
             self::YEARLY => 'Anual',
