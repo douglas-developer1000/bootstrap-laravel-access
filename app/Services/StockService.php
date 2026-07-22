@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\ListStorager;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
@@ -20,21 +21,19 @@ final class StockService
 
     public function __construct(
         protected StockEntryService $stockEntrySvc,
-        protected ProductService $prodSvc,
-        protected ListSelectorService $listSelector,
+        protected ProductService $prodSvc
     ) {
         $this->user = Auth::user();
     }
 
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class($this->user, $this->stockEntrySvc, $this->prodSvc, $this->listSelector) extends AbstractPaginatorIndex
+        return (new class($this->user, $this->stockEntrySvc, $this->prodSvc) extends AbstractPaginatorIndex
         {
             public function __construct(
                 protected User $user,
                 protected StockEntryService $stockEntrySvc,
                 protected ProductService $prodSvc,
-                protected ListSelectorService $listSelector,
             ) {
                 parent::__construct();
             }
@@ -87,7 +86,7 @@ final class StockService
                     $request->boolean('exits'),
                     fn (Builder $query) => $query->whereIn(
                         'p.id',
-                        $this->listSelector->getList('productsToExit')
+                        ListStorager::getList('productsToExit')
                     )
                 );
             }
@@ -123,8 +122,7 @@ final class StockService
 
     public function hydrateStocks(array $stocks): Collection
     {
-        $svc = app(ListSelectorService::class);
-        $productsToExit = collect($svc->getList('productsToExit'));
+        $productsToExit = collect(ListStorager::getList('productsToExit'));
 
         return Product::hydrate($stocks)->map(function (Product $product, int $i) use (&$stocks, &$productsToExit) {
             $product->catId = $stocks[$i]->catId;

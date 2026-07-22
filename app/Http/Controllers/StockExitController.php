@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Facades\ListStorager;
 use App\Http\Requests\StockExit\StockExitRequest;
 use App\Libraries\Enums\StockExitTypeEnum;
 use App\Models\Customer;
@@ -12,7 +13,6 @@ use App\Models\PaymentCard;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\DiscountService;
-use App\Services\ListSelectorService;
 use App\Services\PaymentCardService;
 use App\Services\SaleService;
 use App\Services\StockEntryService;
@@ -38,7 +38,6 @@ final class StockExitController extends Controller
         StockExitRequest $request,
         StockExitSaleService $stockExitSaleSvc,
         StockExitExchangeService $exchangeSvc,
-        ListSelectorService $listSelector,
         StockExitTypeEnum $exitType,
     ) {
         DB::transaction(function () use ($request, $exitType, $stockExitSaleSvc, $exchangeSvc) {
@@ -51,7 +50,7 @@ final class StockExitController extends Controller
             }
         });
 
-        $listSelector->clearList('productsToExit');
+        ListStorager::clearList('productsToExit');
 
         return redirect()->route('stocks.index')->with([
             'toastShow' => true,
@@ -59,9 +58,9 @@ final class StockExitController extends Controller
         ]);
     }
 
-    public function markSale(ListSelectorService $svc, Product $product): RedirectResponse
+    public function markSale(Product $product): RedirectResponse
     {
-        $svc->store('productsToExit', $product->id);
+        ListStorager::store('productsToExit', $product->id);
 
         return redirect()->back()->with([
             'toastShow' => true,
@@ -69,10 +68,10 @@ final class StockExitController extends Controller
         ]);
     }
 
-    public function unmarkSale(ListSelectorService $svc, Product $product): RedirectResponse
+    public function unmarkSale(Product $product): RedirectResponse
     {
-        $svc->unstore('productsToExit', $product->id);
-        if (collect($svc->getList('productsToExit'))->isEmpty()) {
+        ListStorager::unstore('productsToExit', $product->id);
+        if (collect(ListStorager::getList('productsToExit'))->isEmpty()) {
             return redirect()->route('stocks.index')->with([
                 'toastShow' => true,
                 'toastMsg' => "Produto {$product->name} desmarcado com sucesso!",
@@ -86,14 +85,13 @@ final class StockExitController extends Controller
     }
 
     public function createSaleExit(
-        ListSelectorService $svc,
         PaymentCardService $payCardSvc,
         DiscountService $discountSvc,
         SaleService $saleSvc,
         StockExitTypeEnum $exitType,
         Customer $customer,
     ) {
-        $products = Product::findMany($svc->getList('productsToExit'));
+        $products = Product::findMany(ListStorager::getList('productsToExit'));
         $cards = $this->user->can(
             'viewAny',
             PaymentCard::class
@@ -119,11 +117,9 @@ final class StockExitController extends Controller
         ]);
     }
 
-    public function createExit(
-        ListSelectorService $svc,
-        StockExitTypeEnum $exitType
-    ) {
-        $products = Product::findMany($svc->getList('productsToExit'));
+    public function createExit(StockExitTypeEnum $exitType)
+    {
+        $products = Product::findMany(ListStorager::getList('productsToExit'));
 
         return view('pages.stocks.exits.create', [
             'exitType' => $exitType,

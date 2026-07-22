@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Facades\CheckList;
+use App\Facades\ListStorager;
 use App\Http\Requests\Plan\PlanRequest;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\FeatureService;
-use App\Services\ListSelectorService;
 use App\Services\PlanService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
@@ -23,10 +23,8 @@ final class PlanController extends Controller
 {
     protected User $user;
 
-    public function __construct(
-        protected PlanService $svc,
-        protected ListSelectorService $listSelector
-    ) {
+    public function __construct(protected PlanService $svc)
+    {
         $this->user = Auth::user();
     }
 
@@ -43,7 +41,7 @@ final class PlanController extends Controller
             'trashed' => $trashed,
             'title' => $trashed ? 'Planos removidos' : 'Planos',
             'hasAccess' => $this->user->can(...),
-            'roleToPlanEmpty' => collect($this->listSelector->getList('rolesToPlan'))->isEmpty(),
+            'roleToPlanEmpty' => collect(ListStorager::getList('rolesToPlan'))->isEmpty(),
             'qs' => collect($request->query->all()),
         ]);
     }
@@ -53,7 +51,7 @@ final class PlanController extends Controller
         return view('pages.plans.create', [
             'roles' => Role::whereIn(
                 'name',
-                $this->listSelector->getList('rolesToPlan')
+                ListStorager::getList('rolesToPlan')
             )->get(),
             'hasAccess' => $this->user->can(...),
         ]);
@@ -84,7 +82,7 @@ final class PlanController extends Controller
 
     protected function cleanStoredRoles(Collection $roles): array
     {
-        return collect($this->listSelector->getList('rolesToPlan'))->diff(
+        return collect(ListStorager::getList('rolesToPlan'))->diff(
             $roles->pluck('name')
         )->all();
     }
@@ -132,7 +130,7 @@ final class PlanController extends Controller
                 $this->svc->extractPlanParams($request)
             ),
             $this->svc->extractRoleIds(
-                $this->listSelector->getList('rolesToPlan'),
+                ListStorager::getList('rolesToPlan'),
                 collect($request->input('additionals', []))
             )
         );

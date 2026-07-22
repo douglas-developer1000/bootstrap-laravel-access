@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\ListStorager;
 use App\Libraries\Enums\RoleNameEnum;
 use App\Models\Role;
 use App\Services\Abstracts\AbstractPaginatorIndex;
@@ -17,16 +18,11 @@ use stdClass;
 
 final class RoleService
 {
-    public function __construct(protected ListSelectorService $listSelector)
-    {
-        // ...
-    }
-
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
-        return (new class($this->listSelector) extends AbstractPaginatorIndex
+        return (new class() extends AbstractPaginatorIndex
         {
-            public function __construct(protected ListSelectorService $listSelector)
+            public function __construct()
             {
                 parent::__construct();
             }
@@ -92,7 +88,7 @@ final class RoleService
                     $request->boolean('for-plan'),
                     fn(Builder $query) => $query->whereIn(
                         'name',
-                        $this->listSelector->getList('rolesToPlan')
+                        ListStorager::getList('rolesToPlan')
                     )
                 );
             }
@@ -156,7 +152,7 @@ final class RoleService
         return Role::create(['name' => $name, 'summary' => $summary]);
     }
 
-    public function bindDescriptions(Role $role, array $descriptions, bool $clear = FALSE): void
+    public function bindDescriptions(Role $role, array $descriptions, bool $clear = false): void
     {
         if ($clear) {
             $role->roleDescriptions()->delete();
@@ -171,6 +167,7 @@ final class RoleService
     public function updateRole(Role $role, string $name, string $summary): Role
     {
         $role->update(['name' => $name, 'summary' => $summary]);
+
         return $role;
     }
 
@@ -211,7 +208,7 @@ final class RoleService
 
     public function hydrateRole(array $roles): Collection
     {
-        $rolesToPlan = collect($this->listSelector->getList('rolesToPlan'));
+        $rolesToPlan = collect(ListStorager::getList('rolesToPlan'));
 
         return collect($roles)->map(function (stdClass $role) use (&$rolesToPlan) {
             return tap($role, function (stdClass $role) use (&$rolesToPlan) {

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Role\Strategies;
 
+use App\Facades\ListStorager;
 use App\Http\Requests\BeforeValidationInterface;
 use App\Http\Requests\Checker;
-use App\Services\ListSelectorService;
 use Spatie\Permission\Models\Role;
 
 final class Marking implements Checker
@@ -16,7 +16,7 @@ final class Marking implements Checker
         BeforeValidationInterface $before,
         bool $enter = false,
     ) {
-        $list = collect(app(ListSelectorService::class)->getList('rolesToPlan'));
+        $list = collect(ListStorager::getList('rolesToPlan'));
         $before->pushBeforeValidation(function ($formRequest) use (&$list, $role, $enter) {
             $invalid = $enter && $list->contains($role->name);
             if ($invalid) {

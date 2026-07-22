@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Rules;
 
-use App\Services\ListSelectorService;
+use App\Facades\ListStorager;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Validator;
@@ -59,9 +59,8 @@ final class StockSalePricesToExitRule implements ValidationRule
 
     protected function isPriceListValid(mixed $value, Closure $fail): bool
     {
-        $svc = app(ListSelectorService::class);
         $prices = collect($value);
-        $idListStored = collect($svc->getList('productsToExit'));
+        $idListStored = collect(ListStorager::getList('productsToExit'));
         if (
             $prices->count() !== $idListStored->count() ||
             ! $idListStored->every(fn (int $id) => $prices->has($id))

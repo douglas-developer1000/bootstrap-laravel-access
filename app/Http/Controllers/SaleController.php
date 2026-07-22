@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Facades\ListStorager;
 use App\Http\Requests\Sale\SaleRequest;
 use App\Libraries\Enums\DiscountTypeEnum;
 use App\Libraries\Enums\PaymentTypeEnum;
@@ -12,7 +13,6 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\User;
 use App\Services\CustomerService;
-use App\Services\ListSelectorService;
 use App\Services\SaleService;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ final class SaleController extends Controller
         $this->user = Auth::user();
     }
 
-    public function index(Request $request, ListSelectorService $listSelectorSvc, CustomerService $customerSvc)
+    public function index(Request $request, CustomerService $customerSvc)
     {
         return view('pages.sales.index', [
             'list' => $this->svc->prepareIndex($request),
@@ -44,7 +44,7 @@ final class SaleController extends Controller
             'hasAccess' => $this->user->can(...),
 
             'productsToExit' => collect(
-                $listSelectorSvc->getList('productsToExit')
+                ListStorager::getList('productsToExit')
             ),
 
             'getAnonymousCustomer' => $customerSvc->anonymousCustomer(...),

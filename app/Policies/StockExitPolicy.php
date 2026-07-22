@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Facades\ListStorager;
 use App\Libraries\Enums\PermissionNameEnum;
 use App\Libraries\Enums\StockExitTypeEnum;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\StockExit;
 use App\Models\User;
-use App\Services\ListSelectorService;
 use App\Services\StockService;
 use Illuminate\Database\Eloquent\Collection;
 
 final class StockExitPolicy
 {
-    public function __construct(
-        protected StockService $stockSvc,
-        protected ListSelectorService $listSelector
-    ) {
+    public function __construct(protected StockService $stockSvc)
+    {
         // ...
     }
 
@@ -29,7 +27,7 @@ final class StockExitPolicy
     protected function productsToExitModels(): Collection
     {
         return Product::findMany(
-            $this->listSelector->getList('productsToExit')
+            ListStorager::getList('productsToExit')
         );
     }
 
@@ -64,7 +62,7 @@ final class StockExitPolicy
             $user->isModelMine($product) &&
             ! $product->deleted_at &&
             $this->stockSvc->getProductRemainQty($product) > 0 &&
-            ! collect($this->listSelector->getList('productsToExit'))->contains(
+            ! collect(ListStorager::getList('productsToExit'))->contains(
                 $product->id
             );
     }
@@ -80,7 +78,7 @@ final class StockExitPolicy
             $user->isModelMine($product) &&
             ! $product->deleted_at &&
             $this->stockSvc->getProductRemainQty($product) > 0 &&
-            collect($this->listSelector->getList('productsToExit'))->contains(
+            collect(ListStorager::getList('productsToExit'))->contains(
                 $product->id
             );
     }
@@ -93,7 +91,7 @@ final class StockExitPolicy
     public function createExit(User $user, StockExitTypeEnum $exitType): bool
     {
         $productsToExit = collect(
-            $this->listSelector->getList('productsToExit')
+            ListStorager::getList('productsToExit')
         );
         if ($exitType === StockExitTypeEnum::EXCHANGE) {
             return
@@ -124,7 +122,7 @@ final class StockExitPolicy
 
     public function createSaleExit(User $user, StockExitTypeEnum $exitType, Customer $customer): bool
     {
-        $productsToExit = collect($this->listSelector->getList('productsToExit'));
+        $productsToExit = collect(ListStorager::getList('productsToExit'));
 
         return
             $productsToExit->isNotEmpty() &&

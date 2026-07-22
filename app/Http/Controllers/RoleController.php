@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Facades\ListStorager;
 use App\Http\Requests\Role\RoleRequest;
 use App\Models\Role;
-use App\Services\ListSelectorService;
 use App\Services\PaginatorService;
 use App\Services\RoleService;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +18,6 @@ final class RoleController extends Controller
 {
     public function __construct(
         protected RoleService $svc,
-        protected ListSelectorService $listSelector,
         protected PaginatorService $paginator,
     ) {
         // ...
@@ -28,7 +27,7 @@ final class RoleController extends Controller
     {
         return view('pages.roles.index', [
             'list' => $this->svc->prepareIndex($request),
-            'models' => fn(LengthAwarePaginator $pagination) => (
+            'models' => fn (LengthAwarePaginator $pagination) => (
                 $this->svc->hydrateRole($pagination->all())
             ),
             'filterVisibility' => [
@@ -59,7 +58,7 @@ final class RoleController extends Controller
     public function create()
     {
         return view('pages.roles.persistence', [
-            'descriptions' => []
+            'descriptions' => [],
         ]);
     }
 
@@ -73,7 +72,7 @@ final class RoleController extends Controller
                 'name' => $role->name,
                 'summary' => $role->summary,
             ],
-            'descriptions' => $role->roleDescriptions()->pluck('description')->all()
+            'descriptions' => $role->roleDescriptions()->pluck('description')->all(),
         ]);
     }
 
@@ -205,7 +204,7 @@ final class RoleController extends Controller
 
     public function markRole(RoleRequest $request, Role $role): RedirectResponse
     {
-        $this->listSelector->store('rolesToPlan', $role->name);
+        ListStorager::store('rolesToPlan', $role->name);
 
         return redirect()->back()->with([
             'toastShow' => true,
@@ -215,8 +214,8 @@ final class RoleController extends Controller
 
     public function unmarkRole(RoleRequest $request, Role $role): RedirectResponse
     {
-        $this->listSelector->unstore('rolesToPlan', $role->name);
-        $list = collect($this->listSelector->getList('rolesToPlan'));
+        ListStorager::unstore('rolesToPlan', $role->name);
+        $list = collect(ListStorager::getList('rolesToPlan'));
         if ($list->isEmpty() && ! $request->boolean('keep')) {
             return redirect()->route('roles.index')->with([
                 'toastShow' => true,

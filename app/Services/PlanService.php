@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\ListStorager;
 use App\Libraries\Enums\BillingPeriodEnum;
 use App\Models\Plan;
 use App\Services\Abstracts\AbstractPaginatorIndex;
@@ -17,11 +18,6 @@ use Spatie\Permission\Models\Role;
 
 final class PlanService
 {
-    public function __construct(protected ListSelectorService $listSelector)
-    {
-        // ...
-    }
-
     public function prepareIndex(Request $request)
     {
         return (new class() extends AbstractPaginatorIndex
@@ -84,7 +80,7 @@ final class PlanService
             'slug' => $this->mountSlug($name, $billingPeriod),
             'billing_period' => $billingPeriod,
             'price' => $request->input('price'),
-            'description' => $request->input('description')
+            'description' => $request->input('description'),
         ];
     }
 
@@ -94,7 +90,7 @@ final class PlanService
     public function syncPlanRoles(Plan $plan, array $roleIds = []): void
     {
         $plan->roles()->sync($roleIds);
-        $this->listSelector->clearList('rolesToPlan');
+        ListStorager::clearList('rolesToPlan');
     }
 
     /**
@@ -109,7 +105,7 @@ final class PlanService
         return Role::whereIn(
             'name',
             $roleNames
-        )->get('id')->pluck('id')->mapWithKeys(fn(int $id) => [
+        )->get('id')->pluck('id')->mapWithKeys(fn (int $id) => [
             $id => ['additional' => $additionals->contains($id)],
         ])->all();
     }

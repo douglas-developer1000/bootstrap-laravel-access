@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Plan\Strategies;
 
+use App\Facades\ListStorager;
 use App\Http\Requests\BeforeValidationInterface;
 use App\Http\Requests\Checker;
 use App\Http\Requests\LateValidationInterface;
 use App\Libraries\Enums\BillingPeriodEnum;
 use App\Libraries\Traits\OneOrManyMsgTrait;
 use App\Models\Plan;
-use App\Services\ListSelectorService;
 use App\Services\PlanService;
 use Closure;
 use Exception;
@@ -58,7 +58,7 @@ final class Persistence implements Checker
             throw new Exception('Plan attribute required!');
         }
         $planRoles = $this->plan->roles->pluck('name')->all();
-        $list = collect(app(ListSelectorService::class)->getList('rolesToPlan'))->diff(
+        $list = collect(ListStorager::getList('rolesToPlan'))->diff(
             $planRoles
         );
         $late->pushAfterValidation(
@@ -92,7 +92,7 @@ final class Persistence implements Checker
 
     public function validateRolesToPlan(BeforeValidationInterface $before): self
     {
-        $list = collect(app(ListSelectorService::class)->getList('rolesToPlan'));
+        $list = collect(ListStorager::getList('rolesToPlan'));
         $before->pushBeforeValidation(function ($formRequest) use (&$list) {
             if ($list->isEmpty()) {
                 abort(403);
