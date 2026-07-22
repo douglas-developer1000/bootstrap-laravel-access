@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Libraries\Helpers;
 
-final class TimeProtection
+final class TimingProtectionHelper
 {
     /**
      * Because the usleep native method only allows int values
