@@ -150,7 +150,7 @@ final class CustomerService
         return collect(
             CustomerPhoneTypeEnum::casesExcept(CustomerPhoneTypeEnum::OTHER)
         )->mapWithKeys(
-            fn ($enum) => [$enum->value => $phonesStored->get($enum->value, '')]
+            fn ($enum) => [$enum->value => $phonesStored->get($enum->value) ?? '']
         );
     }
 
