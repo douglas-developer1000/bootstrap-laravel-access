@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Closure;
-use Illuminate\Container\Container;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Uri;
@@ -92,23 +89,5 @@ final class PaginatorService
         }
 
         return $uri->withQuery($qs->all())->toString();
-    }
-
-    public function orderByInnerSort(LengthAwarePaginator $paginator, Closure $callback): LengthAwarePaginator
-    {
-        $collection = collect($paginator->items())->sortBy($callback);
-
-        return Container::getInstance()->makeWith(LengthAwarePaginator::class, [
-            'items' => $collection,
-            'total' => $collection->count(),
-            'perPage' => $paginator->perPage(),
-            'currentPage' => $paginator->currentPage(),
-            'options' => [
-                'path' => $paginator->url(0),
-                'pageName' => $paginator->getPageName(),
-                'query' => $paginator->getOptions()['query'] ?? [],
-                'fragment' => $paginator->getOptions()['fragment'] ?? null,
-            ],
-        ]);
     }
 }
