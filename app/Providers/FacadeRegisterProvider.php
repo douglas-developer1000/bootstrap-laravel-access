@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Libraries\Helpers\CheckListHelper;
+use App\Libraries\Helpers\DateFormatterHelper;
 use App\Libraries\Helpers\ListStoragerHelper;
 use App\Libraries\Helpers\PaginatorHelper;
 use App\Libraries\Helpers\TimingProtectionHelper;
@@ -17,6 +18,7 @@ final class FacadeRegisterProvider extends ServiceProvider
         'CheckList' => CheckListHelper::class,
         'ListStorager' => ListStoragerHelper::class,
         'Paginator' => PaginatorHelper::class,
+        'DateFormatter' => DateFormatterHelper::class,
     ];
 
     /**

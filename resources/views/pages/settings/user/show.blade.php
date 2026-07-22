@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -67,7 +67,7 @@
                                 Inicio
                             </th>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($user->created_at) }}
+                                {{ DateFormatter::formatToDate($user->created_at) }}
                             </td>
                         </tr>
                         <tr>

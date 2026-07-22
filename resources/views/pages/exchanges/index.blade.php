@@ -1,7 +1,7 @@
 @use ('App\Models\Product')
 @use ('App\Models\StockExit')
 @use ('App\Models\Exchange')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @use ('App\Libraries\Enums\StockExitTypeEnum')
 @push ('styling')
     @vite ([
@@ -148,7 +148,7 @@
                                 <div class="ellipsis">{{$exchange->cost}}</div>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($exchange->created_at) }}
+                                {{ DateFormatter::formatToDate($exchange->created_at) }}
                             </td>
                             <td>
                                 <div

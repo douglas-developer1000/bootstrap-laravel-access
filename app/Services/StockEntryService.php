@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\DateFormatter;
 use App\Libraries\Enums\DiscountTypeEnum;
 use App\Libraries\Traits\InputPickerTrait;
 use App\Libraries\Traits\OneOrManyMsgTrait;
-use App\Libraries\Utils\DatetimeFormatter;
 use App\Models\Discount;
 use App\Models\Product;
 use App\Models\StockEntry;
@@ -104,7 +104,7 @@ final class StockEntryService
                 'sub.validity',
                 $this->columnNullZerable('sub.remain', 'qtyRemain'),
             ])->map(function ($entry) {
-                $entry->validity = DatetimeFormatter::formatToDate($entry->validity) ?? 'N/A';
+                $entry->validity = DateFormatter::formatToDate($entry->validity) ?? 'N/A';
                 $entry->sizeView = $this->makeSizeMsg(\intval($entry->qtyRemain), 'item', 'items');
 
                 return $entry;
@@ -263,8 +263,8 @@ final class StockEntryService
             'entries' => $entries->map(function ($item) {
                 $subject = ngettext('item', 'itens', \intval($item->qtyRemain));
                 $item->qtyRemain = "{$item->qtyRemain} {$subject}";
-                $item->validity = DatetimeFormatter::formatToDate($item->validity) ?? 'N/A';
-                $item->created_at = DatetimeFormatter::formatToDate($item->created_at);
+                $item->validity = DateFormatter::formatToDate($item->validity) ?? 'N/A';
+                $item->created_at = DateFormatter::formatToDate($item->created_at);
                 $item->cost = $this->parseCurrencyValue(\floatval($item->cost));
                 $item->discountValue = $this->parseDiscount($item->discountType, $item->discountValue);
 

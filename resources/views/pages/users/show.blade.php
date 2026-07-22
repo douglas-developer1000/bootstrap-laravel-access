@@ -1,5 +1,5 @@
 @use ('App\Libraries\Enums\LicenseStatusEnum')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -94,11 +94,11 @@
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="text-end align-middle fs-085">Inicia em:</th>
-                                                <td class="text-start align-middle fs-085">{{DatetimeFormatter::formatToDate($license->starts_at)}}</td>
+                                                <td class="text-start align-middle fs-085">{{ DateFormatter::formatToDate($license->starts_at) }}</td>
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="text-end align-middle fs-085">Expira em:</th>
-                                                <td class="text-start align-middle fs-085">{{DatetimeFormatter::formatToDate($license->expires_at)}}</td>
+                                                <td class="text-start align-middle fs-085">{{DateFormatter::formatToDate($license->expires_at)}}</td>
                                             </tr>
                                             <tr>
                                                 <th scope="row" class="text-end align-middle fs-085">Recorrente:</th>

@@ -1,5 +1,5 @@
 @use ('App\Models\Supplier')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -193,7 +193,7 @@
                                 >
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($supplier->created_at) }}
+                                {{ DateFormatter::formatToDate($supplier->created_at) }}
                             </td>
                             <td>
                                 <div

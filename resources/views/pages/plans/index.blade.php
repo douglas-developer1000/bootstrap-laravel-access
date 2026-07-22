@@ -1,5 +1,5 @@
 @use ('App\Models\Plan')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -199,7 +199,7 @@
                                 </div>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($plan->created_at) }}
+                                {{ DateFormatter::formatToDate($plan->created_at) }}
                             </td>
                             <td>
                                 <div

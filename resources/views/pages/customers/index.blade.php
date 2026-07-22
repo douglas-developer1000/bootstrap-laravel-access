@@ -1,5 +1,5 @@
 @use ('App\Models\Customer')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @use ('App\Libraries\Enums\StockExitTypeEnum')
 @use ('App\Models\StockExit')
 @push ('styling')
@@ -183,7 +183,7 @@
                                 </div>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($customer->created_at) }}
+                                {{ DateFormatter::formatToDate($customer->created_at) }}
                             </td>
                             <td class="dropdown dropstart">
                                 <x-atoms.button

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Traits;
 
-use App\Libraries\Utils\DatetimeFormatter;
+use App\Facades\DateFormatter;
 
 trait FormatDatetimeProperty
 {
@@ -15,6 +15,6 @@ trait FormatDatetimeProperty
      */
     protected function getPropertyFormatted($prop)
     {
-        return DatetimeFormatter::formatToDate($this->$prop);
+        return DateFormatter::formatToDate($this->$prop);
     }
 }

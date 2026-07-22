@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -129,7 +129,7 @@
                                 >
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($role->created_at) }}
+                                {{ DateFormatter::formatToDate($role->created_at) }}
                             </td>
                             <td class="dropdown dropstart">
                                 <x-atoms.button

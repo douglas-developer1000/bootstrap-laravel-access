@@ -1,6 +1,6 @@
 @use ('App\Models\Product')
 @use ('App\Models\ProductCategory')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -181,7 +181,7 @@
                                 >
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($cat->created_at) }}
+                                {{ DateFormatter::formatToDate($cat->created_at) }}
                             </td>
                             <td>
                                 <div

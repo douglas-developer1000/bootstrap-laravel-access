@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -65,7 +65,7 @@
                     <div>{{ $plan->billing_period->toString() }}</div>
                     <div class="label">Criação:</div>
                     <div>
-                        {{ DatetimeFormatter::formatToDate($plan->created_at) }}
+                        {{ DateFormatter::formatToDate($plan->created_at) }}
                     </div>
                 </div>
             </fieldset>

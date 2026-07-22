@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Facades\DateFormatter;
 use App\Http\Requests\Auth\AuthRequest;
-use App\Libraries\Enums\RoleNameEnum;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Libraries\Utils\DatetimeFormatter;
 use App\Models\User;
 use App\Services\AuthService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 final class AuthController extends Controller
 {
@@ -20,22 +19,24 @@ final class AuthController extends Controller
     {
         // ...
     }
+
     /**
      * Summary of login
-     * 
-     * @param Request $request
+     *
+     * @param  Request  $request
      */
     public function login(AuthRequest $request): RedirectResponse
     {
         ['status' => $status, 'credentials' => $credentials] = $this->svc->login($request);
-        if (!$status) {
+        if (! $status) {
             return back()->withErrors([
-                'generic' => 'Email ou senha inválidos'
+                'generic' => 'Email ou senha inválidos',
             ])->onlyInput('email');
         }
         if (config('app.env') === 'production') {
             $this->logSpecialGuest($credentials['email']);
         }
+
         return redirect()->route('dashboard');
     }
 
@@ -46,13 +47,12 @@ final class AuthController extends Controller
         if ($user->can('beSuperAdmin', User::class) || $user->activeLicense()->exists()) {
             return view('pages.dashboard');
         }
+
         return redirect()->route('plans.view.index');
     }
 
     /**
      * Summary of logout
-     * 
-     * @param Request $request
      */
     public function logout(Request $request): RedirectResponse
     {
@@ -66,7 +66,7 @@ final class AuthController extends Controller
         if ($email !== config('auth.special-guest-email')) {
             return;
         }
-        $dt = DatetimeFormatter::formatToDate(
+        $dt = DateFormatter::formatToDate(
             datetime: now(),
             timed: true
         );

@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @use ('App\Libraries\Enums\LicenseStatusEnum')
 @push ('styling')
     @vite ([
@@ -111,7 +111,7 @@
                                 </a>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($license->created_at) }}
+                                {{ DateFormatter::formatToDate($license->created_at) }}
                             </td>
                             <td>
                                 <div

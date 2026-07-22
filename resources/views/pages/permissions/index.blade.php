@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/index.css',
@@ -103,7 +103,7 @@
                                 <div class="ellipsis">{{$perm->name}}</div>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($perm->created_at) }}
+                                {{ DateFormatter::formatToDate($perm->created_at) }}
                             </td>
                             <td>
                                 <div

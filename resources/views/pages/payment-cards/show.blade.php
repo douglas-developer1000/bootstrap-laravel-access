@@ -1,5 +1,5 @@
 @use ('App\Models\PaymentCard')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -62,7 +62,7 @@
                     </ul>
                     <div class="label">Criação:</div>
                     <div>
-                        {{ DatetimeFormatter::formatToDate($card->created_at) }}
+                        {{ DateFormatter::formatToDate($card->created_at) }}
                     </div>
                     <div class="label">Nativo:</div>
                     <div>{{ $card ? 'Sim' : 'Não' }}</div>

@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 // use Illuminate\Contracts\Queue\ShouldQueue;
+
+use App\Facades\DateFormatter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Libraries\Utils\DatetimeFormatter;
 
 final class PosResetPasswordNotification extends Notification
 {
@@ -30,11 +31,12 @@ final class PosResetPasswordNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         /** @var string $now */
-        $now = DatetimeFormatter::formatToDate(
+        $now = DateFormatter::formatToDate(
             datetime: now(),
             timed: true
         );
-        return (new MailMessage)
+
+        return (new MailMessage())
             ->subject('Alteração de senha')
             ->from(config('mail.from.address'), config('app.superadmin.name'))
             ->view('emails.default-email', [
@@ -44,13 +46,13 @@ final class PosResetPasswordNotification extends Notification
                 'heading' => 'Sua senha foi alterada.',
                 'paragraphs' => [
                     "A alteração ocorreu em nossa aplicação em {$now}.",
-                    'Se não foi você, sua conta foi comprometida. Clique no botão abaixo para solicitar uma nova senha.'
+                    'Se não foi você, sua conta foi comprometida. Clique no botão abaixo para solicitar uma nova senha.',
                 ],
                 'btnText' => 'Solicitar nova senha',
                 'remain' => [
-                    'Se foi você, nenhuma ação é necessária.'
+                    'Se foi você, nenhuma ação é necessária.',
                 ],
-                'regards' => 'Atenciosamente,'
+                'regards' => 'Atenciosamente,',
             ]);
     }
 }

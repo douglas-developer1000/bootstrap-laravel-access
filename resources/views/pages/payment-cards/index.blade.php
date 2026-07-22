@@ -1,5 +1,5 @@
 @use ('App\Models\PaymentCard')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 
 @push ('styling')
     @vite ([
@@ -200,7 +200,7 @@
                                 >
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($card->created_at) }}
+                                {{ DateFormatter::formatToDate($card->created_at) }}
                             </td>
                             <td>
                                 <div

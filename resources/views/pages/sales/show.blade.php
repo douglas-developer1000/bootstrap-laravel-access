@@ -1,6 +1,6 @@
 @use ('App\Models\Sale')
 @use ('App\Libraries\Enums\PaymentTypeEnum')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @use ('App\Libraries\Enums\DiscountTypeEnum')
 @use ('App\Libraries\Enums\CardPayWayEnum')
 @push ('styling')
@@ -174,7 +174,7 @@
                     </div>
                     <div class="label">Data da venda:</div>
                     <div>
-                        {{ DatetimeFormatter::formatToDate($sale->created_at) }}
+                        {{ DateFormatter::formatToDate($sale->created_at) }}
                     </div>
                     <div class="label">Desconto na venda:</div>
                     @if ($discount)

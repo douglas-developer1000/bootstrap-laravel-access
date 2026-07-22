@@ -2,7 +2,7 @@
 @use ('App\Models\Sale')
 @use ('App\Models\Customer')
 @use ('App\Libraries\Enums\StockExitTypeEnum')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @use ('App\Libraries\Enums\PaymentTypeEnum')
 @push ('styling')
     @vite ([
@@ -164,7 +164,7 @@
                                 </x-atoms.button>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($sale->created_at) }}
+                                {{ DateFormatter::formatToDate($sale->created_at) }}
                             </td>
                             <td>
                                 <div

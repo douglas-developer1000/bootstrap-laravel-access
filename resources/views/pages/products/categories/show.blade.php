@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -28,7 +28,7 @@
                     <div>{{ $cat->name }}</div>
                     <div class="label">Criação:</div>
                     <div>
-                        {{ DatetimeFormatter::formatToDate($cat->created_at) }}
+                        {{ DateFormatter::formatToDate($cat->created_at) }}
                     </div>
                 </div>
             </fieldset>

@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -43,9 +43,9 @@
                     <div class="label">Preço pago:</div>
                     <div>{{ $parsePrice($finalPrice) }}</div>
                     <div class="label">Início:</div>
-                    <div>{{ DatetimeFormatter::formatToDate($license->starts_at) }}</div>
+                    <div>{{ DateFormatter::formatToDate($license->starts_at) }}</div>
                     <div class="label">Expiração:</div>
-                    <div>{{ DatetimeFormatter::formatToDate($license->expires_at) }}</div>
+                    <div>{{ DateFormatter::formatToDate($license->expires_at) }}</div>
                     <div class="label">Status:</div>
                     <div>{{ $license->status->toString() }}</div>
                     <div class="label">Recorrente:</div>

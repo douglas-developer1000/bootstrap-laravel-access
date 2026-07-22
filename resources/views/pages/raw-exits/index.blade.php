@@ -1,5 +1,5 @@
 @use ('App\Models\Product')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @use ('App\Libraries\Enums\StockExitTypeEnum')
 @use ('App\Models\StockExit')
 @push ('styling')
@@ -133,7 +133,7 @@
                                 <div>{{$exit->product}}</div>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($exit->created_at) }}
+                                {{ DateFormatter::formatToDate($exit->created_at) }}
                             </td>
                             <td>
                                 <div

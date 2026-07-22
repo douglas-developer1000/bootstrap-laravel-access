@@ -1,4 +1,4 @@
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @push ('styling')
     @vite ([
         'resources/css/pages/generic/default.css',
@@ -31,7 +31,7 @@
                     <div>{{ $customer->hostess ?? '--' }}</div>
                     <div class="label">Criação:</div>
                     <div>
-                        {{ DatetimeFormatter::formatToDate($customer->created_at) }}
+                        {{ DateFormatter::formatToDate($customer->created_at) }}
                     </div>
                     <div class="label">Aniversário:</div>
                     <div>{{ $birthday ?? '--' }}</div>

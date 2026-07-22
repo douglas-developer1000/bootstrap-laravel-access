@@ -1,6 +1,6 @@
 @use ('App\Models\Discount')
 @use ('App\Models\User')
-@use ('App\Libraries\Utils\DatetimeFormatter')
+@use ('App\Facades\DateFormatter')
 @use ('App\Libraries\Enums\DiscountTypeEnum')
 
 @push ('styling')
@@ -207,7 +207,7 @@
                                 </div>
                             </td>
                             <td>
-                                {{ DatetimeFormatter::formatToDate($discount->created_at) }}
+                                {{ DateFormatter::formatToDate($discount->created_at) }}
                             </td>
                             <td>
                                 <div
