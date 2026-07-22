@@ -31,6 +31,8 @@ use Override;
  * @property null|Carbon $created_at
  * @property null|Carbon $updated_at
  * @property null|Carbon $voided_at
+ * @property null|Carbon $failed_at
+ * @property null|Carbon $expired_at
  * @property-read Licensable $licensable
  * @property-read License $license
  */
@@ -45,6 +47,8 @@ use Override;
     'payment_method',
     'payment_details',
     'voided_at',
+    'failed_at',
+    'expired_at',
 ])]
 final class Invoice extends Model
 {

@@ -379,7 +379,15 @@ final class License extends Model
             ->where('invoices.status', InvoiceStatusEnum::PENDING)
             ->update([
                 'status' => $status,
-                'voided_at' => now(LocaleEnum::BR->getTimezone()),
+                'voided' => $status === InvoiceStatusEnum::VOIDED
+                    ? now(LocaleEnum::BR->getTimezone())
+                    : null,
+            ]);
+
+        $this->invoices()
+            ->where('invoices.status', InvoiceStatusEnum::FAILED)
+            ->update([
+                'expired_at' => now(LocaleEnum::BR->getTimezone()),
             ]);
     }
 
