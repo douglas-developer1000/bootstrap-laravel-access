@@ -8,30 +8,29 @@ use App\Libraries\Enums\StockExitTypeEnum;
 use App\Models\StockExit;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Override;
 
 final class RawExitService
 {
     protected User $user;
 
-
     public function __construct()
     {
         $this->user = Auth::user();
     }
+
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
         return (new class($this->user) extends AbstractPaginatorIndex
         {
-            public function __construct(
-                protected User $user,
-            ) {
-                parent::__construct();
+            public function __construct(protected User $user)
+            {
+                // ...
             }
 
             #[Override]
@@ -78,6 +77,7 @@ final class RawExitService
         return StockExit::hydrate($exits)->map(
             function (StockExit $exit, int $i) use ($exits) {
                 $exit->product = $exits[$i]->product;
+
                 return $exit;
             }
         );

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\Paginator;
 use App\Libraries\Enums\PaymentTypeEnum;
 use App\Models\Customer;
 use App\Models\PaymentCard;
@@ -36,7 +37,7 @@ final class SaleService
                 protected User $user,
                 protected SaleService $svc,
             ) {
-                return parent::__construct();
+                // ...
             }
 
             #[Override]
@@ -90,7 +91,7 @@ final class SaleService
 
                 return $this->filterSearch(
                     $query,
-                    $this->paginator->buildSearch($request->only('q')),
+                    Paginator::buildSearch($request->only('q')),
                     'name'
                 );
             }

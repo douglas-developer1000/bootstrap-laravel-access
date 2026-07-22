@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\Paginator;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Override;
+use Spatie\Permission\Models\Role;
 
 final class RoleUserService
 {
@@ -20,28 +21,31 @@ final class RoleUserService
         {
             public function __construct(protected User $user)
             {
-                return parent::__construct();
+                // ...
             }
 
             #[Override]
             public function query(Request $request): Builder
             {
-                $ids = $this->user->roles->map(fn(Role $role) => $role->id)->all();
+                $ids = $this->user->roles->map(fn (Role $role) => $role->id)->all();
                 $eloquentQuery = Role::whereNotIn('id', $ids);
+
                 return $eloquentQuery->getQuery();
             }
 
             #[Override]
             public function attachQuery(Request $request, Builder $query): Builder
             {
-                $search = $this->paginator->buildSearch($request->only('q'));
+                $search = Paginator::buildSearch($request->only('q'));
                 if ($search) {
                     $search = addcslashes($search, '%_');
+
                     return parent::attachQuery($request, $query)->whereLike(
                         'name',
                         "%{$search}%"
                     );
                 }
+
                 return parent::attachQuery($request, $query);
             }
         })->prepareIndex(
@@ -51,6 +55,7 @@ final class RoleUserService
             'created_at'
         );
     }
+
     public function bindRoleToUser(User $user, Role $role): void
     {
         $user->assignRole($role);

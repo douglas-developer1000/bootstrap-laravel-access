@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Facades\ListStorager;
+use App\Facades\Paginator;
 use App\Libraries\Enums\BillingPeriodEnum;
 use App\Models\Plan;
 use App\Services\Abstracts\AbstractPaginatorIndex;
@@ -36,7 +37,7 @@ final class PlanService
                         parent::attachQuery($request, $query),
                         $request->boolean('trashed'),
                     ),
-                    $this->paginator->buildSearch($request->only('name'), 'name'),
+                    Paginator::buildSearch($request->only('name'), 'name'),
                     'name'
                 )->select(
                     'id',

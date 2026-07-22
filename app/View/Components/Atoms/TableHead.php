@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\View\Components\Atoms;
 
-use Illuminate\View\Component;
+use App\Facades\Paginator;
+use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use App\Services\PaginatorService;
-use Closure;
+use Illuminate\View\Component;
 
 final class TableHead extends Component
 {
@@ -19,40 +19,38 @@ final class TableHead extends Component
 
     public bool $default;
 
-    protected PaginatorService $paginatorService;
-
     /**
      * Create a new component instance.
      */
     public function __construct(string $sort, bool $default = false)
     {
-        $this->paginatorService = app(PaginatorService::class);
         $this->qs = collect(request()->query());
         $this->sort = $sort;
         $this->default = $default;
     }
 
-    public function makeHref(string $url, $group = NULL)
+    public function makeHref(string $url, $group = null)
     {
         $qs = $this->qs->merge([
             // putting ordering query string
             'order' => $this->defineOrder(),
             // putting sorting query string
-            'sort' => $this->sort
+            'sort' => $this->sort,
         ]);
 
-        return $this->paginatorService->makeHref($url, $qs, $group);
+        return Paginator::makeHref($url, $qs, $group);
     }
 
     protected function defineOrder()
     {
         $previousSort = $this->qs->get('sort');
-        if ($previousSort === NULL) {
+        if ($previousSort === null) {
             return $this->default ? 'asc' : 'desc';
         }
         if ($this->sort === $previousSort) {
             return $this->qs->get('order') === 'desc' ? 'asc' : 'desc';
         }
+
         return 'desc';
     }
 

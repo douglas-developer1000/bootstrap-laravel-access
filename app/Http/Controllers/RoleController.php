@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Facades\ListStorager;
 use App\Http\Requests\Role\RoleRequest;
 use App\Models\Role;
-use App\Services\PaginatorService;
 use App\Services\RoleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,10 +15,8 @@ use Spatie\Permission\Models\Permission;
 
 final class RoleController extends Controller
 {
-    public function __construct(
-        protected RoleService $svc,
-        protected PaginatorService $paginator,
-    ) {
+    public function __construct(protected RoleService $svc)
+    {
         // ...
     }
 

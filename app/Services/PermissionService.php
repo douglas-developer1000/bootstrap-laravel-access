@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\Paginator;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ final class PermissionService
             {
                 return $this->filterSearch(
                     parent::attachQuery($request, $query),
-                    $this->paginator->buildSearch($request->only('q')),
+                    Paginator::buildSearch($request->only('q')),
                     'name'
                 );
             }

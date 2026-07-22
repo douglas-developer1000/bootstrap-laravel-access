@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\Paginator;
 use App\Libraries\Traits\InputPickerTrait;
 use App\Libraries\Traits\PicRequestHandleTrait;
 use App\Libraries\Values\CnpjValue;
@@ -35,7 +36,7 @@ final class SupplierService
         {
             public function __construct(protected User $user)
             {
-                parent::__construct();
+                // ...
             }
 
             #[Override]
@@ -94,7 +95,7 @@ final class SupplierService
             protected function filterSupplierName(Request $request, Builder $query): Builder
             {
                 return $query->when(
-                    $this->paginator->buildSearch($request->only('name'), 'name'),
+                    Paginator::buildSearch($request->only('name'), 'name'),
                     function (Builder $query, string $nameSearch) {
                         $nameSearch = addcslashes($nameSearch, '%_');
 

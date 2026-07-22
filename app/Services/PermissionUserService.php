@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\Paginator;
 use App\Models\User;
 use App\Services\Abstracts\AbstractPaginatorIndex;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Override;
+use Spatie\Permission\Models\Permission;
 
 final class PermissionUserService
 {
@@ -20,14 +21,14 @@ final class PermissionUserService
         {
             public function __construct(protected User $user)
             {
-                return parent::__construct();
+                // ...
             }
 
             #[Override]
             public function query(Request $request): Builder
             {
                 $ids = $this->user->getAllPermissions()->map(
-                    fn(Permission $perm) => $perm->id
+                    fn (Permission $perm) => $perm->id
                 )->all();
 
                 return Permission::whereNotIn('id', $ids)->getQuery();
@@ -38,9 +39,10 @@ final class PermissionUserService
             {
                 return parent::attachQuery($request, $query)
                     ->when(
-                        $this->paginator->buildSearch($request->only('q')),
+                        Paginator::buildSearch($request->only('q')),
                         function (Builder $query, string $search) {
                             $search = addcslashes($search, '%_');
+
                             return $query->whereLike(
                                 'name',
                                 "%{$search}%"

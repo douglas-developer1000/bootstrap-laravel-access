@@ -23,7 +23,7 @@ final class GarbageService
     protected User $user;
 
     /**
-     * @var Collection<StockExitTypeEnum> $stockExitTypes;
+     * @var Collection<StockExitTypeEnum>;
      */
     protected Collection $stockExitTypes;
 
@@ -32,6 +32,7 @@ final class GarbageService
         $this->user = Auth::user();
         $this->stockExitTypes = $this->defineStockExitTypes();
     }
+
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
         return (new class($this->user, $this->stockExitTypes) extends AbstractPaginatorIndex
@@ -40,7 +41,7 @@ final class GarbageService
                 protected User $user,
                 protected Collection $stockExitTypes
             ) {
-                parent::__construct();
+                // ...
             }
 
             #[Override]
@@ -74,10 +75,11 @@ final class GarbageService
             protected function pickLossFilters(Request $request): Collection
             {
                 $qs = collect($request->query());
+
                 return $this->stockExitTypes->map(
-                    fn(StockExitTypeEnum $exitType) => $exitType->value
-                )->mapWithKeys(fn(string $enumKey) => [
-                    $enumKey => !$qs->has($enumKey) || $request->boolean($enumKey)
+                    fn (StockExitTypeEnum $exitType) => $exitType->value
+                )->mapWithKeys(fn (string $enumKey) => [
+                    $enumKey => ! $qs->has($enumKey) || $request->boolean($enumKey),
                 ]);
             }
 
@@ -85,7 +87,7 @@ final class GarbageService
             public function attachQuery(Request $request, Builder $query): Builder
             {
                 $lossTypes = $this->pickLossFilters($request)->filter(
-                    fn(bool $presence) => $presence === true
+                    fn (bool $presence) => $presence === true
                 )->keys();
 
                 return parent::attachQuery(
@@ -120,6 +122,7 @@ final class GarbageService
         if ($this->user->can(PermissionNameEnum::LOSS_EXIT_SHOW)) {
             $stockExitTypes->push(StockExitTypeEnum::LOSS);
         }
+
         return $stockExitTypes;
     }
 
@@ -128,8 +131,8 @@ final class GarbageService
      */
     public function defineGarbageFilter(): array
     {
-        return $this->stockExitTypes->mapWithKeys(fn(StockExitTypeEnum $exitType) => [
-            $exitType->value => $exitType->toString()
+        return $this->stockExitTypes->mapWithKeys(fn (StockExitTypeEnum $exitType) => [
+            $exitType->value => $exitType->toString(),
         ])->all();
     }
 
@@ -138,12 +141,13 @@ final class GarbageService
         return StockExit::hydrate($exits)->map(
             function (StockExit $exit, int $i) use ($exits) {
                 $exit->cost = Number::currency(
-                    number: (float)$exits[$i]->cost,
+                    number: (float) $exits[$i]->cost,
                     in: 'BRL',
                     locale: 'pt_BR',
                     precision: 2
                 );
                 $exit->product = $exits[$i]->product;
+
                 return $exit;
             }
         );

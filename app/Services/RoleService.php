@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Facades\ListStorager;
+use App\Facades\Paginator;
 use App\Libraries\Enums\RoleNameEnum;
 use App\Models\Role;
 use App\Services\Abstracts\AbstractPaginatorIndex;
@@ -22,11 +23,6 @@ final class RoleService
     {
         return (new class() extends AbstractPaginatorIndex
         {
-            public function __construct()
-            {
-                parent::__construct();
-            }
-
             #[Override]
             public function query(Request $request): Builder
             {
@@ -44,7 +40,7 @@ final class RoleService
                             $request,
                             $this->filterSearch(
                                 parent::attachQuery($request, $query),
-                                $this->paginator->buildSearch($request->only('q')),
+                                Paginator::buildSearch($request->only('q')),
                                 'name'
                             )
                         )
@@ -56,7 +52,7 @@ final class RoleService
             {
                 return $query->when(
                     $request->boolean('no-user'),
-                    fn(Builder $query) => $query->joinSub(
+                    fn (Builder $query) => $query->joinSub(
                         Role::whereDoesntHave('users')->select('id'),
                         'roles_no_user',
                         'roles.id',
@@ -70,7 +66,7 @@ final class RoleService
             {
                 return $query->when(
                     $request->boolean('no-plan'),
-                    fn(Builder $query) => $query->joinSub(
+                    fn (Builder $query) => $query->joinSub(
                         Role::whereDoesntHave('plans')
                             ->whereNot('name', RoleNameEnum::SUPER_ADMIN->value)
                             ->select('id'),
@@ -86,7 +82,7 @@ final class RoleService
             {
                 return $query->when(
                     $request->boolean('for-plan'),
-                    fn(Builder $query) => $query->whereIn(
+                    fn (Builder $query) => $query->whereIn(
                         'name',
                         ListStorager::getList('rolesToPlan')
                     )
@@ -114,7 +110,7 @@ final class RoleService
         {
             public function __construct(protected Role $role)
             {
-                parent::__construct();
+                // ...
             }
 
             #[Override]
@@ -131,7 +127,7 @@ final class RoleService
             public function attachQuery(Request $request, Builder $query): Builder
             {
                 return parent::attachQuery($request, $query)->when(
-                    $this->paginator->buildSearch($request->only('q')),
+                    Paginator::buildSearch($request->only('q')),
                     function (Builder $query, string $search) {
                         $search = addcslashes($search, '%_');
 
@@ -159,7 +155,7 @@ final class RoleService
         }
         $role->roleDescriptions()->createMany(
             collect($descriptions)->map(
-                fn(string $description) => ['description' => $description]
+                fn (string $description) => ['description' => $description]
             )->all()
         );
     }
@@ -191,7 +187,7 @@ final class RoleService
         // This remotion occurs by each model, because
         // the spatie permissions package removes the roles
         // from the cache this way
-        collect($ids)->each(fn($id) => Role::findById($id)->delete())->all();
+        collect($ids)->each(fn ($id) => Role::findById($id)->delete())->all();
     }
 
     public function bindPermissionGroupToRole(array $ids, Role $role): void

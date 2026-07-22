@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Facades\Paginator;
 use App\Libraries\Enums\CustomerContactEnum;
 use App\Libraries\Enums\CustomerPhoneTypeEnum;
 use App\Libraries\Enums\DayPeriodsEnum;
@@ -45,7 +46,7 @@ final class CustomerService
             {
                 return parent::attachQuery($request, $query)
                     ->when(
-                        $this->paginator->buildSearch($request->only('name'), 'name'),
+                        Paginator::buildSearch($request->only('name'), 'name'),
                         function (Builder $query, string $searchName) {
                             $searchName = addcslashes($searchName, '%_');
 

@@ -4,21 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Abstracts;
 
+use App\Facades\Paginator;
 use App\Services\Contracts\PaginatorIndexInterface;
-use App\Services\PaginatorService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class AbstractPaginatorIndex implements PaginatorIndexInterface
 {
-    protected PaginatorService $paginator;
-
-    public function __construct()
-    {
-        $this->paginator = app(PaginatorService::class);
-    }
-
     abstract public function query(Request $request): Builder;
 
     public function getSortColumns(): array
@@ -63,9 +56,9 @@ abstract class AbstractPaginatorIndex implements PaginatorIndexInterface
     public function prepareIndex(Request $request, string ...$columns): LengthAwarePaginator
     {
         $sortColumns = $this->getSortColumns() ?: $columns;
-        $group = $this->paginator->buildGroup($request->only('group'));
-        $sort = $this->paginator->buildSort($request->only('sort'), $sortColumns);
-        $order = $this->paginator->buildOrder($request->only('order'));
+        $group = Paginator::buildGroup($request->only('group'));
+        $sort = Paginator::buildSort($request->only('sort'), $sortColumns);
+        $order = Paginator::buildOrder($request->only('order'));
 
         return $this->attachQuery(
             $request,

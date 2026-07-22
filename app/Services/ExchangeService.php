@@ -21,17 +21,19 @@ use Override;
 final class ExchangeService
 {
     protected User $user;
+
     public function __construct()
     {
         $this->user = Auth::user();
     }
+
     public function prepareIndex(Request $request): LengthAwarePaginator
     {
         return (new class($this->user) extends AbstractPaginatorIndex
         {
             public function __construct(protected User $user)
             {
-                parent::__construct();
+                // ...
             }
 
             #[Override]
@@ -93,11 +95,12 @@ final class ExchangeService
                 });
                 $exchange->product = $exchanges[$i]->product;
                 $exchange->cost = Number::currency(
-                    number: (float)$exchanges[$i]->cost,
+                    number: (float) $exchanges[$i]->cost,
                     in: 'BRL',
                     locale: 'pt_BR',
                     precision: 2
                 );
+
                 return $exchange;
             }
         );
@@ -109,7 +112,7 @@ final class ExchangeService
     }
 
     /**
-     * @param Exchange[] $exchanges
+     * @param  Exchange[]  $exchanges
      * @return StockExit[]
      */
     public function removeExchangeGroup(array $exchanges): array

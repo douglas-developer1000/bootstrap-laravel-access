@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Events\PlanAssigned;
+use App\Facades\Paginator;
 use App\Facades\TimingProtection;
 use App\Libraries\Traits\PicRequestHandleTrait;
 use App\Libraries\Values\PhoneValue;
@@ -49,11 +50,11 @@ final class UserService
                 return User::getQuery()
                     ->when(
                         $trashed,
-                        fn(Builder $query) => $query->whereNotNull('deleted_at')
+                        fn (Builder $query) => $query->whereNotNull('deleted_at')
                     )
                     ->when(
                         ! $trashed,
-                        fn(Builder $query) => $query->whereNull('deleted_at')
+                        fn (Builder $query) => $query->whereNull('deleted_at')
                     );
             }
 
@@ -62,7 +63,7 @@ final class UserService
             {
                 return parent::attachQuery($request, $query)
                     ->when(
-                        $this->paginator->buildSearch($request->only('name'), 'name'),
+                        Paginator::buildSearch($request->only('name'), 'name'),
                         function (Builder $query, string $nameSearch) {
                             $nameSearch = addcslashes($nameSearch, '%_');
 
@@ -161,7 +162,7 @@ final class UserService
         $inputs = collect([
             ...$request->only(['name', 'password']),
             ...($photoPath ? ['photo' => $photoPath] : []),
-        ])->filter(fn($val, $key) => $val !== $user->$key);
+        ])->filter(fn ($val, $key) => $val !== $user->$key);
 
         $newPhone = new PhoneValue($request->validated('phone'));
         if (! $newPhone->equals($user->phone)) {
@@ -185,15 +186,15 @@ final class UserService
     public function removeUserList(Request $request, Collection $qs)
     {
         $forceDelete = $qs->contains(
-            fn($value, $key) => $key === 'trashed' && $value === '1'
+            fn ($value, $key) => $key === 'trashed' && $value === '1'
         );
 
         when(
             $forceDelete,
-            fn() => User::onlyTrashed(),
-            fn() => User::query()
+            fn () => User::onlyTrashed(),
+            fn () => User::query()
         )->findMany($request->validated('remotion'))->each(
-            fn(User $user) => $this->removeUser($user, $forceDelete)
+            fn (User $user) => $this->removeUser($user, $forceDelete)
         );
     }
 

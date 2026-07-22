@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\View\Components\Molecules;
 
+use App\Facades\Paginator;
+use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Collection;
-use Illuminate\View\Component;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\UrlWindow;
-use App\Services\PaginatorService;
-use Closure;
+use Illuminate\Support\Collection;
+use Illuminate\View\Component;
 
 final class RootPagination extends Component
 {
@@ -27,18 +27,15 @@ final class RootPagination extends Component
      * Properties below are passed by blade view component's client
      * --------------------------------------------------------------
      */
-
     public LengthAwarePaginator $paginator;
 
-    /** @var 'top'|'bottom' $spacing */
+    /** @var 'top'|'bottom' */
     public $spacing;
 
     /**
-     * @var int|string $groupSelected
+     * @var int|string
      */
     public $groupSelected;
-
-    protected PaginatorService $paginatorService;
 
     /**
      * Create a new component instance.
@@ -47,21 +44,19 @@ final class RootPagination extends Component
         LengthAwarePaginator $paginator,
         $spacing = 'top'
     ) {
-        $this->paginatorService = app(PaginatorService::class);
-
         $this->qs = collect(request()->query());
 
         $this->elements = $this->buildElements($paginator);
         $this->paginator = $paginator;
         $this->spacing = $spacing;
-        $this->groupSelected = $this->paginatorService->buildGroup([
-            'group' => $this->qs->get('group')
+        $this->groupSelected = Paginator::buildGroup([
+            'group' => $this->qs->get('group'),
         ]);
     }
 
     /**
      * Get the array of elements to pass to the view.
-     * 
+     *
      * @see Illuminate\Pagination\LengthAwarePaginator::elements()
      *
      * @return array
@@ -79,9 +74,9 @@ final class RootPagination extends Component
         ]);
     }
 
-    public function makeHref(string $url, $group = NULL)
+    public function makeHref(string $url, $group = null)
     {
-        return $this->paginatorService->makeHref($url, $this->qs, $group);
+        return Paginator::makeHref($url, $this->qs, $group);
     }
 
     /**

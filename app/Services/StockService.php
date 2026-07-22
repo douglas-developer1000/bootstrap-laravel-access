@@ -35,7 +35,7 @@ final class StockService
                 protected StockEntryService $stockEntrySvc,
                 protected ProductService $prodSvc,
             ) {
-                parent::__construct();
+                // ...
             }
 
             #[Override]

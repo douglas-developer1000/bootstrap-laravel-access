@@ -36,7 +36,7 @@ final class PaymentCardService
         {
             public function __construct(protected User $user)
             {
-                parent::__construct();
+                // ...
             }
 
             #[Override]
