@@ -14,7 +14,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/signin', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:10,1');
 
     Route::get('/forgot-password', [ForgotPasswordController::class, 'screen'])->name('password.request');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'ask'])->name('password.email')->middleware('throttle:10,1');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'ask'])->name('password.email')->middleware([
+        'throttle:10,1',
+        'timingProtect',
+    ]);
+
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'reset'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'update'])->name('password.update')->middleware('throttle:10,1');
 
