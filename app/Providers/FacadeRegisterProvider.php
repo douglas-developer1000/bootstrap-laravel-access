@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Libraries\Helpers\CheckListHelper;
 use App\Libraries\Helpers\TimeProtection;
 use Illuminate\Support\ServiceProvider;
 
-class FacadeRegisterProvider extends ServiceProvider
+final class FacadeRegisterProvider extends ServiceProvider
 {
     public $singletons = [
-        'TimingProtection' => TimeProtection::class
+        'TimingProtection' => TimeProtection::class,
+        'CheckList' => CheckListHelper::class,
     ];
 
     /**

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Facades\CheckList;
 use App\Http\Requests\Plan\PlanRequest;
 use App\Models\Plan;
 use App\Models\User;
-use App\Services\ChecklistService;
 use App\Services\FeatureService;
 use App\Services\ListSelectorService;
 use App\Services\PlanService;
@@ -89,7 +89,7 @@ final class PlanController extends Controller
         )->all();
     }
 
-    public function edit(ChecklistService $checkSvc, Plan $plan): View
+    public function edit(Plan $plan): View
     {
         $planRoles = $plan->roles;
 
@@ -100,7 +100,7 @@ final class PlanController extends Controller
                 $this->cleanStoredRoles($planRoles)
             )->get(),
             'planRoles' => $planRoles,
-            'boxChecked' => $checkSvc->boxChecked(...),
+            'boxChecked' => CheckList::boxChecked(...),
         ]);
     }
 
