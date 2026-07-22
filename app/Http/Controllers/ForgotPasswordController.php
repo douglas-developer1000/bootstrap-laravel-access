@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ForgotPassword\ForgotPasswordRequest;
-use App\Services\Contracts\RegistrationInterface;
+use App\Models\User;
 use App\Services\PasswordService;
 
 final class ForgotPasswordController extends Controller
@@ -17,12 +17,11 @@ final class ForgotPasswordController extends Controller
 
     public function ask(
         ForgotPasswordRequest $request,
-        RegistrationInterface $registerSvc,
-        PasswordService $passSvc
+        PasswordService $passSvc,
     ) {
         $inputs = $request->only('email');
-        $userExists = $registerSvc->existsUserByEmail($inputs['email']);
-        if (!$userExists) {
+
+        if (!User::whereEmail($inputs['email'])->exists()) {
             /** 
              * Dont show the standard message to invalid user (email)
              * because security issue
